@@ -3,12 +3,12 @@ package main
 import (
 	"docker-panel/internal/config"
 	"embed"
-	"encoding/json"
 	"fmt"
 	"io/fs"
 	"log"
 	"net/http"
-	"strings"
+
+	"github.com/gin-gonic/gin"
 )
 
 //go:embed web/dist
@@ -19,11 +19,11 @@ func main() {
 		log.Fatalf("Failed to initialize config: %v", err)
 	}
 
-	http.HandleFunc("/api/containers", containersHandler)
-	http.HandleFunc("/api/images", imagesHandler)
-	http.HandleFunc("/api/health", healthHandler)
+	gin.SetMode(gin.ReleaseMode)
+	r := gin.Default()
 
-	http.Handle("/", spaHandler())
+	registerAPIRoutes(r)
+	setupStaticFiles(r)
 
 	cfg := config.AppConfig
 	addr := cfg.Server.BindIP + ":" + cfg.Server.BindPort
@@ -33,12 +33,21 @@ func main() {
 	fmt.Printf("绑定地址: %s\n", addr)
 	fmt.Printf("访问地址: http://localhost:%s\n\n", cfg.Server.BindPort)
 
-	if err := http.ListenAndServe(addr, nil); err != nil {
+	if err := r.Run(addr); err != nil {
 		log.Fatal(err)
 	}
 }
 
-func spaHandler() http.Handler {
+func registerAPIRoutes(r *gin.Engine) {
+	api := r.Group("/api")
+	{
+		api.GET("/health", healthHandler)
+		api.GET("/containers", containersHandler)
+		api.GET("/images", imagesHandler)
+	}
+}
+
+func setupStaticFiles(r *gin.Engine) {
 	distFS, err := fs.Sub(staticFS, "web/dist")
 	if err != nil {
 		log.Fatal(err)
@@ -46,53 +55,52 @@ func spaHandler() http.Handler {
 
 	fileServer := http.FileServer(http.FS(distFS))
 
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if strings.HasPrefix(r.URL.Path, "/api/") {
-			http.NotFound(w, r)
-			return
-		}
-
-		path := strings.TrimPrefix(r.URL.Path, "/")
+	r.NoRoute(func(c *gin.Context) {
+		path := c.Request.URL.Path[1:]
 		if path == "" {
 			path = "index.html"
 		}
 
-		_, err := distFS.Open(path)
-		if err != nil {
-			r.URL.Path = "/"
+		if !fileExists(distFS, path) {
+			c.Request.URL.Path = "/"
 		}
 
-		fileServer.ServeHTTP(w, r)
+		fileServer.ServeHTTP(c.Writer, c.Request)
 	})
 }
 
-func healthHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
+func fileExists(fsys fs.FS, path string) bool {
+	if path == "" {
+		path = "index.html"
+	}
+	_, err := fsys.Open(path)
+	return err == nil
+}
+
+func healthHandler(c *gin.Context) {
 	cfg := config.AppConfig
-	json.NewEncoder(w).Encode(map[string]interface{}{
+	c.JSON(http.StatusOK, gin.H{
 		"status":  "ok",
 		"message": "Docker Panel is running",
-		"config": map[string]string{
+		"config": gin.H{
 			"admin_user": cfg.User.AdminUsername,
 			"bind_addr":  cfg.Server.BindIP + ":" + cfg.Server.BindPort,
 		},
 	})
 }
 
-func containersHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]interface{}{
-		"containers": []map[string]string{
+func containersHandler(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{
+		"containers": []gin.H{
 			{"id": "container-1", "name": "web-server", "status": "running"},
 			{"id": "container-2", "name": "database", "status": "stopped"},
 		},
 	})
 }
 
-func imagesHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]interface{}{
-		"images": []map[string]string{
+func imagesHandler(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{
+		"images": []gin.H{
 			{"id": "image-1", "name": "nginx:latest", "size": "142MB"},
 			{"id": "image-2", "name": "postgres:14", "size": "376MB"},
 		},
