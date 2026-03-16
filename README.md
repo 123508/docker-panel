@@ -16,7 +16,7 @@ docker-panel/
 │   ├── frontend/        # Vue 前端源码
 │   │   ├── src/
 │   │   │   ├── App.vue
-│   │   │   └── main.js
+│   │   │   └── main.ts
 │   │   ├── index.html
 │   │   ├── package.json
 │   │   └── vite.config.js

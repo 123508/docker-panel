@@ -1,0 +1,45 @@
+:root {
+
+    /* primary */
+    --button-primary: #409eff;
+    --button-primary-hover: #337ecc;
+    --button-primary-text: #fff;
+
+    /* success */
+    --button-success: #67c23a;
+    --button-success-hover: #5daf34;
+    --button-success-text: #fff;
+
+    /* danger */
+    --button-danger: #f56c6c;
+    --button-danger-hover: #dd6161;
+    --button-danger-text: #fff;
+
+    /* warning */
+    --button-warning: #e6a23c;
+    --button-warning-hover: #cf9236;
+    --button-warning-text: #fff;
+}
+
+
+/* dark theme */
+
+html.dark {
+
+    --button-primary: #f5c400;
+    --button-primary-hover: #e6b800;
+    --button-primary-text: #000;
+
+    --button-success: #2f855a;
+    --button-success-hover: #276749;
+    --button-success-text: #fff;
+
+    --button-danger: #c53030;
+    --button-danger-hover: #9b2c2c;
+    --button-danger-text: #fff;
+
+    --button-warning: #b7791f;
+    --button-warning-hover: #975a16;
+    --button-warning-text: #fff;
+
+}
