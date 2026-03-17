@@ -1,32 +1,18 @@
 <template>
-  <div class="page">
-    <div class="page-header">
-      <h1 class="page-title">镜像</h1>
+  <PageHeader title="镜像" gap="24px">
+    <template #actions>
       <div class="header-actions">
         <div class="search-box">
           <span class="search-text">搜索镜像...</span>
         </div>
         <button class="pull-btn">拉取镜像</button>
       </div>
-    </div>
+    </template>
 
-    <div class="stats-bar">
-      <div class="stat-item">
-        <span class="stat-label">总数:</span>
-        <span class="stat-value">42</span>
-      </div>
-      <div class="stat-item">
-        <span class="stat-label">大小:</span>
-        <span class="stat-value">12.4 GB</span>
-      </div>
-      <div class="stat-item">
-        <span class="stat-label">悬空:</span>
-        <span class="stat-value dangling">3</span>
-      </div>
-    </div>
+    <StatBar :items="stats" />
 
-    <div class="table-wrap">
-      <div class="table-head">
+    <DataTable :bordered="false" header-bg row-gap fixed-row-height>
+      <template #head>
         <span class="th" style="width: 40px"></span>
         <span class="th col-repo">仓库</span>
         <span class="th col-tag">标签</span>
@@ -34,7 +20,8 @@
         <span class="th col-size">大小</span>
         <span class="th col-created">创建时间</span>
         <span class="th" style="flex: 1">操作</span>
-      </div>
+      </template>
+
       <div v-for="img in images" :key="img.repo" class="table-row">
         <div class="td" style="width: 40px; display: flex; align-items: center">
           <div class="row-icon" :style="{ background: img.color }"></div>
@@ -49,42 +36,30 @@
           <button class="link-btn danger">移除</button>
         </div>
       </div>
-    </div>
-  </div>
+    </DataTable>
+  </PageHeader>
 </template>
 
 <script setup lang="ts">
+import PageHeader from '@/components/PageHeader.vue'
+import StatBar from '@/components/StatBar.vue'
+import DataTable from '@/components/DataTable.vue'
+
 const images = [
   { repo: 'nginx', tag: 'latest', id: 'a72860cb95fd', size: '187 MB', created: '2 天前', color: '#3B82F6' },
   { repo: 'postgres', tag: '16-alpine', id: 'b4d181a07f80', size: '432 MB', created: '5 天前', color: '#22C55E' },
   { repo: 'redis', tag: '7-alpine', id: '3c41ce05add9', size: '41 MB', created: '1 周前', color: '#EF4444' },
   { repo: 'node', tag: '20-alpine', id: 'c7b5a7e3f2d1', size: '124 MB', created: '2 周前', color: '#FACC15' }
 ]
+
+const stats = [
+  { label: '总数:', value: '42' },
+  { label: '大小:', value: '12.4 GB' },
+  { label: '悬空:', value: '3', variant: 'dangling' }
+]
 </script>
 
 <style scoped>
-.page {
-  padding: var(--page-padding-y) var(--page-padding-x);
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-  min-height: 100vh;
-}
-
-.page-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.page-title {
-  font-family: var(--font-display);
-  font-size: 40px;
-  font-weight: 700;
-  letter-spacing: -1px;
-  color: var(--text-primary);
-}
-
 .header-actions {
   display: flex;
   gap: 12px;
@@ -121,47 +96,6 @@ const images = [
   background: var(--accent-hover);
 }
 
-.stats-bar {
-  display: flex;
-  gap: 24px;
-}
-
-.stat-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.stat-label {
-  font-size: 11px;
-  letter-spacing: 1px;
-  color: var(--text-secondary);
-}
-
-.stat-value {
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--text-primary);
-}
-
-.stat-value.dangling {
-  color: var(--accent);
-}
-
-.table-wrap {
-  background: var(--bg-card);
-  flex: 1;
-}
-
-.table-head {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 0 20px;
-  height: 44px;
-  background: var(--bg-card-header);
-}
-
 .th {
   font-size: 11px;
   font-weight: 700;
@@ -173,8 +107,6 @@ const images = [
   display: flex;
   align-items: center;
   gap: 16px;
-  padding: 0 20px;
-  height: 56px;
   transition: background 0.15s;
 }
 

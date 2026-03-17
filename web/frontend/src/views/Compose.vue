@@ -1,38 +1,18 @@
 <template>
-  <div class="page">
-    <div class="page-header">
-      <h1 class="page-title">编排</h1>
-    </div>
+  <PageHeader title="编排">
     <div class="empty-state">
       <div class="empty-icon">06</div>
       <p class="empty-text">Docker Compose 编排功能即将上线</p>
       <p class="empty-sub">此功能正在开发中，敬请期待。</p>
     </div>
-  </div>
+  </PageHeader>
 </template>
 
+<script setup lang="ts">
+import PageHeader from '@/components/PageHeader.vue';
+</script>
+
 <style scoped>
-.page {
-  padding: var(--page-padding-y) var(--page-padding-x);
-  display: flex;
-  flex-direction: column;
-  gap: var(--section-gap);
-  min-height: 100vh;
-}
-
-.page-header {
-  display: flex;
-  align-items: center;
-}
-
-.page-title {
-  font-family: var(--font-display);
-  font-size: 40px;
-  font-weight: 700;
-  letter-spacing: -1px;
-  color: var(--text-primary);
-}
-
 .empty-state {
   flex: 1;
   display: flex;

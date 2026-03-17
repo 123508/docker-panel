@@ -1,14 +1,13 @@
 <template>
-  <div class="page">
-    <div class="page-header">
-      <h1 class="page-title">系统概览</h1>
+  <PageHeader title="系统概览">
+    <template #actions>
       <button class="refresh-btn">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <polyline points="23 4 23 10 17 10" />
           <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
         </svg>
       </button>
-    </div>
+    </template>
 
     <div class="metrics">
       <div v-for="m in metrics" :key="m.label" class="metric-card">
@@ -26,14 +25,15 @@
         <router-link to="/containers" class="view-all">查看全部 →</router-link>
       </div>
 
-      <div class="table-wrap">
-        <div class="table-head">
+      <DataTable :bordered="true" :flex="false">
+        <template #head>
           <span class="th" style="width: 280px">名称</span>
           <span class="th" style="width: 200px">镜像</span>
           <span class="th" style="width: 120px">状态</span>
           <span class="th" style="width: 150px">端口</span>
           <span class="th" style="flex: 1">操作</span>
-        </div>
+        </template>
+
         <div v-for="c in containers" :key="c.name" class="table-row">
           <div class="td td-name" style="width: 280px">
             <div class="container-icon"></div>
@@ -44,10 +44,9 @@
           </div>
           <span class="td td-image" style="width: 200px">{{ c.image }}</span>
           <div class="td" style="width: 120px">
-            <span class="status-badge" :class="c.status === '运行中' ? 'running' : 'stopped'">
-              <span class="status-dot"></span>
+            <StatusBadge :status="c.status === '运行中' ? 'running' : 'stopped'">
               {{ c.status }}
-            </span>
+            </StatusBadge>
           </div>
           <span class="td td-port" style="width: 150px">{{ c.port }}</span>
           <div class="td td-actions" style="flex: 1">
@@ -56,12 +55,16 @@
             <button class="action-btn muted">日志</button>
           </div>
         </div>
-      </div>
+      </DataTable>
     </div>
-  </div>
+  </PageHeader>
 </template>
 
 <script setup lang="ts">
+import PageHeader from '@/components/PageHeader.vue'
+import DataTable from '@/components/DataTable.vue'
+import StatusBadge from '@/components/StatusBadge.vue'
+
 const metrics = [
   { label: '容器', value: '24', sub: '18 运行中', subClass: 'success' },
   { label: '镜像', value: '42', sub: '12.4 GB', subClass: 'muted' },
@@ -77,28 +80,6 @@ const containers = [
 </script>
 
 <style scoped>
-.page {
-  padding: var(--page-padding-y) var(--page-padding-x);
-  display: flex;
-  flex-direction: column;
-  gap: var(--section-gap);
-  min-height: 100vh;
-}
-
-.page-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.page-title {
-  font-family: var(--font-display);
-  font-size: 40px;
-  font-weight: 700;
-  letter-spacing: -1px;
-  color: var(--text-primary);
-}
-
 .refresh-btn {
   width: 40px;
   height: 40px;
@@ -188,20 +169,6 @@ const containers = [
   text-decoration: underline;
 }
 
-.table-wrap {
-  background: var(--bg-card);
-  border: var(--border);
-  overflow: hidden;
-}
-
-.table-head {
-  display: flex;
-  align-items: center;
-  padding: 0 20px;
-  height: 44px;
-  border-bottom: var(--border);
-}
-
 .th {
   font-family: var(--font-mono);
   font-size: 11px;
@@ -263,31 +230,6 @@ const containers = [
 
 .td-image {
   color: var(--text-muted);
-}
-
-.status-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 1px;
-  padding: 3px 6px;
-}
-
-.status-badge.running {
-  color: var(--color-success);
-}
-
-.status-badge.stopped {
-  color: var(--color-danger);
-}
-
-.status-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 0;
-  background: currentColor;
 }
 
 .td-port {
