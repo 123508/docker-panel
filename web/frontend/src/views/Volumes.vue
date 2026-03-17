@@ -2,21 +2,13 @@
   <PageHeader title="卷" gap="24px">
     <template #actions>
       <div class="header-actions">
-        <button class="create-btn">+ 创建</button>
+        <BaseButton text="+ 创建" size="large" type="primary" class="btn" />
       </div>
     </template>
 
     <StatBar :items="stats" />
 
-    <DataTable :bordered="false" header-bg row-gap fixed-row-height>
-      <template #head>
-        <span class="th col-name">名称</span>
-        <span class="th col-driver">驱动</span>
-        <span class="th col-mount">挂载点</span>
-        <span class="th col-size">大小</span>
-        <span class="th col-containers">容器</span>
-        <span class="th" style="flex: 1">操作</span>
-      </template>
+    <DataTable :bordered="false" header-bg row-gap fixed-row-height :columns="columns">
 
       <div v-for="v in volumes" :key="v.name" class="table-row">
         <span class="td col-name">{{ v.name }}</span>
@@ -27,8 +19,13 @@
           <CountBadge :count="v.containers" />
         </div>
         <div class="td td-actions" style="flex: 1">
-          <button class="link-btn info">查看</button>
-          <button class="link-btn danger">移除</button>
+          <BaseButton text="查看" size="small" variant="text" type="info"/>
+          <BaseButton
+              text="移除"
+              size="small"
+              variant="text"
+              type="danger"
+          />
         </div>
       </div>
     </DataTable>
@@ -40,6 +37,16 @@ import PageHeader from '@/components/PageHeader.vue'
 import StatBar from '@/components/StatBar.vue'
 import DataTable from '@/components/DataTable.vue'
 import CountBadge from '@/components/CountBadge.vue'
+import BaseButton from "@/components/BaseButton.vue";
+
+const columns = [
+  { key: 'name', label: '名称', width: 140 },
+  { key: 'driver', label: '驱动', width: 80 },
+  { key: 'mount', label: '挂载点', width: 320 },
+  { key: 'size', label: '大小', width: 80 },
+  { key: 'containers', label: '容器', width: 100 },
+  { key: 'actions', label: '操作', flex: 1 }
+]
 
 const volumes = [
   { name: 'postgres_data', driver: 'local', mountpoint: '/var/lib/docker/volumes/postgres_data/_data', size: '1.2 GB', containers: 1 },
@@ -52,31 +59,16 @@ const stats = [
   { label: '已使用:', value: '3.2 GB' },
   { label: '未使用:', value: '2', variant: 'dangling' }
 ]
+
 </script>
 
 <style scoped>
-.create-btn {
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 1px;
-  color: var(--accent-text);
-  background: var(--accent);
-  height: 40px;
+
+.btn{
   width: 140px;
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-.create-btn:hover {
-  background: var(--accent-hover);
-}
-
-.th {
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 1px;
-  color: var(--text-secondary);
 }
 
 .table-row {
@@ -116,20 +108,4 @@ const stats = [
   gap: 16px;
 }
 
-.link-btn {
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 1px;
-  padding: 0;
-  background: none;
-  border: none;
-}
-
-.link-btn.info {
-  color: var(--color-info);
-}
-
-.link-btn.danger {
-  color: var(--color-danger);
-}
 </style>

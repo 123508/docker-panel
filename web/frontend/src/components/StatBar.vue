@@ -8,10 +8,10 @@
 </template>
 
 <script setup lang="ts">
-defineProps<{
-  items: Array<{ label: string; value: string; variant?: string }>
-  bordered?: boolean
-}>()
+  defineProps<{
+    items: Array<{ label: string; value: string; variant?: string }>
+    bordered?: boolean
+  }>()
 </script>
 
 <style scoped>

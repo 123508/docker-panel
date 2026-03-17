@@ -1,35 +1,40 @@
 <template>
   <button
       class="button"
-      :class="[
-        sizeClass,
-        typeClass]"
-      @click="click">
-    {{ text }}
+      :class="[sizeClass,typeClass,variantClass,$attrs.class]"
+      @click="!isDisabled && click()"
+      :data-disabled="isDisabled"
+  >
+    <span v-if="loading" class="loading-dot">...</span>
+    <span v-else>{{ text }}</span>
   </button>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import type { PropType } from 'vue'
 
 type Size = 'small' | 'medium' | 'large'
-type ButtonType = 'primary' | 'success' | 'danger' | 'warning'
+type ButtonType = 'primary' | 'default' | 'danger' | 'info'
+type Variant = 'solid' | 'text'
 
-const props = defineProps({
-  text: {
-    type: String,
-    default: 'button'
-  },
-  size:{
-    type:String as PropType<Size>,
-    default:'medium',
-  },
-  type:{
-    type: String as PropType<ButtonType>,
-    default:'primary'
-  }
-})
+const props = withDefaults(
+    defineProps<{
+      text?: string
+      size?: Size
+      type?: ButtonType
+      variant?: Variant
+      disabled?: boolean
+      loading?: boolean
+    }>(),
+    {
+      text: 'button',
+      size: 'small',
+      type: 'primary',
+      variant: 'solid',
+      disabled: false,
+      loading: false
+    }
+)
 
 const emit = defineEmits<{
   (e: 'click'): void
@@ -47,73 +52,104 @@ const typeClass = computed(() => {
   return `button-${props.type}`
 })
 
+const variantClass = computed(() => {
+  return `button-${props.variant}`
+})
+
+const isDisabled = computed(() => {
+  return props.disabled || props.loading
+})
+
 </script>
 
 <style scoped>
 
 .button {
   border: none;
-  border-radius: 6px;
-  font-weight: 500;
   cursor: pointer;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
   transition: background-color 0.2s ease;
 }
 
 .button-small {
-  height: 28px;
-  padding: 0 10px;
-  font-size: 12px;
+  height: 24px;
 }
 
 .button-medium {
-  height: 36px;
-  padding: 0 14px;
-  font-size: 14px;
+  height: 40px;
+  padding: 0 16px;
 }
 
 .button-large {
-  height: 44px;
-  padding: 0 18px;
-  font-size: 16px;
+  height: 40px;
+  padding: 0 20px;
 }
 
-.button-primary {
-  background: var(--button-primary);
-  color: var(--button-primary-text);
+/* 文本按钮 */
+.button-text {
+  background: none;
+  padding: 0;
 }
 
-.button-primary:hover {
-  background: var(--button-primary-hover);
+/* 实体按钮 */
+.button-solid {
+  padding: 0 12px;
 }
 
+/* 模式 */
 
-.button-success {
-  background: var(--button-success);
-  color: var(--button-success-text);
+/* text 模式 */
+.button-text.button-info {
+  color: var(--color-info);
 }
 
-.button-success:hover {
-  background: var(--button-success-hover);
+.button-text.button-danger {
+  color: var(--color-danger);
 }
 
-
-.button-danger {
-  background: var(--button-danger);
-  color: var(--button-danger-text);
+/* solid 模式 */
+.button-solid.button-primary {
+  background: var(--accent);
+  color: var(--accent-text);
 }
 
-.button-danger:hover {
-  background: var(--button-danger-hover);
+/* 状态机 */
+
+.button[data-disabled="true"] {
+  color: var(--text-secondary);
+  cursor: not-allowed;
+  background: none;
+  opacity: 0.7;
 }
 
-
-.button-warning {
-  background: var(--button-warning);
-  color: var(--button-warning-text);
+/* disabled 统一兜底（最高优先级） */
+.button[data-disabled="true"] {
+  color: var(--text-secondary);
+  cursor: default;
+  background: none;
 }
 
-.button-warning:hover {
-  background: var(--button-warning-hover);
+/* 动画效果 */
+
+.loading-dot {
+  letter-spacing: 2px;
+  animation: blink 1s infinite;
+}
+
+@keyframes blink {
+  0% { opacity: 0.3 }
+  50% { opacity: 1 }
+  100% { opacity: 0.3 }
+}
+
+.button-small.button-text:hover:not([data-disabled="true"]) {
+  text-shadow: 0 0 4px currentColor;
+}
+
+.button-large.button-solid.button-primary:hover:not([data-disabled="true"]) {
+  background: var(--accent-hover);
 }
 
 </style>

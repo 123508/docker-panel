@@ -12,16 +12,7 @@
 
     <StatBar :items="stats" bordered />
 
-    <DataTable :bordered="true">
-      <template #head>
-        <span class="th" style="width: 60px"></span>
-        <span class="th" style="width: 220px">名称</span>
-        <span class="th" style="width: 180px">镜像</span>
-        <span class="th" style="width: 120px">状态</span>
-        <span class="th" style="width: 140px">端口</span>
-        <span class="th" style="width: 120px">创建时间</span>
-        <span class="th" style="flex: 1">操作</span>
-      </template>
+    <DataTable :bordered="true" :columns="columns">
 
       <div v-for="c in containers" :key="c.name" class="table-row">
         <div class="td" style="width: 60px; display: flex; justify-content: center">
@@ -63,6 +54,16 @@ import PageHeader from '@/components/PageHeader.vue'
 import StatBar from '@/components/StatBar.vue'
 import DataTable from '@/components/DataTable.vue'
 import StatusBadge from '@/components/StatusBadge.vue'
+
+const columns = [
+  { key: 'icon', width: 60 },
+  { key: 'name', label: '名称', width: 220 },
+  { key: 'image', label: '镜像', width: 180 },
+  { key: 'status', label: '状态', width: 120 },
+  { key: 'port', label: '端口', width: 140 },
+  { key: 'created', label: '创建时间', width: 120 },
+  { key: 'actions', label: '操作', flex: 1 }
+]
 
 const containers = [
   { name: 'nginx-web-01', id: 'a3f8d92b', image: 'nginx:latest', running: true, port: '80:80, 443:443', created: '2 小时前' },
@@ -118,13 +119,6 @@ const stats = [
 
 .create-btn:hover {
   background: var(--accent-hover);
-}
-
-.th {
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 1px;
-  color: var(--text-secondary);
 }
 
 .table-row {

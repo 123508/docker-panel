@@ -9,12 +9,12 @@
 </template>
 
 <script setup lang="ts">
-withDefaults(defineProps<{
-  title: string
-  gap?: string
-}>(), {
-  gap: 'var(--section-gap)'
-})
+  withDefaults(defineProps<{
+    title: string
+    gap?: string
+  }>(), {
+    gap: 'var(--section-gap)'
+  })
 </script>
 
 <style>

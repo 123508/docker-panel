@@ -6,9 +6,9 @@
 </template>
 
 <script setup lang="ts">
-defineProps<{
-  status: 'running' | 'stopped'
-}>()
+  defineProps<{
+    status: 'running' | 'stopped'
+  }>()
 </script>
 
 <style scoped>

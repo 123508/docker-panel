@@ -11,16 +11,7 @@
 
     <StatBar :items="stats" />
 
-    <DataTable :bordered="false" header-bg row-gap fixed-row-height>
-      <template #head>
-        <span class="th" style="width: 40px"></span>
-        <span class="th col-repo">仓库</span>
-        <span class="th col-tag">标签</span>
-        <span class="th col-id">镜像 ID</span>
-        <span class="th col-size">大小</span>
-        <span class="th col-created">创建时间</span>
-        <span class="th" style="flex: 1">操作</span>
-      </template>
+    <DataTable :bordered="false" header-bg row-gap fixed-row-height :columns="columns">
 
       <div v-for="img in images" :key="img.repo" class="table-row">
         <div class="td" style="width: 40px; display: flex; align-items: center">
@@ -32,8 +23,13 @@
         <span class="td col-size">{{ img.size }}</span>
         <span class="td col-created td-muted-sm">{{ img.created }}</span>
         <div class="td td-actions" style="flex: 1">
-          <button class="link-btn accent">运行</button>
-          <button class="link-btn danger">移除</button>
+          <BaseButton text="运行" size="small" variant="text" type="info" />
+          <BaseButton
+              text="移除"
+              size="small"
+              variant="text"
+              type="danger"
+          />
         </div>
       </div>
     </DataTable>
@@ -44,6 +40,17 @@
 import PageHeader from '@/components/PageHeader.vue'
 import StatBar from '@/components/StatBar.vue'
 import DataTable from '@/components/DataTable.vue'
+import BaseButton from "@/components/BaseButton.vue";
+
+const columns = [
+  { key: 'icon', width: 40 },
+  { key: 'repo', label: '仓库', width: 120 },
+  { key: 'tag', label: '标签', width: 100 },
+  { key: 'id', label: '镜像 ID', width: 120 },
+  { key: 'size', label: '大小', width: 80 },
+  { key: 'created', label: '创建时间', width: 80 },
+  { key: 'actions', label: '操作', flex: 1 }
+]
 
 const images = [
   { repo: 'nginx', tag: 'latest', id: 'a72860cb95fd', size: '187 MB', created: '2 天前', color: '#3B82F6' },

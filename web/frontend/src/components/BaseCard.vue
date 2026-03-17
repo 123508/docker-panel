@@ -20,16 +20,16 @@
 
 <script setup lang="ts" generic="T extends { id: string }">
 
-  defineProps({
-    title:{
-      type : String,
-      default: 'Card Title',
-    },
-    items:{
-      type: Array<T>,
-      default:() => [],
-    }
-  })
+  withDefaults(
+      defineProps<{
+        title?: string
+        items?: T[]
+      }>(),
+      {
+        title: 'Card Title',
+        items: () => []
+      }
+  )
 
   defineSlots<{
     item(props:{ item: T }):any
