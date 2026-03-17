@@ -5,9 +5,9 @@ import AppLayout from '@/layouts/AppLayout.vue'
 import Dashboard from '@/views/Dashboard.vue'
 import Containers from '@/views/Containers.vue'
 import Images from '@/views/Images.vue'
-import Volumes from "@/views/Volumes.vue";
-import Networks from "@/views/Networks.vue";
-import Compose from "@/views/Compose.vue";
+import Volumes from '@/views/Volumes.vue'
+import Networks from '@/views/Networks.vue'
+import Compose from '@/views/Compose.vue'
 
 const routes = [
     {
@@ -27,7 +27,7 @@ const routes = [
                 component: Images
             },
             {
-                path:'volumes',
+                path: 'volumes',
                 component: Volumes
             },
             {
@@ -35,7 +35,7 @@ const routes = [
                 component: Networks
             },
             {
-                path: 'Compose',
+                path: 'compose',
                 component: Compose
             }
         ]

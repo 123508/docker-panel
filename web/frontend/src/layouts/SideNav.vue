@@ -1,30 +1,45 @@
 <template>
   <nav class="nav">
     <div class="logo">
-      <span class="whale">🐳</span>
-      <span class="docker-text">DOCKER</span>
+      <div class="logo-icon"></div>
+      <span class="logo-text">DOCKER</span>
     </div>
 
     <ul class="menu">
-      <li v-for="menu in menus" :key="menu.path">
-        <router-link :to="menu.path" class="menu-item" @click="clearFooterSelection">
-          <span class="icon">{{ menu.icon }}</span>
-          <span class="label">{{ menu.name }}</span>
+      <li v-for="item in menus" :key="item.path">
+        <router-link :to="item.path" class="menu-item" exact-active-class="active">
+          <span class="menu-number">{{ item.number }}</span>
+          <span class="menu-label">{{ item.name }}</span>
         </router-link>
       </li>
     </ul>
 
     <div class="footer">
       <div class="toggle-container">
-        <div class="toggle-slider" :style="{ transform: `translateX(${activeIndex * 44}px)` }"></div>
+        <div class="toggle-slider" :style="sliderStyle"></div>
         <button
-            v-for="(btn, index) in footerButtons"
-            :key="index"
-            class="footer-btn"
-            :class="{ active: activeIndex === index }"
-            @click="activeIndex = index"
+          v-for="(btn, i) in themeButtons"
+          :key="i"
+          class="toggle-btn"
+          :class="{ active: themeIndex === i }"
+          @click="setTheme(i)"
+          :title="btn.title"
         >
-          <span :class="['btn-icon', btn.icon]"></span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path v-if="btn.icon === 'monitor'" d="M2 3h20v14H2zM8 21h8M12 17v4" />
+            <circle v-if="btn.icon === 'sun'" cx="12" cy="12" r="5" />
+            <g v-if="btn.icon === 'sun'">
+              <line x1="12" y1="1" x2="12" y2="3" />
+              <line x1="12" y1="21" x2="12" y2="23" />
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+              <line x1="1" y1="12" x2="3" y2="12" />
+              <line x1="21" y1="12" x2="23" y2="12" />
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+            </g>
+            <path v-if="btn.icon === 'moon'" d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+          </svg>
         </button>
       </div>
     </div>
@@ -32,250 +47,164 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed } from 'vue'
+import { themePreference, setThemePreference } from '@/store/ui'
 
-const activeIndex = ref(1)
+const themeMap = ['system', 'light', 'dark'] as const
 
 const menus = [
-  { name: '仪表盘', path: '/', icon: '01' },
-  { name: '容器', path: '/containers', icon: '02' },
-  { name: '镜像', path: '/images', icon: '03' },
-  { name: '卷', path: '/volumes', icon: '04' },
-  { name: '网络', path: '/networks', icon: '05' },
-  { name: '编排', path: '/compose', icon: '06' }
+  { name: '仪表盘', path: '/', number: '01' },
+  { name: '容器', path: '/containers', number: '02' },
+  { name: '镜像', path: '/images', number: '03' },
+  { name: '卷', path: '/volumes', number: '04' },
+  { name: '网络', path: '/networks', number: '05' },
+  { name: '编排', path: '/compose', number: '06' }
 ]
 
-const footerButtons = [
-  { icon: 'icon-window' },
-  { icon: 'icon-circle' },
-  { icon: 'icon-refresh' }
+const themeButtons = [
+  { icon: 'monitor', title: '跟随系统' },
+  { icon: 'sun', title: '浅色模式' },
+  { icon: 'moon', title: '深色模式' }
 ]
 
-const clearFooterSelection = () => {
-  activeIndex.value = -1
+const themeIndex = computed(() => themeMap.indexOf(themePreference.value))
+
+const sliderStyle = computed(() => ({
+  transform: `translateX(${themeIndex.value * 40}px)`
+}))
+
+function setTheme(index: number) {
+  setThemePreference(themeMap[index])
 }
 </script>
 
 <style scoped>
 .nav {
-  width: 230px;
+  width: var(--sidebar-width);
   height: 100vh;
-  background: #f0f4f8;
-  color: #333;
+  background: var(--bg-sidebar);
   display: flex;
   flex-direction: column;
-  border-right: 1px solid #e0e6ed;
+  justify-content: space-between;
 }
 
 .logo {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 16px 20px;
-  border-bottom: 1px solid #e0e6ed;
-  height: 60px;
+  gap: 10px;
+  padding: 24px 24px 16px;
 }
 
-.whale {
-  width: 20px;
-  height: 20px;
-  background: #0099ff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
+.logo-icon {
+  width: 18px;
+  height: 18px;
+  background: var(--accent);
   border-radius: 2px;
 }
 
-.docker-text {
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 1px;
-  color: #333;
+.logo-text {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--text-primary);
 }
 
 .menu {
   list-style: none;
-  padding: 0;
-  margin: 0;
-  flex: 1;
+  padding: 0 16px;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-}
-
-.menu li {
-  margin: 0;
+  gap: 2px;
 }
 
 .menu-item {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 10px 20px;
-  text-decoration: none;
-  color: #666;
-  transition: all 0.3s;
+  gap: 16px;
+  padding: 14px 16px;
+  border-radius: 0;
+  font-family: var(--font-mono);
   font-size: 13px;
-  border-left: 3px solid transparent;
-  cursor: pointer;
+  color: var(--text-secondary);
+  transition: color 0.2s;
 }
 
 .menu-item:hover {
-  background: #e6f0f8;
-  color: #333;
+  color: var(--text-muted);
 }
 
-.router-link-active {
-  background: #d4e8f5;
-  color: #0099ff;
-  border-left-color: #0099ff;
-  font-weight: 500;
+.menu-item.active {
+  color: var(--accent);
+  background: var(--nav-active-bg);
+  border-radius: 8px;
 }
 
-.icon {
-  width: 20px;
-  text-align: center;
+.menu-number {
   font-size: 11px;
-  color: #999;
   font-weight: 500;
+  min-width: 16px;
 }
 
-.router-link-active .icon {
-  color: #0099ff;
-  font-weight: 600;
-}
-
-.label {
-  flex: 1;
+.menu-label {
+  font-weight: 500;
 }
 
 .footer {
+  padding: 24px;
   display: flex;
-  gap: 8px;
-  padding: 16px 20px;
-  border-top: 1px solid #e0e6ed;
   justify-content: center;
 }
 
 .toggle-container {
   position: relative;
   display: flex;
-  gap: 6px;
-  background: #e6eef5;
-  border-radius: 50px;
-  padding: 6px;
-  width: fit-content;
+  background: var(--toggle-bg);
+  border-radius: 100px;
+  padding: 4px;
 }
 
 .toggle-slider {
   position: absolute;
-  width: 36px;
-  height: 36px;
-  background: #0099ff;
+  width: 32px;
+  height: 32px;
+  background: var(--accent);
   border-radius: 50%;
-  left: 6px;
-  top: 6px;
-  transition: transform 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
-  pointer-events: none;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  opacity: 1;
-}
-
-.toggle-container:has(.footer-btn:nth-child(n+4):not(.active)) .toggle-slider {
-  opacity: 0;
+  left: 4px;
+  top: 4px;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   pointer-events: none;
 }
 
-.footer-btn {
-  width: 36px;
-  height: 36px;
-  border: none;
-  background: transparent;
-  cursor: pointer;
+.toggle-btn {
+  width: 32px;
+  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: color 0.3s;
+  border-radius: 50%;
+  color: var(--text-secondary);
   position: relative;
   z-index: 1;
-  color: #666;
-  border-radius: 50%;
+  padding: 0;
+  margin: 0 4px;
+  transition: color 0.2s;
 }
 
-.footer-btn:hover {
-  color: #333;
+.toggle-btn:first-child {
+  margin-left: 0;
 }
 
-.footer-btn.active {
-  color: white;
-  font-weight: 600;
+.toggle-btn:last-child {
+  margin-right: 0;
 }
 
-.btn-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 18px;
+.toggle-btn.active {
+  color: var(--toggle-active-icon);
 }
 
-/* 窗口/方块图标 */
-.icon-window {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.icon-window::before {
-  content: '';
+.toggle-btn svg {
   width: 14px;
   height: 14px;
-  border: 2px solid currentColor;
-  border-radius: 1px;
-}
-
-/* 圆形图标 */
-.icon-circle {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.icon-circle::before {
-  content: '';
-  width: 14px;
-  height: 14px;
-  border: 2px solid currentColor;
-  border-radius: 50%;
-}
-
-/* 刷新图标 */
-.icon-refresh {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  transform: rotate(0deg);
-}
-
-.icon-refresh::before {
-  content: '';
-  width: 12px;
-  height: 12px;
-  border: 2px solid currentColor;
-  border-right: none;
-  border-bottom: none;
-  border-radius: 50%;
-  position: relative;
-}
-
-.icon-refresh::after {
-  content: '';
-  position: absolute;
-  width: 4px;
-  height: 4px;
-  background: currentColor;
-  top: 1px;
-  right: 1px;
-  clip-path: polygon(0 0, 100% 0, 0 100%);
 }
 </style>

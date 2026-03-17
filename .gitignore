@@ -34,9 +34,9 @@ config.toml
 
 # Frontend
 web/frontend/node_modules/
-web/frontend/dist/
+web/dist/
 
 # Agent files
 .opencode
 .codex
-.claude
+.claude···

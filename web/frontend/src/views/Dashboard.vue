@@ -1,295 +1,322 @@
 <template>
-  <div class="app">
-    <header class="header">
-      <h1>🐳 Docker 可视化面板</h1>
-      <p class="subtitle">Docker Container Management Dashboard</p>
-    </header>
+  <div class="page">
+    <div class="page-header">
+      <h1 class="page-title">系统概览</h1>
+      <button class="refresh-btn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="23 4 23 10 17 10" />
+          <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
+        </svg>
+      </button>
+    </div>
 
-    <main class="main-content">
-      <div class="status-card">
-        <h2>系统状态</h2>
-        <div class="status-item">
-          <span class="label">后端状态:</span>
-          <span class="value" :class="{ 'status-ok': apiStatus === 'ok' }">
-            {{ apiStatus === 'ok' ? '✓ 运行中' : '✗ 未连接' }}
-          </span>
+    <div class="metrics">
+      <div v-for="m in metrics" :key="m.label" class="metric-card">
+        <div class="metric-header">
+          <span class="metric-label">{{ m.label }}</span>
+          <span class="metric-sub" :class="m.subClass">{{ m.sub }}</span>
         </div>
-        <div class="status-item">
-          <span class="label">API消息:</span>
-          <span class="value">{{ apiMessage }}</span>
+        <div class="metric-value">{{ m.value }}</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-header">
+        <h2 class="section-title">活跃容器</h2>
+        <router-link to="/containers" class="view-all">查看全部 →</router-link>
+      </div>
+
+      <div class="table-wrap">
+        <div class="table-head">
+          <span class="th" style="width: 280px">名称</span>
+          <span class="th" style="width: 200px">镜像</span>
+          <span class="th" style="width: 120px">状态</span>
+          <span class="th" style="width: 150px">端口</span>
+          <span class="th" style="flex: 1">操作</span>
+        </div>
+        <div v-for="c in containers" :key="c.name" class="table-row">
+          <div class="td td-name" style="width: 280px">
+            <div class="container-icon"></div>
+            <div class="name-col">
+              <span class="name-text">{{ c.name }}</span>
+              <span class="name-id">{{ c.id }}</span>
+            </div>
+          </div>
+          <span class="td td-image" style="width: 200px">{{ c.image }}</span>
+          <div class="td" style="width: 120px">
+            <span class="status-badge" :class="c.status === '运行中' ? 'running' : 'stopped'">
+              <span class="status-dot"></span>
+              {{ c.status }}
+            </span>
+          </div>
+          <span class="td td-port" style="width: 150px">{{ c.port }}</span>
+          <div class="td td-actions" style="flex: 1">
+            <button class="action-btn">停止</button>
+            <button class="action-btn muted">重启</button>
+            <button class="action-btn muted">日志</button>
+          </div>
         </div>
       </div>
-
-      <div class="content-grid">
-        <BaseCard
-            title="容器列表"
-            :items="containers">
-          <template #item="{ item }">
-            <div class="item-name">{{ item.name }}</div>
-            <div class="item-status" :class="'status-' + item.status">{{ item.status }}</div>
-          </template>
-
-          <template #empty>
-            <div>这里没有任何内容哦~</div>
-          </template>
-        </BaseCard>
-
-        <BaseCard
-            title="镜像列表"
-            :items="images">
-          <template #item="{ item }">
-            <div class="item-name">{{ item.name }}</div>
-            <div class="item-meta">{{ item.size }}</div>
-          </template>
-
-          <template #empty>
-            <div>暂无数据</div>
-          </template>
-        </BaseCard>
-
-      </div>
-
-      <div class="info-card">
-        <h3>📝 说明</h3>
-        <p>这是 Docker 可视化面板的基础框架。</p>
-        <ul>
-          <li>前端：Vue 3 + Vite</li>
-          <li>后端：Go + embed 静态文件</li>
-          <li>API 端点：/api/health, /api/containers, /api/images</li>
-          <li>当前显示的是模拟数据，实际功能待实现</li>
-        </ul>
-      </div>
-    </main>
-
-    <BaseButton text="test" size="small" type="primary"></BaseButton>
-
-    <footer class="footer">
-      <p>Docker Panel v0.1.0 | 基础框架</p>
-    </footer>
+    </div>
   </div>
 </template>
 
-<script setup>
-import { ref, onMounted } from 'vue'
-import BaseCard from "@/components/BaseCard.vue";
-import BaseButton from "@/components/BaseButton.vue";
+<script setup lang="ts">
+const metrics = [
+  { label: '容器', value: '24', sub: '18 运行中', subClass: 'success' },
+  { label: '镜像', value: '42', sub: '12.4 GB', subClass: 'muted' },
+  { label: '卷', value: '8', sub: '3.2 GB 已使用', subClass: 'muted' },
+  { label: '网络', value: '5', sub: '3 自定义', subClass: 'muted' }
+]
 
-const apiStatus = ref('unknown')
-const apiMessage = ref('正在连接...')
-const containers = ref([  ])
-const images = ref([])
-
-async function fetchData() {
-  try {
-    const healthRes = await fetch('/api/health')
-    const healthData = await healthRes.json()
-    apiStatus.value = healthData.status
-    apiMessage.value = healthData.message
-
-    const containersRes = await fetch('/api/containers')
-    const containersData = await containersRes.json()
-    containers.value = containersData.containers || []
-
-    const imagesRes = await fetch('/api/images')
-    const imagesData = await imagesRes.json()
-    images.value = imagesData.images || []
-  } catch (error) {
-    apiStatus.value = 'error'
-    apiMessage.value = '连接失败: ' + error.message
-  }
-}
-
-onMounted(() => {
-  fetchData()
-})
+const containers = [
+  { name: 'nginx-web-01', id: 'a3f8d92b', image: 'nginx:latest', status: '运行中', port: '80:80, 443:443' },
+  { name: 'postgres-db', id: 'e7b2c41a', image: 'postgres:14', status: '运行中', port: '5432:5432' },
+  { name: 'redis-cache', id: 'f4c9e3d2', image: 'redis:alpine', status: '已停止', port: '6379:6379' }
+]
 </script>
 
 <style scoped>
-.app {
+.page {
+  padding: var(--page-padding-y) var(--page-padding-x);
+  display: flex;
+  flex-direction: column;
+  gap: var(--section-gap);
   min-height: 100vh;
+}
+
+.page-header {
   display: flex;
-  flex-direction: column;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  align-items: center;
+  justify-content: space-between;
 }
 
-.header {
-  background: rgba(255, 255, 255, 0.95);
-  padding: 2rem;
-  text-align: center;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.header h1 {
-  margin: 0;
-  font-size: 2.5rem;
-  color: #333;
+.page-title {
+  font-family: var(--font-display);
+  font-size: 40px;
   font-weight: 700;
+  letter-spacing: -1px;
+  color: var(--text-primary);
 }
 
-.subtitle {
-  margin: 0.5rem 0 0;
-  color: #666;
-  font-size: 1rem;
-}
-
-.main-content {
-  flex: 1;
-  padding: 2rem;
-  max-width: 1200px;
-  width: 100%;
-  margin: 0 auto;
-}
-
-.status-card {
-  background: white;
-  border-radius: 12px;
-  padding: 1.5rem;
-  margin-bottom: 2rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.status-card h2 {
-  margin: 0 0 1rem;
-  color: #333;
-  font-size: 1.5rem;
-}
-
-.status-item {
+.refresh-btn {
+  width: 40px;
+  height: 40px;
   display: flex;
-  gap: 1rem;
-  margin-bottom: 0.75rem;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-card);
+  border: var(--border);
+  color: var(--text-secondary);
+  transition: color 0.2s;
 }
 
-.status-item .label {
-  font-weight: 600;
-  color: #555;
+.refresh-btn:hover {
+  color: var(--text-primary);
 }
 
-.status-item .value {
-  color: #888;
+.metrics {
+  display: flex;
+  gap: 16px;
 }
 
-.status-ok {
-  color: #10b981 !important;
-  font-weight: 600;
-}
-
-.content-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 2rem;
-  margin-bottom: 2rem;
-}
-
-.card {
-  background: white;
-  border-radius: 12px;
-  padding: 1.5rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s;
-}
-
-.card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-}
-
-.card h2 {
-  margin: 0 0 1rem;
-  color: #333;
-  font-size: 1.25rem;
-  border-bottom: 2px solid #667eea;
-  padding-bottom: 0.5rem;
-}
-
-.list {
+.metric-card {
+  flex: 1;
+  background: var(--bg-card);
+  border: var(--border);
+  padding: 20px;
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 12px;
 }
 
-.list-item {
+.metric-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.75rem;
-  background: #f9fafb;
-  border-radius: 8px;
-  border-left: 3px solid #667eea;
 }
 
-.item-name {
-  font-weight: 500;
-  color: #333;
+.metric-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--text-secondary);
+  text-transform: uppercase;
 }
 
-.item-status {
-  padding: 0.25rem 0.75rem;
-  border-radius: 12px;
-  font-size: 0.875rem;
-  font-weight: 600;
-  text-transform: capitalize;
+.metric-sub {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-muted);
 }
 
-.status-running {
-  background: #d1fae5;
-  color: #065f46;
+.metric-sub.success {
+  color: var(--color-success);
 }
 
-.status-stopped {
-  background: #fee2e2;
-  color: #991b1b;
+.metric-value {
+  font-family: var(--font-display);
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--text-primary);
 }
 
-.item-meta {
-  color: #666;
-  font-size: 0.875rem;
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
 }
 
-.empty {
-  text-align: center;
-  color: #999;
-  padding: 2rem;
-  font-style: italic;
+.section-title {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-primary);
 }
 
-.info-card {
-  background: white;
-  border-radius: 12px;
-  padding: 1.5rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+.view-all {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--accent);
+  letter-spacing: 1px;
+  font-weight: 700;
 }
 
-.info-card h3 {
-  margin: 0 0 1rem;
-  color: #333;
+.view-all:hover {
+  text-decoration: underline;
 }
 
-.info-card p {
-  color: #555;
-  line-height: 1.6;
-  margin: 0 0 0.5rem;
+.table-wrap {
+  background: var(--bg-card);
+  border: var(--border);
+  overflow: hidden;
 }
 
-.info-card ul {
-  margin: 0.5rem 0 0 1.5rem;
-  color: #666;
+.table-head {
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  height: 44px;
+  border-bottom: var(--border);
 }
 
-.info-card li {
-  margin-bottom: 0.25rem;
+.th {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--text-secondary);
 }
 
-.footer {
-  background: rgba(255, 255, 255, 0.95);
-  padding: 1rem;
-  text-align: center;
-  color: #666;
-  margin-top: auto;
+.table-row {
+  display: flex;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid transparent;
+  transition: background 0.15s;
 }
 
-.footer p {
-  margin: 0;
+.table-row:hover {
+  background: var(--table-row-hover);
+}
+
+.table-row:not(:last-child) {
+  border-bottom-color: var(--border-color);
+}
+
+.td {
+  font-family: var(--font-mono);
+  font-size: 14px;
+}
+
+.td-name {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.container-icon {
+  width: 32px;
+  height: 32px;
+  background: var(--bg-card-header);
+  border: var(--border);
+  flex-shrink: 0;
+}
+
+.name-col {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.name-text {
+  color: var(--text-primary);
+  font-size: 14px;
+}
+
+.name-id {
+  color: var(--text-dim);
+  font-size: 11px;
+}
+
+.td-image {
+  color: var(--text-muted);
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  padding: 3px 6px;
+}
+
+.status-badge.running {
+  color: var(--color-success);
+}
+
+.status-badge.stopped {
+  color: var(--color-danger);
+}
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 0;
+  background: currentColor;
+}
+
+.td-port {
+  color: var(--text-muted);
+  font-size: 11px;
+}
+
+.td-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.action-btn {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--text-primary);
+  background: var(--bg-card-header);
+  border: var(--border);
+  padding: 6px 10px;
+  transition: background 0.15s;
+}
+
+.action-btn:hover {
+  background: var(--bg-body);
+}
+
+.action-btn.muted {
+  color: var(--text-secondary);
 }
 </style>

@@ -1,45 +1,129 @@
 :root {
+    /* ── Background ── */
+    --bg-body: #18181B;
+    --bg-sidebar: #0F0F10;
+    --bg-card: #0F0F10;
+    --bg-card-header: #141415;
+    --bg-input: #0F0F10;
 
-    /* primary */
-    --button-primary: #409eff;
-    --button-primary-hover: #337ecc;
-    --button-primary-text: #fff;
+    /* ── Text ── */
+    --text-primary: #FAFAFA;
+    --text-secondary: #71717A;
+    --text-muted: #A1A1AA;
+    --text-dim: #52525B;
 
-    /* success */
-    --button-success: #67c23a;
-    --button-success-hover: #5daf34;
+    /* ── Accent ── */
+    --accent: #FACC15;
+    --accent-text: #18181B;
+    --accent-hover: #EAB308;
+
+    /* ── Semantic ── */
+    --color-success: #22C55E;
+    --color-danger: #EF4444;
+    --color-info: #3B82F6;
+    --color-warning: #FACC15;
+
+    /* ── Borders ── */
+    --border-color: #27272A;
+    --border: 1px solid var(--border-color);
+
+    /* ── Spacing (design padding references) ── */
+    --page-padding-y: 32px;
+    --page-padding-x: 40px;
+    --section-gap: 32px;
+
+    /* ── Sidebar ── */
+    --sidebar-width: 240px;
+
+    /* ── Fonts ── */
+    --font-display: 'Space Grotesk', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+
+    /* ── Button variants ── */
+    --button-primary: #FACC15;
+    --button-primary-hover: #EAB308;
+    --button-primary-text: #0F0F10;
+
+    --button-success: #22C55E;
+    --button-success-hover: #16A34A;
     --button-success-text: #fff;
 
-    /* danger */
-    --button-danger: #f56c6c;
-    --button-danger-hover: #dd6161;
+    --button-danger: #EF4444;
+    --button-danger-hover: #DC2626;
     --button-danger-text: #fff;
 
-    /* warning */
-    --button-warning: #e6a23c;
-    --button-warning-hover: #cf9236;
-    --button-warning-text: #fff;
+    --button-warning: #F59E0B;
+    --button-warning-hover: #D97706;
+    --button-warning-text: #000;
+
+    /* ── Table ── */
+    --table-header-bg: #141415;
+    --table-row-hover: #1a1a1e;
+    --table-row-border: #27272A;
+
+    /* ── Toggle ── */
+    --toggle-bg: #18181B;
+    --toggle-active-icon: var(--bg-sidebar);
+
+    /* ── Nav ── */
+    --nav-active-bg: transparent;
 }
 
+/* ── Light Theme ── */
+html.light {
+    /* Background */
+    --bg-body: #FFFFFF;
+    --bg-sidebar: #F0F7FF;
+    --bg-card: #F0F7FF;
+    --bg-card-header: #F0F7FF;
+    --bg-input: #F0F7FF;
 
-/* dark theme */
+    /* Text */
+    --text-primary: #1E293B;
+    --text-secondary: #64748B;
+    --text-muted: #94A3B8;
+    --text-dim: #94A3B8;
 
-html.dark {
+    /* Accent — blue instead of yellow */
+    --accent: #0EA5E9;
+    --accent-text: #FFFFFF;
+    --accent-hover: #0284C7;
 
-    --button-primary: #f5c400;
-    --button-primary-hover: #e6b800;
-    --button-primary-text: #000;
+    /* Semantic */
+    --color-success: #22C55E;
+    --color-danger: #EF4444;
+    --color-info: #3B82F6;
+    --color-warning: #F59E0B;
 
-    --button-success: #2f855a;
-    --button-success-hover: #276749;
+    /* Borders */
+    --border-color: #E2E8F0;
+
+    /* Buttons — blue primary */
+    --button-primary: #0EA5E9;
+    --button-primary-hover: #0284C7;
+    --button-primary-text: #FFFFFF;
+
+    --button-success: #22C55E;
+    --button-success-hover: #16A34A;
     --button-success-text: #fff;
 
-    --button-danger: #c53030;
-    --button-danger-hover: #9b2c2c;
+    --button-danger: #EF4444;
+    --button-danger-hover: #DC2626;
     --button-danger-text: #fff;
 
-    --button-warning: #b7791f;
-    --button-warning-hover: #975a16;
-    --button-warning-text: #fff;
+    --button-warning: #F59E0B;
+    --button-warning-hover: #D97706;
+    --button-warning-text: #000;
 
+    /* Table */
+    --table-header-bg: #F0F7FF;
+    --table-row-hover: #F8FAFC;
+    --table-row-border: #E2E8F0;
+
+    /* Toggle */
+    --toggle-bg: #E2E8F0;
+    --toggle-active-icon: #FFFFFF;
+
+    /* Nav */
+    --nav-active-bg: rgba(14, 165, 233, 0.08);
 }
