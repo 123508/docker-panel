@@ -1,8 +1,10 @@
 <template>
   <button
       class="button"
-      :class="[sizeClass,typeClass,variantClass,$attrs.class]"
-      @click="!isDisabled && click()"
+      :class="[sizeClass,typeClass,variantClass]"
+      v-bind="$attrs"
+      @click="click()"
+      :disabled="isDisabled"
       :data-disabled="isDisabled"
   >
     <span v-if="loading" class="loading-dot">...</span>
@@ -13,24 +15,30 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
+defineOptions({
+  name:'dp-button'
+})
+
 type Size = 'small' | 'medium' | 'large'
 type ButtonType = 'primary' | 'default' | 'danger' | 'info'
-type Variant = 'solid' | 'text'
+type Variant = 'filled' | 'text' | 'outlined'
+
+interface BaseButtonProps {
+  text?: string
+  size?: Size
+  type?: ButtonType
+  variant?: Variant
+  disabled?: boolean
+  loading?: boolean
+}
 
 const props = withDefaults(
-    defineProps<{
-      text?: string
-      size?: Size
-      type?: ButtonType
-      variant?: Variant
-      disabled?: boolean
-      loading?: boolean
-    }>(),
+    defineProps<BaseButtonProps>(),
     {
       text: 'button',
       size: 'small',
-      type: 'primary',
-      variant: 'solid',
+      type: 'default',
+      variant: 'filled',
       disabled: false,
       loading: false
     }
@@ -41,6 +49,7 @@ const emit = defineEmits<{
 }>()
 
 function click() {
+  if (isDisabled.value) return
   emit('click')
 }
 
@@ -94,9 +103,16 @@ const isDisabled = computed(() => {
 }
 
 /* 实体按钮 */
-.button-solid {
+.button-filled {
   padding: 0 12px;
 }
+
+.button-outlined {
+  background: var(--bg-card);
+  border: var(--border);
+  padding: 0 12px;
+}
+
 
 /* 模式 */
 
@@ -109,10 +125,18 @@ const isDisabled = computed(() => {
   color: var(--color-danger);
 }
 
-/* solid 模式 */
-.button-solid.button-primary {
+.button-text.button-primary {
+  color: var(--button-success);
+}
+
+/* filled 模式 */
+.button-filled.button-primary {
   background: var(--accent);
   color: var(--accent-text);
+}
+
+.button-outlined {
+  color: var(--text-primary);
 }
 
 /* 状态机 */
@@ -148,8 +172,12 @@ const isDisabled = computed(() => {
   text-shadow: 0 0 4px currentColor;
 }
 
-.button-large.button-solid.button-primary:hover:not([data-disabled="true"]) {
+.button-large.button-filled.button-primary:hover:not([data-disabled="true"]) {
   background: var(--accent-hover);
+}
+
+.button-outlined:hover:not([data-disabled="true"]) {
+  background: var(--table-row-hover);
 }
 
 </style>

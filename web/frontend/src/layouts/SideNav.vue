@@ -25,7 +25,7 @@
           @click="setTheme(i)"
           :title="btn.title"
         >
-          <Icon :name="btn.icon" size="18"/>
+          <dp-icon :name="btn.icon" size="18"/>
         </button>
       </div>
     </div>
@@ -35,7 +35,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { themePreference, setThemePreference } from '@/store/ui'
-import Icon from "@/components/Icon.vue";
+import DpIcon from "@/components/dp-icon.vue";
 
 const themeMap = ['system', 'light', 'dark'] as const
 

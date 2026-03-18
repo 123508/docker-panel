@@ -6,6 +6,11 @@
 </template>
 
 <script setup lang="ts">
+
+  defineOptions({
+    name:'dp-status-badge'
+  })
+
   defineProps<{
     status: 'running' | 'stopped'
   }>()

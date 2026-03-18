@@ -1,5 +1,5 @@
 <template>
-  <PageHeader title="系统概览">
+  <dp-page-header title="系统概览">
     <template #actions>
       <button class="refresh-btn">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -25,7 +25,7 @@
         <router-link to="/containers" class="view-all">查看全部 →</router-link>
       </div>
 
-      <DataTable :bordered="true" :flex="false">
+      <dp-data-table :bordered="true" :flex="false">
         <template #head>
           <span class="th" style="width: 280px">名称</span>
           <span class="th" style="width: 200px">镜像</span>
@@ -44,26 +44,34 @@
           </div>
           <span class="td td-image" style="width: 200px">{{ c.image }}</span>
           <div class="td" style="width: 120px">
-            <StatusBadge :status="c.status === '运行中' ? 'running' : 'stopped'">
+            <dp-status-badge :status="c.status === '运行中' ? 'running' : 'stopped'">
               {{ c.status }}
-            </StatusBadge>
+            </dp-status-badge>
           </div>
           <span class="td td-port" style="width: 150px">{{ c.port }}</span>
           <div class="td td-actions" style="flex: 1">
-            <button class="action-btn">停止</button>
-            <button class="action-btn muted">重启</button>
-            <button class="action-btn muted">日志</button>
+            <template v-if="c.running">
+              <dp-button text="停止" size="small" type="danger" variant="text"/>
+              <dp-button text="重启" size="small" type="info" variant="text"/>
+              <dp-button text="日志" size="small" variant="text"/>
+            </template>
+            <template v-else>
+              <dp-button text="启动" size="small" type="primary" variant="text"/>
+              <dp-button text="移除" size="small" type="danger" variant="text"/>
+              <dp-button text="日志" size="small" variant="text"/>
+            </template>
           </div>
         </div>
-      </DataTable>
+      </dp-data-table>
     </div>
-  </PageHeader>
+  </dp-page-header>
 </template>
 
 <script setup lang="ts">
-import PageHeader from '@/components/PageHeader.vue'
-import DataTable from '@/components/DataTable.vue'
-import StatusBadge from '@/components/StatusBadge.vue'
+import DpPageHeader from '@/components/dp-page-header.vue'
+import DpDataTable from '@/components/dp-data-table.vue'
+import DpStatusBadge from '@/components/dp-status-badge.vue'
+import DpButton from "@/components/dp-button.vue";
 
 const metrics = [
   { label: '容器', value: '24', sub: '18 运行中', subClass: 'success' },
@@ -73,9 +81,9 @@ const metrics = [
 ]
 
 const containers = [
-  { name: 'nginx-web-01', id: 'a3f8d92b', image: 'nginx:latest', status: '运行中', port: '80:80, 443:443' },
-  { name: 'postgres-db', id: 'e7b2c41a', image: 'postgres:14', status: '运行中', port: '5432:5432' },
-  { name: 'redis-cache', id: 'f4c9e3d2', image: 'redis:alpine', status: '已停止', port: '6379:6379' }
+  { name: 'nginx-web-01', id: 'a3f8d92b', image: 'nginx:latest', status: '运行中',running:true, port: '80:80, 443:443' },
+  { name: 'postgres-db', id: 'e7b2c41a', image: 'postgres:14', status: '运行中',running:true, port: '5432:5432' },
+  { name: 'redis-cache', id: 'f4c9e3d2', image: 'redis:alpine', status: '已停止',running:false, port: '6379:6379' }
 ]
 </script>
 

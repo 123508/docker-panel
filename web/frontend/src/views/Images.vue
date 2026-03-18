@@ -1,17 +1,17 @@
 <template>
-  <PageHeader title="镜像" gap="24px">
+  <dp-page-header title="镜像" gap="24px">
     <template #actions>
       <div class="header-actions">
-        <div class="search-box">
-          <span class="search-text">搜索镜像...</span>
-        </div>
-        <button class="pull-btn">拉取镜像</button>
+        <dp-search-input v-model="query" placeholder="搜索镜像..."/>
+        <dp-button text="搜索" size="medium" type="primary" class="search-btn" variant="outlined"/>
+        <dp-button text="+ 拉取" size="medium" type="primary" class="create-btn"/>
       </div>
+
     </template>
 
-    <StatBar :items="stats" />
+    <dp-stat-bar :items="stats" />
 
-    <DataTable :bordered="false" header-bg row-gap fixed-row-height :columns="columns">
+    <dp-data-table :bordered="false" header-bg row-gap fixed-row-height :columns="columns">
 
       <div v-for="img in images" :key="img.repo" class="table-row">
         <div class="td" style="width: 40px; display: flex; align-items: center">
@@ -23,8 +23,8 @@
         <span class="td col-size">{{ img.size }}</span>
         <span class="td col-created td-muted-sm">{{ img.created }}</span>
         <div class="td td-actions" style="flex: 1">
-          <BaseButton text="运行" size="small" variant="text" type="info" />
-          <BaseButton
+          <dp-button text="运行" size="small" variant="text" type="info" />
+          <dp-button
               text="移除"
               size="small"
               variant="text"
@@ -32,15 +32,17 @@
           />
         </div>
       </div>
-    </DataTable>
-  </PageHeader>
+    </dp-data-table>
+  </dp-page-header>
 </template>
 
 <script setup lang="ts">
-import PageHeader from '@/components/PageHeader.vue'
-import StatBar from '@/components/StatBar.vue'
-import DataTable from '@/components/DataTable.vue'
-import BaseButton from "@/components/BaseButton.vue";
+import DpPageHeader from '@/components/dp-page-header.vue'
+import DpStatBar from '@/components/dp-stat-bar.vue'
+import DpDataTable from '@/components/dp-data-table.vue'
+import DpButton from "@/components/dp-button.vue";
+import DpSearchInput from "@/components/dp-search-input.vue";
+import {ref} from "vue";
 
 const columns = [
   { key: 'icon', width: 40 },
@@ -64,50 +66,30 @@ const stats = [
   { label: '大小:', value: '12.4 GB' },
   { label: '悬空:', value: '3', variant: 'dangling' }
 ]
+
+const query=ref('')
+
 </script>
 
 <style scoped>
 .header-actions {
   display: flex;
   gap: 12px;
+  justify-content: flex-end;
 }
 
-.search-box {
-  display: flex;
-  align-items: center;
-  background: var(--bg-card-header);
-  height: 40px;
-  padding: 0 16px;
-  width: 200px;
+.search-btn {
+  color: var(--text-primary);
+  background: var(--bg-card);
+  border: var(--border);
+  padding: 10px 14px;
 }
 
-.search-text {
-  font-size: 11px;
-  color: var(--text-dim);
-}
-
-.pull-btn {
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 1px;
-  color: var(--accent-text);
-  background: var(--accent);
-  height: 40px;
+.create-btn{
   width: 120px;
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-.pull-btn:hover {
-  background: var(--accent-hover);
-}
-
-.th {
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 1px;
-  color: var(--text-secondary);
 }
 
 .table-row {

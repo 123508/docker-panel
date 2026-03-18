@@ -1,14 +1,14 @@
 <template>
-  <PageHeader title="卷" gap="24px">
+  <dp-page-header title="卷" gap="24px">
     <template #actions>
       <div class="header-actions">
-        <BaseButton text="+ 创建" size="large" type="primary" class="btn" />
+        <dp-button text="+ 创建" size="large" type="primary" class="btn" />
       </div>
     </template>
 
-    <StatBar :items="stats" />
+    <dp-stat-bar :items="stats" />
 
-    <DataTable :bordered="false" header-bg row-gap fixed-row-height :columns="columns">
+    <dp-data-table :bordered="false" header-bg row-gap fixed-row-height :columns="columns">
 
       <div v-for="v in volumes" :key="v.name" class="table-row">
         <span class="td col-name">{{ v.name }}</span>
@@ -16,28 +16,23 @@
         <span class="td col-mount td-dim">{{ v.mountpoint }}</span>
         <span class="td col-size">{{ v.size }}</span>
         <div class="td col-containers">
-          <CountBadge :count="v.containers" />
+          <dp-count-badge :count="v.containers" />
         </div>
         <div class="td td-actions" style="flex: 1">
-          <BaseButton text="查看" size="small" variant="text" type="info"/>
-          <BaseButton
-              text="移除"
-              size="small"
-              variant="text"
-              type="danger"
-          />
+          <dp-button text="查看" size="small" variant="text" type="info"/>
+          <dp-button text="移除" size="small" variant="text" type="danger"/>
         </div>
       </div>
-    </DataTable>
-  </PageHeader>
+    </dp-data-table>
+  </dp-page-header>
 </template>
 
 <script setup lang="ts">
-import PageHeader from '@/components/PageHeader.vue'
-import StatBar from '@/components/StatBar.vue'
-import DataTable from '@/components/DataTable.vue'
-import CountBadge from '@/components/CountBadge.vue'
-import BaseButton from "@/components/BaseButton.vue";
+import DpPageHeader from '@/components/dp-page-header.vue'
+import DpStatBar from '@/components/dp-stat-bar.vue'
+import DpDataTable from '@/components/dp-data-table.vue'
+import DpCountBadge from '@/components/dp-count-badge.vue'
+import DpButton from "@/components/dp-button.vue";
 
 const columns = [
   { key: 'name', label: '名称', width: 140 },

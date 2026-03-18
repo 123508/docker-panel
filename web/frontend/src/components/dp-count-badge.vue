@@ -5,6 +5,11 @@
 </template>
 
 <script setup lang="ts">
+
+  defineOptions({
+    name:'dp-count-badge'
+  })
+
   defineProps<{
     count: number
   }>()

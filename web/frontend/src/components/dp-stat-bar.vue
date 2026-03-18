@@ -8,6 +8,11 @@
 </template>
 
 <script setup lang="ts">
+
+  defineOptions({
+    name:'dp-stat-bar'
+  })
+
   defineProps<{
     items: Array<{ label: string; value: string; variant?: string }>
     bordered?: boolean

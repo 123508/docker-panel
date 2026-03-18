@@ -1,15 +1,15 @@
 <template>
-  <PageHeader title="编排">
+  <dp-page-header title="编排">
     <div class="empty-state">
       <div class="empty-icon">06</div>
       <p class="empty-text">Docker Compose 编排功能即将上线</p>
       <p class="empty-sub">此功能正在开发中，敬请期待。</p>
     </div>
-  </PageHeader>
+  </dp-page-header>
 </template>
 
 <script setup lang="ts">
-import PageHeader from '@/components/PageHeader.vue';
+import DpPageHeader from '@/components/dp-page-header.vue';
 </script>
 
 <style scoped>

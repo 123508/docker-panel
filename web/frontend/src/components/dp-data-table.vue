@@ -27,6 +27,10 @@
 
 <script setup lang="ts">
 
+  defineOptions({
+    name:'dp-data-table'
+  })
+
   type Column = {
     key: string
     label?: string

@@ -3,6 +3,10 @@ import SunIcon from './icons/SunIcon.vue'
 import MoonIcon from './icons/MoonIcon.vue'
 import MonitorIcon from './icons/MonitorIcon.vue'
 
+defineOptions({
+  name:'dp-icon'
+})
+
 const props = defineProps<{
   name: 'sun' | 'moon' | 'monitor'
   size?: number | string

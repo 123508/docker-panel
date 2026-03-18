@@ -1,18 +1,16 @@
 <template>
-  <PageHeader title="容器">
+  <dp-page-header title="容器">
     <template #actions>
       <div class="header-actions">
-        <div class="search-box">
-          <span class="search-text">搜索...</span>
-        </div>
-        <button class="filter-btn">筛选</button>
-        <button class="create-btn">+ 创建</button>
+        <dp-search-input v-model="query"/>
+        <dp-button text="筛选" size="medium" variant="outlined"/>
+        <dp-button text="+ 创建" size="medium" type="primary" class="create-btn"/>
       </div>
     </template>
 
-    <StatBar :items="stats" bordered />
+    <dp-stat-bar :items="stats" bordered />
 
-    <DataTable :bordered="true" :columns="columns">
+    <dp-data-table :bordered="true" :columns="columns">
 
       <div v-for="c in containers" :key="c.name" class="table-row">
         <div class="td" style="width: 60px; display: flex; justify-content: center">
@@ -26,34 +24,37 @@
         </div>
         <span class="td td-muted" style="width: 180px">{{ c.image }}</span>
         <div class="td" style="width: 120px">
-          <StatusBadge :status="c.running ? 'running' : 'stopped'">
+          <dp-status-badge :status="c.running ? 'running' : 'stopped'">
             {{ c.running ? '运行中' : '已停止' }}
-          </StatusBadge>
+          </dp-status-badge>
         </div>
         <span class="td td-muted-sm" style="width: 140px">{{ c.port }}</span>
         <span class="td td-muted-sm" style="width: 120px">{{ c.created }}</span>
         <div class="td td-actions" style="flex: 1">
           <template v-if="c.running">
-            <button class="action-btn">停止</button>
-            <button class="action-btn muted">重启</button>
-            <button class="action-btn muted">日志</button>
+            <dp-button text="停止" size="small" type="danger" variant="text"/>
+            <dp-button text="重启" size="small" type="info" variant="text"/>
+            <dp-button text="日志" size="small" variant="text"/>
           </template>
           <template v-else>
-            <button class="action-btn accent">启动</button>
-            <button class="action-btn danger">移除</button>
-            <button class="action-btn muted">日志</button>
+            <dp-button text="启动" size="small" type="primary" variant="text"/>
+            <dp-button text="移除" size="small" type="danger" variant="text"/>
+            <dp-button text="日志" size="small" variant="text"/>
           </template>
         </div>
       </div>
-    </DataTable>
-  </PageHeader>
+    </dp-data-table>
+  </dp-page-header>
 </template>
 
 <script setup lang="ts">
-import PageHeader from '@/components/PageHeader.vue'
-import StatBar from '@/components/StatBar.vue'
-import DataTable from '@/components/DataTable.vue'
-import StatusBadge from '@/components/StatusBadge.vue'
+import DpPageHeader from '@/components/dp-page-header.vue'
+import DpStatBar from '@/components/dp-stat-bar.vue'
+import DpDataTable from '@/components/dp-data-table.vue'
+import DpStatusBadge from '@/components/dp-status-badge.vue'
+import DpButton from "@/components/dp-button.vue";
+import DpSearchInput from "@/components/dp-search-input.vue";
+import {ref} from "vue";
 
 const columns = [
   { key: 'icon', width: 60 },
@@ -76,49 +77,23 @@ const stats = [
   { label: '运行中:', value: '18', variant: 'running' },
   { label: '已停止:', value: '6', variant: 'stopped' }
 ]
+
+const query=ref('')
+
 </script>
 
 <style scoped>
 .header-actions {
   display: flex;
   gap: 12px;
-}
-
-.search-box {
-  display: flex;
-  align-items: center;
-  background: var(--bg-card);
-  border: var(--border);
-  padding: 10px 14px;
-  width: 240px;
-}
-
-.search-text {
-  font-size: 11px;
-  color: var(--text-dim);
-}
-
-.filter-btn {
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 1px;
-  color: var(--text-primary);
-  background: var(--bg-card);
-  border: var(--border);
-  padding: 10px 14px;
+  justify-content: flex-end;
 }
 
 .create-btn {
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 1px;
-  color: var(--accent-text);
-  background: var(--accent);
-  padding: 10px 18px;
-}
-
-.create-btn:hover {
-  background: var(--accent-hover);
+  width: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .table-row {
