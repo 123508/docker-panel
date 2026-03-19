@@ -24,12 +24,7 @@
         <span class="td col-created td-muted-sm">{{ img.created }}</span>
         <div class="td td-actions" style="flex: 1">
           <dp-button text="运行" size="small" variant="text" type="info" />
-          <dp-button
-              text="移除"
-              size="small"
-              variant="text"
-              type="danger"
-          />
+          <dp-button text="移除" size="small" variant="text" type="danger" />
         </div>
       </div>
     </dp-data-table>
