@@ -6,11 +6,11 @@
       </div>
     </template>
 
-    <dp-stat-bar :items="stats" />
+    <dp-stat-bar :items="form.stats" />
 
     <dp-data-table :bordered="false" header-bg row-gap fixed-row-height :columns="columns">
 
-      <div v-for="n in networks" :key="n.name" class="table-row">
+      <div v-for="n in pagedNetworks" :key="n.name" class="table-row">
         <span class="td col-name">{{ n.name }}</span>
         <span class="td col-driver td-muted">{{ n.driver }}</span>
         <span class="td col-scope td-muted">{{ n.scope }}</span>
@@ -31,6 +31,12 @@
         </div>
       </div>
     </dp-data-table>
+    <dp-pagination
+        :page="form.page"
+        :total="form.networks.length"
+        :page-size="form.pageSize"
+        @change="form.page = $event"
+    />
   </dp-page-header>
 </template>
 
@@ -40,6 +46,8 @@ import DpStatBar from '@/components/dp-stat-bar.vue'
 import DpDataTable from '@/components/dp-data-table.vue'
 import DpCountBadge from '@/components/dp-count-badge.vue'
 import DpButton from "@/components/dp-button.vue";
+import DpPagination from "@/components/dp-pagination.vue";
+import {computed, reactive} from "vue";
 
 const columns = [
   { key: 'name', label: '名称', width: 130 },
@@ -51,17 +59,28 @@ const columns = [
   { key: 'actions', label: '操作', flex: 1 }
 ]
 
-const networks = [
-  { name: 'bridge', driver: 'bridge', scope: 'local', subnet: '172.17.0.0/16', gateway: '172.17.0.1', containers: 3, removable: false },
-  { name: 'app-network', driver: 'bridge', scope: 'local', subnet: '192.168.1.0/24', gateway: '192.168.1.1', containers: 5, removable: true },
-  { name: 'host', driver: 'host', scope: 'local', subnet: '-', gateway: '-', containers: 0, removable: false }
-]
+const form = reactive({
+  page: 1,
+  pageSize: 5,
 
-const stats = [
-  { label: '总数:', value: '5' },
-  { label: '自定义:', value: '3' },
-  { label: '内置:', value: '2', variant: 'builtin' }
-]
+  stats: [
+    { label: '总数:', value: '5' },
+    { label: '自定义:', value: '3' },
+    { label: '内置:', value: '2', variant: 'builtin' }
+  ],
+
+  networks: [
+    { name: 'bridge', driver: 'bridge', scope: 'local', subnet: '172.17.0.0/16', gateway: '172.17.0.1', containers: 3, removable: false },
+    { name: 'app-network', driver: 'bridge', scope: 'local', subnet: '192.168.1.0/24', gateway: '192.168.1.1', containers: 5, removable: true },
+    { name: 'host', driver: 'host', scope: 'local', subnet: '-', gateway: '-', containers: 0, removable: false }
+  ],
+})
+
+const pagedNetworks = computed(() => {
+  const start = (form.page - 1) * form.pageSize
+  return form.networks.slice(start, start + form.pageSize)
+})
+
 </script>
 
 <style scoped>

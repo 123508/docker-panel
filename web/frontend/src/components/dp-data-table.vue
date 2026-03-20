@@ -1,6 +1,13 @@
 <template>
-  <div class="table-wrap" :class="{ 'bordered': bordered, 'flex': flex }">
-    <div class="table-head" :class="{ 'has-bg': headerBg, 'has-gap': rowGap }">
+  <div class="table-wrap"
+       :class="{ 'bordered': bordered, 'flex': flex }"
+       :style="{
+          height: typeof height === 'number' ? height + 'px' : height
+       }">
+    <div class="table-head"
+         :class="{
+            'has-bg': headerBg, 'has-gap': rowGap
+         }">
       <!-- 新columns 渲染 -->
       <template v-if="columns.length">
     <span
@@ -45,6 +52,7 @@
     bordered?: boolean
     flex?: boolean
     columns?: Column[]
+    height?: string | number
   }>(), {
     bordered: true,
     flex: true,
@@ -56,6 +64,9 @@
 .table-wrap {
   background: var(--bg-card);
   overflow: hidden;
+
+  display: flex;
+  flex-direction: column;
 }
 
 .table-wrap.bordered {
@@ -72,6 +83,10 @@
   padding: 0 20px;
   height: 44px;
   border-bottom: var(--border);
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  z-index: 1;
 }
 
 .table-head.has-bg {
@@ -81,6 +96,12 @@
 
 .table-head.has-gap {
   gap: 16px;
+}
+
+.table-body {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
 }
 
 /* Row Styles */

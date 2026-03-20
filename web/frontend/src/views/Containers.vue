@@ -2,17 +2,18 @@
   <dp-page-header title="容器">
     <template #actions>
       <div class="header-actions">
-        <dp-search-input v-model="query"/>
+        <dp-search-input v-model="form.query"/>
         <dp-button text="筛选" size="medium" variant="outlined"/>
         <dp-button text="+ 创建" size="medium" type="primary" class="create-btn"/>
       </div>
     </template>
 
-    <dp-stat-bar :items="stats" bordered />
+    <dp-stat-bar :items="form.stats" bordered />
 
-    <dp-data-table :bordered="true" :columns="columns">
+    <dp-data-table :bordered="true"
+                   :columns="columns">
 
-      <div v-for="c in containers" :key="c.name" class="table-row">
+      <div v-for="c in pagedContainers" :key="c.name" class="table-row">
         <div class="td" style="width: 60px; display: flex; justify-content: center">
           <div class="row-icon"></div>
         </div>
@@ -44,6 +45,14 @@
         </div>
       </div>
     </dp-data-table>
+
+    <dp-pagination
+        :page="form.page"
+        :total="form.containers.length"
+        :page-size="form.pageSize"
+        @change="form.page = $event"
+    />
+
   </dp-page-header>
 </template>
 
@@ -54,7 +63,8 @@ import DpDataTable from '@/components/dp-data-table.vue'
 import DpStatusBadge from '@/components/dp-status-badge.vue'
 import DpButton from "@/components/dp-button.vue";
 import DpSearchInput from "@/components/dp-search-input.vue";
-import {ref} from "vue";
+import {computed, reactive, ref} from "vue";
+import DpPagination from "@/components/dp-pagination.vue";
 
 const columns = [
   { key: 'icon', width: 60 },
@@ -66,19 +76,28 @@ const columns = [
   { key: 'actions', label: '操作', flex: 1 }
 ]
 
-const containers = [
-  { name: 'nginx-web-01', id: 'a3f8d92b', image: 'nginx:latest', running: true, port: '80:80, 443:443', created: '2 小时前' },
-  { name: 'postgres-db', id: 'e7b2c41a', image: 'postgres:14', running: true, port: '5432:5432', created: '5 天前' },
-  { name: 'redis-cache', id: 'f4c9e3d2', image: 'redis:alpine', running: false, port: '6379:6379', created: '1 天前' }
-]
+const form = reactive({
+  query: '',
+  page: 1,
+  pageSize: 10,
 
-const stats = [
-  { label: '总数:', value: '24' },
-  { label: '运行中:', value: '18', variant: 'running' },
-  { label: '已停止:', value: '6', variant: 'stopped' }
-]
+  stats:[
+    { label: '总数:', value: '24' },
+    { label: '运行中:', value: '18', variant: 'running' },
+    { label: '已停止:', value: '6', variant: 'stopped' }
+  ],
 
-const query=ref('')
+  containers: [
+    { name: 'nginx-web-01', id: 'a3f8d92b', image: 'nginx:latest', running: true, port: '80:80, 443:443', created: '2 小时前' },
+    { name: 'postgres-db', id: 'e7b2c41a', image: 'postgres:14', running: true, port: '5432:5432', created: '5 天前' },
+    { name: 'redis-cache', id: 'f4c9e3d2', image: 'redis:alpine', running: false, port: '6379:6379', created: '1 天前' }
+  ],
+})
+
+const pagedContainers = computed(() => {
+  const start = (form.page - 1) * form.pageSize
+  return form.containers.slice(start, start + form.pageSize)
+})
 
 </script>
 
@@ -153,27 +172,4 @@ const query=ref('')
   gap: 12px;
 }
 
-.action-btn {
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 1px;
-  color: var(--text-primary);
-  background: var(--bg-card-header);
-  border: var(--border);
-  padding: 6px 10px;
-}
-
-.action-btn.muted {
-  color: var(--text-secondary);
-}
-
-.action-btn.accent {
-  color: var(--accent-text);
-  background: var(--accent);
-  border: none;
-}
-
-.action-btn.danger {
-  color: var(--color-danger);
-}
 </style>

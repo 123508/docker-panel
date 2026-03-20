@@ -2,18 +2,22 @@
   <dp-page-header title="镜像" gap="24px">
     <template #actions>
       <div class="header-actions">
-        <dp-search-input v-model="query" placeholder="搜索镜像..."/>
+        <dp-search-input v-model="form.query" placeholder="搜索镜像..."/>
         <dp-button text="搜索" size="medium" type="primary" class="search-btn" variant="outlined"/>
         <dp-button text="+ 拉取" size="medium" type="primary" class="create-btn"/>
       </div>
 
     </template>
 
-    <dp-stat-bar :items="stats" />
+    <dp-stat-bar :items="form.stats" />
 
-    <dp-data-table :bordered="false" header-bg row-gap fixed-row-height :columns="columns">
+    <dp-data-table :bordered="false"
+                   header-bg
+                   row-gap
+                   fixed-row-height
+                   :columns="columns">
 
-      <div v-for="img in images" :key="img.repo" class="table-row">
+      <div v-for="img in pagedImages" :key="img.repo" class="table-row">
         <div class="td" style="width: 40px; display: flex; align-items: center">
           <div class="row-icon" :style="{ background: img.color }"></div>
         </div>
@@ -28,6 +32,13 @@
         </div>
       </div>
     </dp-data-table>
+
+    <dp-pagination
+        :page="form.page"
+        :total="form.images.length"
+        :page-size="form.pageSize"
+        @change="form.page = $event"
+    />
   </dp-page-header>
 </template>
 
@@ -37,7 +48,8 @@ import DpStatBar from '@/components/dp-stat-bar.vue'
 import DpDataTable from '@/components/dp-data-table.vue'
 import DpButton from "@/components/dp-button.vue";
 import DpSearchInput from "@/components/dp-search-input.vue";
-import {ref} from "vue";
+import DpPagination from "@/components/dp-pagination.vue";
+import {computed, reactive} from "vue";
 
 const columns = [
   { key: 'icon', width: 40 },
@@ -49,20 +61,29 @@ const columns = [
   { key: 'actions', label: '操作', flex: 1 }
 ]
 
-const images = [
-  { repo: 'nginx', tag: 'latest', id: 'a72860cb95fd', size: '187 MB', created: '2 天前', color: '#3B82F6' },
-  { repo: 'postgres', tag: '16-alpine', id: 'b4d181a07f80', size: '432 MB', created: '5 天前', color: '#22C55E' },
-  { repo: 'redis', tag: '7-alpine', id: '3c41ce05add9', size: '41 MB', created: '1 周前', color: '#EF4444' },
-  { repo: 'node', tag: '20-alpine', id: 'c7b5a7e3f2d1', size: '124 MB', created: '2 周前', color: '#FACC15' }
-]
+const form = reactive({
+  query: '',
+  page: 1,
+  pageSize: 5,
 
-const stats = [
-  { label: '总数:', value: '42' },
-  { label: '大小:', value: '12.4 GB' },
-  { label: '悬空:', value: '3', variant: 'dangling' }
-]
+  stats: [
+    { label: '总数:', value: '42' },
+    { label: '大小:', value: '12.4 GB' },
+    { label: '悬空:', value: '3', variant: 'dangling' }
+  ],
 
-const query=ref('')
+  images: [
+    { repo: 'nginx', tag: 'latest', id: 'a72860cb95fd', size: '187 MB', created: '2 天前', color: '#3B82F6' },
+    { repo: 'postgres', tag: '16-alpine', id: 'b4d181a07f80', size: '432 MB', created: '5 天前', color: '#22C55E' },
+    { repo: 'redis', tag: '7-alpine', id: '3c41ce05add9', size: '41 MB', created: '1 周前', color: '#EF4444' },
+    { repo: 'node', tag: '20-alpine', id: 'c7b5a7e3f2d1', size: '124 MB', created: '2 周前', color: '#FACC15' }
+  ],
+})
+
+const pagedImages = computed(() => {
+  const start = (form.page - 1) * form.pageSize
+  return form.images.slice(start, start + form.pageSize)
+})
 
 </script>
 

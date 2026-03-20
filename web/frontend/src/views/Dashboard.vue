@@ -10,7 +10,7 @@
     </template>
 
     <div class="metrics">
-      <div v-for="m in metrics" :key="m.label" class="metric-card">
+      <div v-for="m in form.metrics" :key="m.label" class="metric-card">
         <div class="metric-header">
           <span class="metric-label">{{ m.label }}</span>
           <span class="metric-sub" :class="m.subClass">{{ m.sub }}</span>
@@ -25,7 +25,9 @@
         <router-link to="/containers" class="view-all">查看全部 →</router-link>
       </div>
 
-      <dp-data-table :bordered="true" :flex="false">
+      <dp-data-table :bordered="true"
+                     :flex="false"
+                     height="54vh">
         <template #head>
           <span class="th" style="width: 280px">名称</span>
           <span class="th" style="width: 200px">镜像</span>
@@ -34,7 +36,7 @@
           <span class="th" style="flex: 1">操作</span>
         </template>
 
-        <div v-for="c in containers" :key="c.name" class="table-row">
+        <div v-for="c in pagedContainers" :key="c.name" class="table-row">
           <div class="td td-name" style="width: 280px">
             <div class="container-icon"></div>
             <div class="name-col">
@@ -63,6 +65,13 @@
           </div>
         </div>
       </dp-data-table>
+
+      <dp-pagination
+          :page="form.page"
+          :total="form.containers.length"
+          :page-size="form.pageSize"
+          @change="form.page = $event"
+      />
     </div>
   </dp-page-header>
 </template>
@@ -72,19 +81,32 @@ import DpPageHeader from '@/components/dp-page-header.vue'
 import DpDataTable from '@/components/dp-data-table.vue'
 import DpStatusBadge from '@/components/dp-status-badge.vue'
 import DpButton from "@/components/dp-button.vue";
+import {computed, reactive} from "vue";
+import DpPagination from "@/components/dp-pagination.vue";
 
-const metrics = [
-  { label: '容器', value: '24', sub: '18 运行中', subClass: 'success' },
-  { label: '镜像', value: '42', sub: '12.4 GB', subClass: 'muted' },
-  { label: '卷', value: '8', sub: '3.2 GB 已使用', subClass: 'muted' },
-  { label: '网络', value: '5', sub: '3 自定义', subClass: 'muted' }
-]
+const form = reactive({
+  page: 1,
+  pageSize: 5,
 
-const containers = [
-  { name: 'nginx-web-01', id: 'a3f8d92b', image: 'nginx:latest', status: '运行中',running:true, port: '80:80, 443:443' },
-  { name: 'postgres-db', id: 'e7b2c41a', image: 'postgres:14', status: '运行中',running:true, port: '5432:5432' },
-  { name: 'redis-cache', id: 'f4c9e3d2', image: 'redis:alpine', status: '已停止',running:false, port: '6379:6379' }
-]
+  metrics : [
+    { label: '容器', value: '24', sub: '18 运行中', subClass: 'success' },
+    { label: '镜像', value: '42', sub: '12.4 GB', subClass: 'muted' },
+    { label: '卷', value: '8', sub: '3.2 GB 已使用', subClass: 'muted' },
+    { label: '网络', value: '5', sub: '3 自定义', subClass: 'muted' }
+  ],
+
+  containers: [
+    { name: 'nginx-web-01', id: 'a3f8d92b', image: 'nginx:latest', status: '运行中', running: true, port: '80:80, 443:443' },
+    { name: 'postgres-db', id: 'e7b2c41a', image: 'postgres:14', status: '运行中', running: true, port: '5432:5432' },
+    { name: 'redis-cache', id: 'f4c9e3d2', image: 'redis:alpine', status: '已停止', running: false, port: '6379:6379' }
+  ],
+})
+
+const pagedContainers = computed(() => {
+  const start = (form.page - 1) * form.pageSize
+  return form.containers.slice(start, start + form.pageSize)
+})
+
 </script>
 
 <style scoped>
@@ -250,23 +272,4 @@ const containers = [
   gap: 12px;
 }
 
-.action-btn {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 1px;
-  color: var(--text-primary);
-  background: var(--bg-card-header);
-  border: var(--border);
-  padding: 6px 10px;
-  transition: background 0.15s;
-}
-
-.action-btn:hover {
-  background: var(--bg-body);
-}
-
-.action-btn.muted {
-  color: var(--text-secondary);
-}
 </style>
