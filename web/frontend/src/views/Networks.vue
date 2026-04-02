@@ -6,7 +6,7 @@
       </div>
     </template>
 
-    <dp-stat-bar :items="form.stats" />
+    <dp-stat-bar :items="state.stats" />
 
     <dp-data-table :bordered="false" header-bg row-gap fixed-row-height :columns="columns">
 
@@ -32,10 +32,10 @@
       </div>
     </dp-data-table>
     <dp-pagination
-        :page="form.page"
-        :total="form.networks.length"
-        :page-size="form.pageSize"
-        @change="form.page = $event"
+        :page="state.page"
+        :total="state.networks.length"
+        :page-size="state.pageSize"
+        @change="state.page = $event"
     />
   </dp-page-header>
 </template>
@@ -47,7 +47,8 @@ import DpDataTable from '@/components/dp-data-table.vue'
 import DpCountBadge from '@/components/dp-count-badge.vue'
 import DpButton from "@/components/dp-button.vue";
 import DpPagination from "@/components/dp-pagination.vue";
-import {computed, reactive} from "vue";
+import {NetworkState} from '@/composables/Networks';
+const {state, pagedNetworks} = NetworkState();
 
 const columns = [
   { key: 'name', label: '名称', width: 130 },
@@ -58,28 +59,6 @@ const columns = [
   { key: 'containers', label: '容器', width: 100 },
   { key: 'actions', label: '操作', flex: 1 }
 ]
-
-const form = reactive({
-  page: 1,
-  pageSize: 5,
-
-  stats: [
-    { label: '总数:', value: '5' },
-    { label: '自定义:', value: '3' },
-    { label: '内置:', value: '2', variant: 'builtin' }
-  ],
-
-  networks: [
-    { name: 'bridge', driver: 'bridge', scope: 'local', subnet: '172.17.0.0/16', gateway: '172.17.0.1', containers: 3, removable: false },
-    { name: 'app-network', driver: 'bridge', scope: 'local', subnet: '192.168.1.0/24', gateway: '192.168.1.1', containers: 5, removable: true },
-    { name: 'host', driver: 'host', scope: 'local', subnet: '-', gateway: '-', containers: 0, removable: false }
-  ],
-})
-
-const pagedNetworks = computed(() => {
-  const start = (form.page - 1) * form.pageSize
-  return form.networks.slice(start, start + form.pageSize)
-})
 
 </script>
 

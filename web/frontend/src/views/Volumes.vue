@@ -6,7 +6,7 @@
       </div>
     </template>
 
-    <dp-stat-bar :items="form.stats" />
+    <dp-stat-bar :items="state.stats" />
 
     <dp-data-table :bordered="false" header-bg row-gap fixed-row-height :columns="columns">
 
@@ -25,10 +25,10 @@
       </div>
     </dp-data-table>
     <dp-pagination
-        :page="form.page"
-        :total="form.volumes.length"
-        :page-size="form.pageSize"
-        @change="form.page = $event"
+        :page="state.page"
+        :total="state.volumes.length"
+        :page-size="state.pageSize"
+        @change="state.page = $event"
     />
   </dp-page-header>
 </template>
@@ -41,6 +41,8 @@ import DpCountBadge from '@/components/dp-count-badge.vue'
 import DpButton from "@/components/dp-button.vue";
 import DpPagination from "@/components/dp-pagination.vue";
 import {computed, reactive} from "vue";
+import {VolumeState} from '@/composables/Volumes';
+const {state, pagedVolumes} = VolumeState();
 
 const columns = [
   { key: 'name', label: '名称', width: 140 },
@@ -50,30 +52,6 @@ const columns = [
   { key: 'containers', label: '容器', width: 100 },
   { key: 'actions', label: '操作', flex: 1 }
 ]
-
-const form = reactive({
-  page:1,
-  pageSize:5,
-
-  stats:[
-    { label: '总数:', value: '8' },
-    { label: '已使用:', value: '3.2 GB' },
-    { label: '未使用:', value: '2', variant: 'dangling' }
-  ],
-
-  volumes:[
-    { name: 'postgres_data', driver: 'local', mountpoint: '/var/lib/docker/volumes/postgres_data/_data', size: '1.2 GB', containers: 1 },
-    { name: 'redis_cache', driver: 'local', mountpoint: '/var/lib/docker/volumes/redis_cache/_data', size: '512 MB', containers: 1 },
-    { name: 'app_logs', driver: 'local', mountpoint: '/var/lib/docker/volumes/app_logs/_data', size: '256 MB', containers: 0 }
-  ],
-
-})
-
-const pagedVolumes = computed(() => {
-  const start = (form.page - 1) * form.pageSize
-  return form.volumes.slice(start, start + form.pageSize)
-})
-
 
 </script>
 

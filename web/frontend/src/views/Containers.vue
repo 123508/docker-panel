@@ -2,13 +2,13 @@
   <dp-page-header title="容器">
     <template #actions>
       <div class="header-actions">
-        <dp-search-input v-model="form.query"/>
+        <dp-search-input v-model="state.query"/>
         <dp-button text="筛选" size="medium" variant="outlined"/>
         <dp-button text="+ 创建" size="medium" type="primary" class="create-btn"/>
       </div>
     </template>
 
-    <dp-stat-bar :items="form.stats" bordered />
+    <dp-stat-bar :items="state.stats" bordered />
 
     <dp-data-table :bordered="true"
                    :columns="columns">
@@ -47,10 +47,10 @@
     </dp-data-table>
 
     <dp-pagination
-        :page="form.page"
-        :total="form.containers.length"
-        :page-size="form.pageSize"
-        @change="form.page = $event"
+        :page="state.page"
+        :total="state.containers.length"
+        :page-size="state.pageSize"
+        @change="state.page = $event"
     />
 
   </dp-page-header>
@@ -61,10 +61,12 @@ import DpPageHeader from '@/components/dp-page-header.vue'
 import DpStatBar from '@/components/dp-stat-bar.vue'
 import DpDataTable from '@/components/dp-data-table.vue'
 import DpStatusBadge from '@/components/dp-status-badge.vue'
-import DpButton from "@/components/dp-button.vue";
-import DpSearchInput from "@/components/dp-search-input.vue";
-import {computed, reactive, ref} from "vue";
-import DpPagination from "@/components/dp-pagination.vue";
+import DpButton from '@/components/dp-button.vue';
+import DpSearchInput from '@/components/dp-search-input.vue';
+import DpPagination from '@/components/dp-pagination.vue';
+import {ContainerState} from '@/composables/Containers';
+
+const { state, pagedContainers } = ContainerState();
 
 const columns = [
   { key: 'icon', width: 60 },
@@ -75,29 +77,6 @@ const columns = [
   { key: 'created', label: '创建时间', width: 120 },
   { key: 'actions', label: '操作', flex: 1 }
 ]
-
-const form = reactive({
-  query: '',
-  page: 1,
-  pageSize: 10,
-
-  stats:[
-    { label: '总数:', value: '24' },
-    { label: '运行中:', value: '18', variant: 'running' },
-    { label: '已停止:', value: '6', variant: 'stopped' }
-  ],
-
-  containers: [
-    { name: 'nginx-web-01', id: 'a3f8d92b', image: 'nginx:latest', running: true, port: '80:80, 443:443', created: '2 小时前' },
-    { name: 'postgres-db', id: 'e7b2c41a', image: 'postgres:14', running: true, port: '5432:5432', created: '5 天前' },
-    { name: 'redis-cache', id: 'f4c9e3d2', image: 'redis:alpine', running: false, port: '6379:6379', created: '1 天前' }
-  ],
-})
-
-const pagedContainers = computed(() => {
-  const start = (form.page - 1) * form.pageSize
-  return form.containers.slice(start, start + form.pageSize)
-})
 
 </script>
 

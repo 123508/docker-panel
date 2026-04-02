@@ -10,7 +10,7 @@
     </template>
 
     <div class="metrics">
-      <div v-for="m in form.metrics" :key="m.label" class="metric-card">
+      <div v-for="m in state.metrics" :key="m.label" class="metric-card">
         <div class="metric-header">
           <span class="metric-label">{{ m.label }}</span>
           <span class="metric-sub" :class="m.subClass">{{ m.sub }}</span>
@@ -67,10 +67,10 @@
       </dp-data-table>
 
       <dp-pagination
-          :page="form.page"
-          :total="form.containers.length"
-          :page-size="form.pageSize"
-          @change="form.page = $event"
+          :page="state.page"
+          :total="state.containers.length"
+          :page-size="state.pageSize"
+          @change="state.page = $event"
       />
     </div>
   </dp-page-header>
@@ -81,31 +81,10 @@ import DpPageHeader from '@/components/dp-page-header.vue'
 import DpDataTable from '@/components/dp-data-table.vue'
 import DpStatusBadge from '@/components/dp-status-badge.vue'
 import DpButton from "@/components/dp-button.vue";
-import {computed, reactive} from "vue";
 import DpPagination from "@/components/dp-pagination.vue";
+import {DashboardState} from '@/composables/Dashboard';
+const { state,pagedContainers } = DashboardState();
 
-const form = reactive({
-  page: 1,
-  pageSize: 5,
-
-  metrics : [
-    { label: '容器', value: '24', sub: '18 运行中', subClass: 'success' },
-    { label: '镜像', value: '42', sub: '12.4 GB', subClass: 'muted' },
-    { label: '卷', value: '8', sub: '3.2 GB 已使用', subClass: 'muted' },
-    { label: '网络', value: '5', sub: '3 自定义', subClass: 'muted' }
-  ],
-
-  containers: [
-    { name: 'nginx-web-01', id: 'a3f8d92b', image: 'nginx:latest', status: '运行中', running: true, port: '80:80, 443:443' },
-    { name: 'postgres-db', id: 'e7b2c41a', image: 'postgres:14', status: '运行中', running: true, port: '5432:5432' },
-    { name: 'redis-cache', id: 'f4c9e3d2', image: 'redis:alpine', status: '已停止', running: false, port: '6379:6379' }
-  ],
-})
-
-const pagedContainers = computed(() => {
-  const start = (form.page - 1) * form.pageSize
-  return form.containers.slice(start, start + form.pageSize)
-})
 
 </script>
 
