@@ -40,3 +40,7 @@ web/dist/
 .opencode
 .codex
 .claude···
+
+# another file
+**.docx
+**.pdf

@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(go get:*)",
+      "Bash(go env:*)",
+      "Read(//e/Go-repo/docker-panel/$\\(go env GOPATH\\)/pkg/mod/github.com/docker/docker@v28.5.2+incompatible/api/**)",
+      "Read(//e/Go-repo/docker-panel/$\\(go env GOPATH\\)/pkg/mod/github.com/docker/docker@v28.5.2+incompatible/api/types/**)",
+      "Read(//e/Go-repo/docker-panel/$\\(go env GOPATH\\)/pkg/mod/github.com/docker/docker@v28.5.2+incompatible/api/types/container/**)",
+      "Read(//e/Go-repo/docker-panel/$\\(go env GOPATH\\)/pkg/mod/github.com/docker/docker@v28.5.2+incompatible/**)"
+    ]
+  }
+}

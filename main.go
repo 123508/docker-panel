@@ -1,7 +1,10 @@
 package main
 
 import (
+	"docker-panel/docker_cli_wrapper"
+	"docker-panel/handler"
 	"docker-panel/internal/config"
+	"docker-panel/service"
 	"embed"
 	"fmt"
 	"io/fs"
@@ -19,10 +22,32 @@ func main() {
 		log.Fatalf("Failed to initialize config: %v", err)
 	}
 
-	gin.SetMode(gin.ReleaseMode)
-	r := gin.Default()
+	// 初始化 Docker 客户端
+	dockerClient, err := docker_cli_wrapper.NewDockerClient()
+	if err != nil {
+		log.Fatalf("Failed to connect to Docker: %v", err)
+	}
+	defer dockerClient.Close()
 
-	registerAPIRoutes(r)
+	// 初始化 Service 层
+	containerSvc := service.NewContainerService(dockerClient)
+	imageSvc := service.NewImageService(dockerClient)
+	volumeSvc := service.NewVolumeService(dockerClient)
+	networkSvc := service.NewNetworkService(dockerClient)
+
+	// 初始化 Handler 层
+	containerHandler := handler.NewContainerHandler(containerSvc)
+	imageHandler := handler.NewImageHandler(imageSvc)
+	volumeHandler := handler.NewVolumeHandler(volumeSvc)
+	networkHandler := handler.NewNetworkHandler(networkSvc)
+
+	gin.SetMode(gin.ReleaseMode)
+	r := gin.New()
+	r.Use(handler.RecoveryMiddleware())
+	r.Use(handler.LoggerMiddleware())
+	r.Use(handler.CORSMiddleware())
+
+	registerAPIRoutes(r, containerHandler, imageHandler, volumeHandler, networkHandler)
 	setupStaticFiles(r)
 
 	cfg := config.AppConfig
@@ -33,17 +58,33 @@ func main() {
 	fmt.Printf("绑定地址: %s\n", addr)
 	fmt.Printf("访问地址: http://localhost:%s\n\n", cfg.Server.BindPort)
 
+	for _, route := range r.Routes() {
+		fmt.Printf("%-6s %-30s %s\n", route.Method, route.Path, route.Handler)
+	}
+
 	if err := r.Run(addr); err != nil {
 		log.Fatal(err)
 	}
 }
 
-func registerAPIRoutes(r *gin.Engine) {
+func registerAPIRoutes(
+	r *gin.Engine,
+	containerH *handler.ContainerHandler,
+	imageH *handler.ImageHandler,
+	volumeH *handler.VolumeHandler,
+	networkH *handler.NetworkHandler,
+) {
 	api := r.Group("/api")
 	{
 		api.GET("/health", healthHandler)
-		api.GET("/containers", containersHandler)
-		api.GET("/images", imagesHandler)
+	}
+
+	v1 := api.Group("/v1")
+	{
+		containerH.RegisterRoutes(v1)
+		imageH.RegisterRoutes(v1)
+		volumeH.RegisterRoutes(v1)
+		networkH.RegisterRoutes(v1)
 	}
 }
 
@@ -85,24 +126,6 @@ func healthHandler(c *gin.Context) {
 		"config": gin.H{
 			"admin_user": cfg.User.AdminUsername,
 			"bind_addr":  cfg.Server.BindIP + ":" + cfg.Server.BindPort,
-		},
-	})
-}
-
-func containersHandler(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{
-		"containers": []gin.H{
-			{"id": "container-1", "name": "web-server", "status": "running"},
-			{"id": "container-2", "name": "database", "status": "stopped"},
-		},
-	})
-}
-
-func imagesHandler(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{
-		"images": []gin.H{
-			{"id": "image-1", "name": "nginx:latest", "size": "142MB"},
-			{"id": "image-2", "name": "postgres:14", "size": "376MB"},
 		},
 	})
 }
