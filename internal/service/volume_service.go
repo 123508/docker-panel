@@ -39,11 +39,11 @@ type VolumeRemoveRequest struct {
 
 // VolumeService 数据卷业务逻辑
 type VolumeService struct {
-	docker *docker.DockerClient
+	docker docker.DockerClientInterface
 }
 
 // NewVolumeService 创建 VolumeService
-func NewVolumeService(docker *docker.DockerClient) *VolumeService {
+func NewVolumeService(docker docker.DockerClientInterface) *VolumeService {
 	return &VolumeService{docker: docker}
 }
 

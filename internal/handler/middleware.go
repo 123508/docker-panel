@@ -10,7 +10,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// CORSMiddleware CORS中间件
 func CORSMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Header("Access-Control-Allow-Origin", "*")
@@ -25,14 +24,12 @@ func CORSMiddleware() gin.HandlerFunc {
 	}
 }
 
-// RecoveryMiddleware 错误恢复中间件
 func RecoveryMiddleware() gin.HandlerFunc {
 	return gin.CustomRecovery(func(c *gin.Context, err interface{}) {
-		c.JSON(http.StatusInternalServerError, service.Error(service.ErrCodeSystem, "内部服务器错误"))
+		c.JSON(http.StatusInternalServerError, service.Error(service.ErrCodeSystem, "internal server error"))
 	})
 }
 
-// LoggerMiddleware 日志中间件
 func LoggerMiddleware() gin.HandlerFunc {
 	return gin.LoggerWithFormatter(func(param gin.LogFormatterParams) string {
 		return param.TimeStamp.Format(time.RFC3339) + " | " +
@@ -41,7 +38,6 @@ func LoggerMiddleware() gin.HandlerFunc {
 	})
 }
 
-// respondJSON 统一 JSON 响应
 func respondJSON(c *gin.Context, resp service.Response) {
 	status := http.StatusOK
 	if resp.Code != 0 {

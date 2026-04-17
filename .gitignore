@@ -42,5 +42,5 @@ web/dist/
 .claude
 
 # another file
-**.docx
-**.pdf
+*.docx
+*.pdf

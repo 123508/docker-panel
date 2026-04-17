@@ -283,11 +283,11 @@ type ContainerTopRequest struct {
 
 // ContainerService 容器业务逻辑
 type ContainerService struct {
-	docker *docker.DockerClient
+	docker docker.DockerClientInterface
 }
 
 // NewContainerService 创建 ContainerService
-func NewContainerService(docker *docker.DockerClient) *ContainerService {
+func NewContainerService(docker docker.DockerClientInterface) *ContainerService {
 	return &ContainerService{docker: docker}
 }
 

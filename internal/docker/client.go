@@ -13,6 +13,46 @@ import (
 	"github.com/docker/docker/client"
 )
 
+// DockerClientInterface 定义 Docker 客户端操作接口，便于测试 mock
+type DockerClientInterface interface {
+	ContainerList(ctx context.Context, options container.ListOptions) ([]types.Container, error)
+	ContainerInspect(ctx context.Context, containerID string) (types.ContainerJSON, error)
+	ContainerCreate(ctx context.Context, config *container.Config, hostConfig *container.HostConfig, networkingConfig *network.NetworkingConfig, containerName string) (container.CreateResponse, error)
+	ContainerStart(ctx context.Context, containerID string, options container.StartOptions) error
+	ContainerStop(ctx context.Context, containerID string, options container.StopOptions) error
+	ContainerKill(ctx context.Context, containerID string, signal string) error
+	ContainerRestart(ctx context.Context, containerID string, options container.StopOptions) error
+	ContainerPause(ctx context.Context, containerID string) error
+	ContainerUnpause(ctx context.Context, containerID string) error
+	ContainerRemove(ctx context.Context, containerID string, options container.RemoveOptions) error
+	ContainerRename(ctx context.Context, containerID string, newName string) error
+	ContainerLogs(ctx context.Context, containerID string, options container.LogsOptions) (io.ReadCloser, error)
+	ContainerExecCreate(ctx context.Context, containerID string, config container.ExecOptions) (container.ExecCreateResponse, error)
+	ContainerExecAttach(ctx context.Context, execID string, config container.ExecAttachOptions) (types.HijackedResponse, error)
+	ContainerTop(ctx context.Context, containerID string, arguments []string) (container.ContainerTopOKBody, error)
+	ContainerExport(ctx context.Context, containerID string) (io.ReadCloser, error)
+	ImageList(ctx context.Context, options image.ListOptions) ([]image.Summary, error)
+	ImageInspect(ctx context.Context, imageID string) (types.ImageInspect, error)
+	ImagePull(ctx context.Context, refStr string, options image.PullOptions) (io.ReadCloser, error)
+	ImageRemove(ctx context.Context, imageID string, options image.RemoveOptions) ([]image.DeleteResponse, error)
+	ImageBuild(ctx context.Context, buildContext io.Reader, options types.ImageBuildOptions) (types.ImageBuildResponse, error)
+	ImageSave(ctx context.Context, imageIDs []string) (io.ReadCloser, error)
+	ImageLoad(ctx context.Context, input io.Reader, quiet bool) (image.LoadResponse, error)
+	ImageTag(ctx context.Context, source, target string) error
+	ImagePush(ctx context.Context, ref string, options image.PushOptions) (io.ReadCloser, error)
+	VolumeList(ctx context.Context, filter filters.Args) (volume.ListResponse, error)
+	VolumeInspect(ctx context.Context, volumeID string) (volume.Volume, error)
+	VolumeCreate(ctx context.Context, options volume.CreateOptions) (volume.Volume, error)
+	VolumeRemove(ctx context.Context, volumeID string, force bool) error
+	NetworkList(ctx context.Context, options network.ListOptions) ([]network.Inspect, error)
+	NetworkInspect(ctx context.Context, networkID string, options network.InspectOptions) (network.Inspect, error)
+	NetworkCreate(ctx context.Context, name string, options network.CreateOptions) (network.CreateResponse, error)
+	NetworkRemove(ctx context.Context, networkID string) error
+	NetworkConnect(ctx context.Context, networkID, containerID string, config *network.EndpointSettings) error
+	NetworkDisconnect(ctx context.Context, networkID, containerID string, force bool) error
+	Close() error
+}
+
 // DockerClient 封装 Docker SDK，提供统一的操作接口
 type DockerClient struct {
 	cli *client.Client

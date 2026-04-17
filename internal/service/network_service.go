@@ -61,11 +61,11 @@ type NetworkDisconnectRequest struct {
 
 // NetworkService 网络业务逻辑
 type NetworkService struct {
-	docker *docker.DockerClient
+	docker docker.DockerClientInterface
 }
 
 // NewNetworkService 创建 NetworkService
-func NewNetworkService(docker *docker.DockerClient) *NetworkService {
+func NewNetworkService(docker docker.DockerClientInterface) *NetworkService {
 	return &NetworkService{docker: docker}
 }
 
