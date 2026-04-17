@@ -14,6 +14,8 @@ import (
 
 	"github.com/docker/docker/api/types"
 
+	"flag"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -41,6 +43,11 @@ func printMsg(version types.Version, cfg *config.Config, addr string, r *gin.Eng
 }
 
 func main() {
+	mode := flag.String("mode", "release", "run mode")
+	flag.Parse()
+
+	debug := *mode == "debug"
+
 	if err := config.InitConfig(); err != nil {
 		log.Fatalf("Failed to initialize config: %v", err)
 	}
@@ -71,7 +78,7 @@ func main() {
 		log.Fatalf("Failed to get Docker version: %v", err)
 	}
 
-	printMsg(version, cfg, addr, r, false)
+	printMsg(version, cfg, addr, r, debug)
 
 	if err := r.Run(addr); err != nil {
 		log.Fatal(err)
