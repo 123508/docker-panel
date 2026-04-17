@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    },
+    "strict": true,
+    "jsx": "preserve",
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "ignoreDeprecations": "6.0"
+  },
+  "include": ["src/**/*.ts", "src/**/*.vue", "src/**/*.tsx"]
+}

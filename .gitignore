@@ -41,4 +41,6 @@ web/dist/
 .codex
 .claude
 
+# another file
+*.docx
 *.pdf

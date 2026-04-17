@@ -9,12 +9,12 @@
 </template>
 
 <script setup lang="ts">
-withDefaults(defineProps<{
-  title: string
-  gap?: string
-}>(), {
-  gap: 'var(--section-gap)'
-})
+  withDefaults(defineProps<{
+    title: string
+    gap?: string
+  }>(), {
+    gap: 'var(--section-gap)'
+  })
 </script>
 
 <style>
@@ -23,7 +23,7 @@ withDefaults(defineProps<{
   padding: var(--page-padding-y) var(--page-padding-x);
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  height: 100vh;
 }
 
 .page-header {

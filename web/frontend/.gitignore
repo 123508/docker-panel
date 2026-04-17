@@ -1,4 +1,43 @@
-node_modules/
-dist/
-*.log
+# Binaries
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+docker-panel
+
+# Test binary
+*.test
+
+# Output of the go coverage tool
+*.out
+
+# Dependency directories
+vendor/
+images/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
 .DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Config
+config.toml
+
+# Frontend
+web/frontend/node_modules/
+web/dist/
+
+# Agent files
+.opencode
+.codex
+.claude···

@@ -1,0 +1,24 @@
+# ---------------------------
+# 格式：type(scope): subject
+# - type：必填，标明改动类型
+# - scope：必填，AngularJS 模块/组件/服务/指令等
+# - subject：必填，简短描述改动内容（50 字以内）
+# ---------------------------
+
+# 类型(type)示例：
+# feat     新功能 (feature)
+# fix      修复 bug
+# refactor 代码重构
+# docs     文档修改
+# style    代码格式/空格/分号等不影响功能
+# test     测试相关修改
+# chore    构建/工具/依赖修改
+
+# scope 示例：
+# controller/service/directive/filter/component/module
+
+# 提交信息示例：
+# fix(loginController): 修复密码校验逻辑错误
+# feat(userService): 增加 getUserInfo 方法
+# refactor(dashboardDirective): 优化渲染性能
+# docs(apiDoc): 更新接口说明

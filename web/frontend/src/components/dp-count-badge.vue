@@ -5,9 +5,14 @@
 </template>
 
 <script setup lang="ts">
-defineProps<{
-  count: number
-}>()
+
+  defineOptions({
+    name:'dp-count-badge'
+  })
+
+  defineProps<{
+    count: number
+  }>()
 </script>
 
 <style scoped>
