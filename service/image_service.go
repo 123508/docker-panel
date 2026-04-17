@@ -85,11 +85,11 @@ type ImageImportRequest struct {
 
 // ImageService 镜像业务逻辑
 type ImageService struct {
-	docker *docker_cli_wrapper.DockerClient
+	docker docker_cli_wrapper.DockerClientInterface
 }
 
 // NewImageService 创建 ImageService
-func NewImageService(docker *docker_cli_wrapper.DockerClient) *ImageService {
+func NewImageService(docker docker_cli_wrapper.DockerClientInterface) *ImageService {
 	return &ImageService{docker: docker}
 }
 
