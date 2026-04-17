@@ -21,6 +21,7 @@ type UserConfig struct {
 type ServerConfig struct {
 	BindIP   string `mapstructure:"bind_ip"`
 	BindPort string `mapstructure:"bind_port"`
+	Debug	 bool   `mapstructure:"debug"`
 }
 
 var AppConfig *Config
@@ -59,13 +60,14 @@ func createDefaultConfig(configFile string) error {
 	}
 
 	defaultConfig := `[user]
-admin_username = "admin"
-admin_password = "admin123"
+					  admin_username = "admin"
+					  admin_password = "admin123"
 
-[server]
-bind_ip = "0.0.0.0"
-bind_port = "8080"
-`
+					  [server]
+					  bind_ip = "0.0.0.0"
+					  bind_port = "8080"
+					  debug = false
+					  `
 
 	return os.WriteFile(configFile, []byte(defaultConfig), 0644)
 }
