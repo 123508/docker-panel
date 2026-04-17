@@ -39,7 +39,7 @@ web/dist/
 # Agent files
 .opencode
 .codex
-.claude···
+.claude
 
 # another file
 **.docx

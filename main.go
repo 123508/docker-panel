@@ -1,15 +1,18 @@
 package main
 
 import (
-	"docker-panel/docker_cli_wrapper"
-	"docker-panel/handler"
+	"context"
 	"docker-panel/internal/config"
-	"docker-panel/service"
+	"docker-panel/internal/docker"
+	"docker-panel/internal/handler"
+	"docker-panel/internal/service"
 	"embed"
 	"fmt"
 	"io/fs"
 	"log"
 	"net/http"
+
+	"github.com/docker/docker/api/types"
 
 	"github.com/gin-gonic/gin"
 )
@@ -17,42 +20,16 @@ import (
 //go:embed web/dist
 var staticFS embed.FS
 
-func main() {
-	if err := config.InitConfig(); err != nil {
-		log.Fatalf("Failed to initialize config: %v", err)
+func printMsg(version types.Version, cfg *config.Config, addr string, r *gin.Engine, debug bool) {
+
+	if !debug {
+		return
 	}
 
-	// 初始化 Docker 客户端
-	dockerClient, err := docker_cli_wrapper.NewDockerClient()
-	if err != nil {
-		log.Fatalf("Failed to connect to Docker: %v", err)
-	}
-	defer dockerClient.Close()
-
-	// 初始化 Service 层
-	containerSvc := service.NewContainerService(dockerClient)
-	imageSvc := service.NewImageService(dockerClient)
-	volumeSvc := service.NewVolumeService(dockerClient)
-	networkSvc := service.NewNetworkService(dockerClient)
-
-	// 初始化 Handler 层
-	containerHandler := handler.NewContainerHandler(containerSvc)
-	imageHandler := handler.NewImageHandler(imageSvc)
-	volumeHandler := handler.NewVolumeHandler(volumeSvc)
-	networkHandler := handler.NewNetworkHandler(networkSvc)
-
-	gin.SetMode(gin.ReleaseMode)
-	r := gin.New()
-	r.Use(handler.RecoveryMiddleware())
-	r.Use(handler.LoggerMiddleware())
-	r.Use(handler.CORSMiddleware())
-
-	registerAPIRoutes(r, containerHandler, imageHandler, volumeHandler, networkHandler)
-	setupStaticFiles(r)
-
-	cfg := config.AppConfig
-	addr := cfg.Server.BindIP + ":" + cfg.Server.BindPort
-
+	fmt.Printf("Docker Engine 版本: %s\n", version.Version)
+	fmt.Printf("Docker API 版本: %s\n", version.APIVersion)
+	fmt.Printf("编译 Docker 的 Go 版本: %s\n", version.GoVersion)
+	fmt.Printf("系统信息: %s/%s\n", version.Os, version.Arch)
 	fmt.Printf("\nDocker Panel 启动成功！\n")
 	fmt.Printf("管理员账号: %s\n", cfg.User.AdminUsername)
 	fmt.Printf("绑定地址: %s\n", addr)
@@ -61,30 +38,43 @@ func main() {
 	for _, route := range r.Routes() {
 		fmt.Printf("%-6s %-30s %s\n", route.Method, route.Path, route.Handler)
 	}
+}
+
+func main() {
+	if err := config.InitConfig(); err != nil {
+		log.Fatalf("Failed to initialize config: %v", err)
+	}
+
+	// 初始化 Docker 客户端
+	dockerClient, err := docker.NewDockerClient()
+	if err != nil {
+		log.Fatalf("Failed to connect to Docker: %v", err)
+	}
+	defer dockerClient.Close()
+
+	// 初始化 Handler 层
+	deps := handler.Dependencies{
+		ContainerSvc: service.NewContainerService(dockerClient),
+		ImageSvc:     service.NewImageService(dockerClient),
+		VolumeSvc:    service.NewVolumeService(dockerClient),
+		NetworkSvc:   service.NewNetworkService(dockerClient),
+	}
+
+	// 初始化路由
+	r := handler.NewRouter(deps)
+	setupStaticFiles(r)
+
+	cfg := config.AppConfig
+	addr := cfg.Server.BindIP + ":" + cfg.Server.BindPort
+	version, err := dockerClient.Version(context.Background())
+	if err != nil {
+		log.Fatalf("Failed to get Docker version: %v", err)
+	}
+
+	printMsg(version, cfg, addr, r, false)
 
 	if err := r.Run(addr); err != nil {
 		log.Fatal(err)
-	}
-}
-
-func registerAPIRoutes(
-	r *gin.Engine,
-	containerH *handler.ContainerHandler,
-	imageH *handler.ImageHandler,
-	volumeH *handler.VolumeHandler,
-	networkH *handler.NetworkHandler,
-) {
-	api := r.Group("/api")
-	{
-		api.GET("/health", healthHandler)
-	}
-
-	v1 := api.Group("/v1")
-	{
-		containerH.RegisterRoutes(v1)
-		imageH.RegisterRoutes(v1)
-		volumeH.RegisterRoutes(v1)
-		networkH.RegisterRoutes(v1)
 	}
 }
 
@@ -116,16 +106,4 @@ func fileExists(fsys fs.FS, path string) bool {
 	}
 	_, err := fsys.Open(path)
 	return err == nil
-}
-
-func healthHandler(c *gin.Context) {
-	cfg := config.AppConfig
-	c.JSON(http.StatusOK, gin.H{
-		"status":  "ok",
-		"message": "Docker Panel is running",
-		"config": gin.H{
-			"admin_user": cfg.User.AdminUsername,
-			"bind_addr":  cfg.Server.BindIP + ":" + cfg.Server.BindPort,
-		},
-	})
 }

@@ -2,7 +2,7 @@ package service
 
 import (
 	"context"
-	"docker-panel/docker_cli_wrapper"
+	"docker-panel/internal/docker"
 	"fmt"
 	"io"
 
@@ -85,11 +85,11 @@ type ImageImportRequest struct {
 
 // ImageService 镜像业务逻辑
 type ImageService struct {
-	docker *docker_cli_wrapper.DockerClient
+	docker *docker.DockerClient
 }
 
 // NewImageService 创建 ImageService
-func NewImageService(docker *docker_cli_wrapper.DockerClient) *ImageService {
+func NewImageService(docker *docker.DockerClient) *ImageService {
 	return &ImageService{docker: docker}
 }
 

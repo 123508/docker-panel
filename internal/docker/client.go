@@ -1,4 +1,4 @@
-package docker_cli_wrapper
+package docker
 
 import (
 	"context"
@@ -30,6 +30,10 @@ func NewDockerClient() (*DockerClient, error) {
 // Close 关闭 Docker 客户端连接
 func (d *DockerClient) Close() error {
 	return d.cli.Close()
+}
+
+func (d *DockerClient) Version(ctx context.Context) (types.Version, error) {
+	return d.cli.ServerVersion(ctx)
 }
 
 // ========== 容器操作 ==========

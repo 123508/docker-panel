@@ -2,7 +2,7 @@ package service
 
 import (
 	"context"
-	"docker-panel/docker_cli_wrapper"
+	"docker-panel/internal/docker"
 	"fmt"
 	"io"
 
@@ -88,15 +88,15 @@ type ContainerConfig struct {
 
 // NetworkSettings 网络设置
 type NetworkSettings struct {
-	Bridge               string                       `json:"bridge"`
-	SandboxID            string                       `json:"sandbox_id"`
-	HairpinMode          bool                         `json:"hairpin_mode"`
-	LinkLocalIPv6Address string                       `json:"link_local_ipv6_address"`
-	Ports                map[string][]PortBinding     `json:"ports"`
-	SandboxKey           string                       `json:"sandbox_key"`
-	IPAddress            string                       `json:"ip_address"`
-	MacAddress           string                       `json:"mac_address"`
-	Networks             map[string]EndpointSettings  `json:"networks"`
+	Bridge               string                      `json:"bridge"`
+	SandboxID            string                      `json:"sandbox_id"`
+	HairpinMode          bool                        `json:"hairpin_mode"`
+	LinkLocalIPv6Address string                      `json:"link_local_ipv6_address"`
+	Ports                map[string][]PortBinding    `json:"ports"`
+	SandboxKey           string                      `json:"sandbox_key"`
+	IPAddress            string                      `json:"ip_address"`
+	MacAddress           string                      `json:"mac_address"`
+	Networks             map[string]EndpointSettings `json:"networks"`
 }
 
 // EndpointSettings 端点设置
@@ -116,24 +116,24 @@ type RestartPolicy struct {
 
 // HostConfig 主机配置
 type HostConfig struct {
-	Binds           []string              `json:"binds"`
-	NetworkMode     string                `json:"network_mode"`
+	Binds           []string                 `json:"binds"`
+	NetworkMode     string                   `json:"network_mode"`
 	PortBindings    map[string][]PortBinding `json:"port_bindings"`
-	RestartPolicy   RestartPolicy         `json:"restart_policy"`
-	AutoRemove      bool                  `json:"auto_remove"`
-	VolumeDriver    string                `json:"volume_driver"`
-	VolumesFrom     []string              `json:"volumes_from"`
-	CapAdd          []string              `json:"cap_add"`
-	CapDrop         []string              `json:"cap_drop"`
-	Dns             []string              `json:"dns"`
-	ExtraHosts      []string              `json:"extra_hosts"`
-	Privileged      bool                  `json:"privileged"`
-	PublishAllPorts bool                  `json:"publish_all_ports"`
-	ReadonlyRootfs  bool                  `json:"readonly_rootfs"`
-	Memory          int64                 `json:"memory"`
-	MemorySwap      int64                 `json:"memory_swap"`
-	NanoCPUs        int64                 `json:"nano_cpus"`
-	CPUShares       int64                 `json:"cpu_shares"`
+	RestartPolicy   RestartPolicy            `json:"restart_policy"`
+	AutoRemove      bool                     `json:"auto_remove"`
+	VolumeDriver    string                   `json:"volume_driver"`
+	VolumesFrom     []string                 `json:"volumes_from"`
+	CapAdd          []string                 `json:"cap_add"`
+	CapDrop         []string                 `json:"cap_drop"`
+	Dns             []string                 `json:"dns"`
+	ExtraHosts      []string                 `json:"extra_hosts"`
+	Privileged      bool                     `json:"privileged"`
+	PublishAllPorts bool                     `json:"publish_all_ports"`
+	ReadonlyRootfs  bool                     `json:"readonly_rootfs"`
+	Memory          int64                    `json:"memory"`
+	MemorySwap      int64                    `json:"memory_swap"`
+	NanoCPUs        int64                    `json:"nano_cpus"`
+	CPUShares       int64                    `json:"cpu_shares"`
 }
 
 // ContainerDetail 容器详情
@@ -173,8 +173,8 @@ type BindOptions struct {
 
 // VolumeOptions 卷挂载选项
 type VolumeOptions struct {
-	NoCopy       bool              `json:"no_copy"`
-	Labels       map[string]string `json:"labels"`
+	NoCopy bool              `json:"no_copy"`
+	Labels map[string]string `json:"labels"`
 }
 
 // MountRequest 挂载请求
@@ -283,11 +283,11 @@ type ContainerTopRequest struct {
 
 // ContainerService 容器业务逻辑
 type ContainerService struct {
-	docker *docker_cli_wrapper.DockerClient
+	docker *docker.DockerClient
 }
 
 // NewContainerService 创建 ContainerService
-func NewContainerService(docker *docker_cli_wrapper.DockerClient) *ContainerService {
+func NewContainerService(docker *docker.DockerClient) *ContainerService {
 	return &ContainerService{docker: docker}
 }
 
@@ -440,8 +440,8 @@ func (s *ContainerService) ContainerCreate(ctx context.Context, req ContainerCre
 		NetworkMode: container.NetworkMode(req.HostConfig.NetworkMode),
 		Privileged:  req.HostConfig.Privileged,
 		Resources: container.Resources{
-			Memory:    req.HostConfig.Memory,
-			NanoCPUs:  req.HostConfig.NanoCPUs,
+			Memory:   req.HostConfig.Memory,
+			NanoCPUs: req.HostConfig.NanoCPUs,
 		},
 	}
 

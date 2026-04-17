@@ -2,7 +2,7 @@ package service
 
 import (
 	"context"
-	"docker-panel/docker_cli_wrapper"
+	"docker-panel/internal/docker"
 	"fmt"
 
 	"github.com/docker/docker/api/types/filters"
@@ -39,11 +39,11 @@ type VolumeRemoveRequest struct {
 
 // VolumeService 数据卷业务逻辑
 type VolumeService struct {
-	docker *docker_cli_wrapper.DockerClient
+	docker *docker.DockerClient
 }
 
 // NewVolumeService 创建 VolumeService
-func NewVolumeService(docker *docker_cli_wrapper.DockerClient) *VolumeService {
+func NewVolumeService(docker *docker.DockerClient) *VolumeService {
 	return &VolumeService{docker: docker}
 }
 

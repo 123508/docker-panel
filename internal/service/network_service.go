@@ -2,7 +2,7 @@ package service
 
 import (
 	"context"
-	"docker-panel/docker_cli_wrapper"
+	"docker-panel/internal/docker"
 	"fmt"
 
 	"github.com/docker/docker/api/types/network"
@@ -61,11 +61,11 @@ type NetworkDisconnectRequest struct {
 
 // NetworkService 网络业务逻辑
 type NetworkService struct {
-	docker *docker_cli_wrapper.DockerClient
+	docker *docker.DockerClient
 }
 
 // NewNetworkService 创建 NetworkService
-func NewNetworkService(docker *docker_cli_wrapper.DockerClient) *NetworkService {
+func NewNetworkService(docker *docker.DockerClient) *NetworkService {
 	return &NetworkService{docker: docker}
 }
 

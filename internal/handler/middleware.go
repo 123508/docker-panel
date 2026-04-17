@@ -1,10 +1,10 @@
 package handler
 
 import (
-	"docker-panel/service"
+	"docker-panel/internal/service"
 	"net/http"
-	"strings"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
