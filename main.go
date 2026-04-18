@@ -57,7 +57,11 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to connect to Docker: %v", err)
 	}
-	defer dockerClient.Close()
+	defer func() {
+		if err := dockerClient.Close(); err != nil {
+			log.Printf("Failed to close Docker client: %v", err)
+		}
+	}()
 
 	// 初始化 Handler 层
 	deps := handler.Dependencies{

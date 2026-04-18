@@ -39,20 +39,22 @@ func LoggerMiddleware() gin.HandlerFunc {
 }
 
 func respondJSON(c *gin.Context, resp service.Response) {
-	status := http.StatusOK
-	if resp.Code != 0 {
+	var status int
+	switch resp.Code {
+	case service.ErrCodeUnauthorized:
+		status = http.StatusUnauthorized
+	case service.ErrCodeForbidden:
+		status = http.StatusForbidden
+	case service.ErrCodeNotFound,
+		service.ErrCodeContainerNotFound,
+		service.ErrCodeImageNotFound,
+		service.ErrCodeNetworkNotFound,
+		service.ErrCodeVolumeNotFound:
+		status = http.StatusNotFound
+	case 0:
+		status = http.StatusOK
+	default:
 		status = http.StatusBadRequest
-		if resp.Code == service.ErrCodeUnauthorized {
-			status = http.StatusUnauthorized
-		} else if resp.Code == service.ErrCodeForbidden {
-			status = http.StatusForbidden
-		} else if resp.Code == service.ErrCodeNotFound ||
-			resp.Code == service.ErrCodeContainerNotFound ||
-			resp.Code == service.ErrCodeImageNotFound ||
-			resp.Code == service.ErrCodeNetworkNotFound ||
-			resp.Code == service.ErrCodeVolumeNotFound {
-			status = http.StatusNotFound
-		}
 	}
 	c.JSON(status, resp)
 }

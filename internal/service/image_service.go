@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/build"
 	"github.com/docker/docker/api/types/image"
 )
 
@@ -20,7 +20,6 @@ type ImageListItem struct {
 	RepoDigests []string          `json:"repo_digests"`
 	Created     int64             `json:"created"`
 	Size        int64             `json:"size"`
-	VirtualSize int64             `json:"virtual_size"`
 	SharedSize  int64             `json:"shared_size"`
 	Labels      map[string]string `json:"labels"`
 	Containers  int               `json:"containers"`
@@ -31,18 +30,15 @@ type ImageDetail struct {
 	ID              string          `json:"id"`
 	RepoTags        []string        `json:"repo_tags"`
 	RepoDigests     []string        `json:"repo_digests"`
-	Parent          string          `json:"parent"`
 	Comment         string          `json:"comment"`
 	Created         string          `json:"created"`
 	Container       string          `json:"container"`
 	ContainerConfig ContainerConfig `json:"container_config"`
-	DockerVersion   string          `json:"docker_version"`
 	Author          string          `json:"author"`
 	Config          ContainerConfig `json:"config"`
 	Architecture    string          `json:"architecture"`
 	Os              string          `json:"os"`
 	Size            int64           `json:"size"`
-	VirtualSize     int64           `json:"virtual_size"`
 }
 
 // ImageListRequest 镜像列表请求
@@ -109,7 +105,6 @@ func (s *ImageService) ImageList(ctx context.Context, req ImageListRequest) ([]I
 			RepoDigests: img.RepoDigests,
 			Created:     img.Created,
 			Size:        img.Size,
-			VirtualSize: img.VirtualSize,
 			SharedSize:  img.SharedSize,
 			Labels:      img.Labels,
 			Containers:  int(img.Containers),
@@ -126,18 +121,15 @@ func (s *ImageService) ImageInspect(ctx context.Context, imageID string) (*Image
 	}
 
 	detail := &ImageDetail{
-		ID:            info.ID,
-		RepoTags:      info.RepoTags,
-		RepoDigests:   info.RepoDigests,
-		Parent:        info.Parent,
-		Comment:       info.Comment,
-		Created:       info.Created,
-		DockerVersion: info.DockerVersion,
-		Author:        info.Author,
-		Architecture:  info.Architecture,
-		Os:            info.Os,
-		Size:          info.Size,
-		VirtualSize:   info.VirtualSize,
+		ID:           info.ID,
+		RepoTags:     info.RepoTags,
+		RepoDigests:  info.RepoDigests,
+		Comment:      info.Comment,
+		Created:      info.Created,
+		Author:       info.Author,
+		Architecture: info.Architecture,
+		Os:           info.Os,
+		Size:         info.Size,
 	}
 	return detail, nil
 }
@@ -164,10 +156,10 @@ func (s *ImageService) ImageRemove(ctx context.Context, imageID string, force bo
 }
 
 // ImageBuild 构建镜像
-func (s *ImageService) ImageBuild(ctx context.Context, buildContext io.Reader, options types.ImageBuildOptions) (types.ImageBuildResponse, error) {
+func (s *ImageService) ImageBuild(ctx context.Context, buildContext io.Reader, options build.ImageBuildOptions) (build.ImageBuildResponse, error) {
 	resp, err := s.docker.ImageBuild(ctx, buildContext, options)
 	if err != nil {
-		return types.ImageBuildResponse{}, fmt.Errorf("docker build image: %w", err)
+		return build.ImageBuildResponse{}, fmt.Errorf("docker build image: %w", err)
 	}
 	return resp, nil
 }

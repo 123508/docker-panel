@@ -21,7 +21,7 @@ type UserConfig struct {
 type ServerConfig struct {
 	BindIP   string `mapstructure:"bind_ip"`
 	BindPort string `mapstructure:"bind_port"`
-	Debug	 bool   `mapstructure:"debug"`
+	Debug    bool   `mapstructure:"debug"`
 }
 
 var AppConfig *Config

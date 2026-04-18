@@ -44,7 +44,9 @@ func TestVolumeHandler_List(t *testing.T) {
 			t.Errorf("expected status %d, got %d", http.StatusOK, w.Code)
 		}
 		var resp service.Response
-		json.Unmarshal(w.Body.Bytes(), &resp)
+		if err := json.Unmarshal(w.Body.Bytes(), &resp); err != nil {
+			t.Fatalf("failed to unmarshal response: %v", err)
+		}
 		if resp.Code != 0 {
 			t.Errorf("expected code 0, got %d", resp.Code)
 		}
@@ -67,7 +69,9 @@ func TestVolumeHandler_Inspect(t *testing.T) {
 			t.Errorf("expected status %d, got %d", http.StatusOK, w.Code)
 		}
 		var resp service.Response
-		json.Unmarshal(w.Body.Bytes(), &resp)
+		if err := json.Unmarshal(w.Body.Bytes(), &resp); err != nil {
+			t.Fatalf("failed to unmarshal response: %v", err)
+		}
 		if resp.Code != 0 {
 			t.Errorf("expected code 0, got %d", resp.Code)
 		}
@@ -92,7 +96,9 @@ func TestVolumeHandler_Create(t *testing.T) {
 			t.Errorf("expected status %d, got %d", http.StatusOK, w.Code)
 		}
 		var resp service.Response
-		json.Unmarshal(w.Body.Bytes(), &resp)
+		if err := json.Unmarshal(w.Body.Bytes(), &resp); err != nil {
+			t.Fatalf("failed to unmarshal response: %v", err)
+		}
 		if resp.Code != 0 {
 			t.Errorf("expected code 0, got %d", resp.Code)
 		}
@@ -109,7 +115,9 @@ func TestVolumeHandler_Create(t *testing.T) {
 			t.Errorf("expected status %d, got %d", http.StatusBadRequest, w.Code)
 		}
 		var resp service.Response
-		json.Unmarshal(w.Body.Bytes(), &resp)
+		if err := json.Unmarshal(w.Body.Bytes(), &resp); err != nil {
+			t.Fatalf("failed to unmarshal response: %v", err)
+		}
 		if resp.Code == 0 {
 			t.Errorf("expected non-zero code, got %d", resp.Code)
 		}
@@ -132,7 +140,9 @@ func TestVolumeHandler_Remove(t *testing.T) {
 			t.Errorf("expected status %d, got %d", http.StatusOK, w.Code)
 		}
 		var resp service.Response
-		json.Unmarshal(w.Body.Bytes(), &resp)
+		if err := json.Unmarshal(w.Body.Bytes(), &resp); err != nil {
+			t.Fatalf("failed to unmarshal response: %v", err)
+		}
 		if resp.Code != 0 {
 			t.Errorf("expected code 0, got %d", resp.Code)
 		}

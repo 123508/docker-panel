@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/build"
 	"github.com/docker/docker/api/types/image"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
@@ -63,7 +63,7 @@ func TestImageService_ImageInspect_Success(t *testing.T) {
 	service := NewImageService(mockClient)
 	ctx := context.Background()
 
-	mockInfo := types.ImageInspect{
+	mockInfo := image.InspectResponse{
 		ID:       "image1",
 		RepoTags: []string{"ubuntu:latest"},
 		Author:   "test",
@@ -87,7 +87,7 @@ func TestImageService_ImageInspect_Error(t *testing.T) {
 	service := NewImageService(mockClient)
 	ctx := context.Background()
 
-	mockClient.EXPECT().ImageInspect(ctx, "image1").Return(types.ImageInspect{}, errors.New("not found"))
+	mockClient.EXPECT().ImageInspect(ctx, "image1").Return(image.InspectResponse{}, errors.New("not found"))
 
 	detail, err := service.ImageInspect(ctx, "image1")
 
@@ -171,8 +171,8 @@ func TestImageService_ImageBuild_Success(t *testing.T) {
 	ctx := context.Background()
 
 	mockCtx := strings.NewReader("dockerfile")
-	mockOpts := types.ImageBuildOptions{Tags: []string{"myimage"}}
-	mockResp := types.ImageBuildResponse{Body: io.NopCloser(strings.NewReader("building..."))}
+	mockOpts := build.ImageBuildOptions{Tags: []string{"myimage"}}
+	mockResp := build.ImageBuildResponse{Body: io.NopCloser(strings.NewReader("building..."))}
 
 	mockClient.EXPECT().ImageBuild(ctx, mockCtx, mockOpts).Return(mockResp, nil)
 
@@ -191,9 +191,9 @@ func TestImageService_ImageBuild_Error(t *testing.T) {
 	ctx := context.Background()
 
 	mockCtx := strings.NewReader("dockerfile")
-	mockOpts := types.ImageBuildOptions{}
+	mockOpts := build.ImageBuildOptions{}
 
-	mockClient.EXPECT().ImageBuild(ctx, mockCtx, mockOpts).Return(types.ImageBuildResponse{}, errors.New("build error"))
+	mockClient.EXPECT().ImageBuild(ctx, mockCtx, mockOpts).Return(build.ImageBuildResponse{}, errors.New("build error"))
 
 	resp, err := service.ImageBuild(ctx, mockCtx, mockOpts)
 

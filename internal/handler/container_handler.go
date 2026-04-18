@@ -75,7 +75,9 @@ func (h *ContainerHandler) Start(c *gin.Context) {
 // Stop POST /api/v1/containers/:id/stop
 func (h *ContainerHandler) Stop(c *gin.Context) {
 	var req service2.ContainerStopRequest
-	_ = c.ShouldBindJSON(&req)
+	if err := c.ShouldBindJSON(&req); err != nil {
+		_ = c.Error(err)
+	}
 	if err := h.svc.ContainerStop(c.Request.Context(), c.Param("id"), req.Timeout); err != nil {
 		respondJSON(c, service2.Error(service2.ErrCodeDockerAPI, err.Error()))
 		return
@@ -86,7 +88,9 @@ func (h *ContainerHandler) Stop(c *gin.Context) {
 // Kill POST /api/v1/containers/:id/kill
 func (h *ContainerHandler) Kill(c *gin.Context) {
 	var req service2.ContainerKillRequest
-	_ = c.ShouldBindJSON(&req)
+	if err := c.ShouldBindJSON(&req); err != nil {
+		_ = c.Error(err)
+	}
 	if err := h.svc.ContainerKill(c.Request.Context(), c.Param("id"), req.Signal); err != nil {
 		respondJSON(c, service2.Error(service2.ErrCodeDockerAPI, err.Error()))
 		return
@@ -97,7 +101,9 @@ func (h *ContainerHandler) Kill(c *gin.Context) {
 // Restart POST /api/v1/containers/:id/restart
 func (h *ContainerHandler) Restart(c *gin.Context) {
 	var req service2.ContainerRestartRequest
-	_ = c.ShouldBindJSON(&req)
+	if err := c.ShouldBindJSON(&req); err != nil {
+		_ = c.Error(err)
+	}
 	if err := h.svc.ContainerRestart(c.Request.Context(), c.Param("id"), req.Timeout); err != nil {
 		respondJSON(c, service2.Error(service2.ErrCodeDockerAPI, err.Error()))
 		return
@@ -126,7 +132,9 @@ func (h *ContainerHandler) Unpause(c *gin.Context) {
 // Remove DELETE /api/v1/containers/:id
 func (h *ContainerHandler) Remove(c *gin.Context) {
 	var req service2.ContainerRemoveRequest
-	_ = c.ShouldBindQuery(&req)
+	if err := c.ShouldBindQuery(&req); err != nil {
+		_ = c.Error(err)
+	}
 	if err := h.svc.ContainerRemove(c.Request.Context(), c.Param("id"), req.Force, req.RemoveVolumes); err != nil {
 		respondJSON(c, service2.Error(service2.ErrCodeDockerAPI, err.Error()))
 		return
@@ -166,12 +174,14 @@ func (h *ContainerHandler) Logs(c *gin.Context) {
 		respondJSON(c, service2.Error(service2.ErrCodeDockerAPI, err.Error()))
 		return
 	}
-	defer rc.Close()
+	defer func() { _ = rc.Close() }()
 
 	c.Header("Content-Type", "text/plain; charset=utf-8")
 	c.Header("Transfer-Encoding", "chunked")
 	c.Status(http.StatusOK)
-	io.Copy(c.Writer, rc)
+	if _, err := io.Copy(c.Writer, rc); err != nil {
+		_ = c.Error(err)
+	}
 }
 
 // Exec POST /api/v1/containers/:id/exec
@@ -207,7 +217,7 @@ func (h *ContainerHandler) Terminal(c *gin.Context) {
 	if err != nil {
 		return
 	}
-	defer ws.Close()
+	defer func() { _ = ws.Close() }()
 
 	ctx := c.Request.Context()
 
@@ -216,13 +226,13 @@ func (h *ContainerHandler) Terminal(c *gin.Context) {
 		Cmd: []string{"sh"},
 	})
 	if err != nil {
-		ws.WriteMessage(websocket.TextMessage, []byte("error: "+err.Error()))
+		_ = ws.WriteMessage(websocket.TextMessage, []byte("error: "+err.Error()))
 		return
 	}
 
 	hijack, err := h.svc.ContainerExecAttach(ctx, execID)
 	if err != nil {
-		ws.WriteMessage(websocket.TextMessage, []byte("error: "+err.Error()))
+		_ = ws.WriteMessage(websocket.TextMessage, []byte("error: "+err.Error()))
 		return
 	}
 	defer hijack.Close()
@@ -234,7 +244,9 @@ func (h *ContainerHandler) Terminal(c *gin.Context) {
 			if err != nil {
 				return
 			}
-			hijack.Conn.Write(msg)
+			if _, err := hijack.Conn.Write(msg); err != nil {
+				return
+			}
 		}
 	}()
 
@@ -243,7 +255,9 @@ func (h *ContainerHandler) Terminal(c *gin.Context) {
 	for {
 		n, err := hijack.Reader.Read(buf)
 		if n > 0 {
-			ws.WriteMessage(websocket.BinaryMessage, buf[:n])
+			if err := ws.WriteMessage(websocket.BinaryMessage, buf[:n]); err != nil {
+				break
+			}
 		}
 		if err != nil {
 			break
@@ -254,7 +268,9 @@ func (h *ContainerHandler) Terminal(c *gin.Context) {
 // Top GET /api/v1/containers/:id/top
 func (h *ContainerHandler) Top(c *gin.Context) {
 	var req service2.ContainerTopRequest
-	_ = c.ShouldBindQuery(&req)
+	if err := c.ShouldBindQuery(&req); err != nil {
+		_ = c.Error(err)
+	}
 	result, err := h.svc.ContainerTop(c.Request.Context(), c.Param("id"), req.PsArgs)
 	if err != nil {
 		respondJSON(c, service2.Error(service2.ErrCodeDockerAPI, err.Error()))
@@ -290,10 +306,12 @@ func (h *ContainerHandler) Export(c *gin.Context) {
 		respondJSON(c, service2.Error(service2.ErrCodeDockerAPI, err.Error()))
 		return
 	}
-	defer rc.Close()
+	defer func() { _ = rc.Close() }()
 
 	c.Header("Content-Type", "application/x-tar")
 	c.Header("Content-Disposition", "attachment; filename=container.tar")
 	c.Status(http.StatusOK)
-	io.Copy(c.Writer, rc)
+	if _, err := io.Copy(c.Writer, rc); err != nil {
+		_ = c.Error(err)
+	}
 }

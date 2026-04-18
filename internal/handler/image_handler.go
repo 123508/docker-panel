@@ -5,7 +5,7 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/build"
 	"github.com/gin-gonic/gin"
 )
 
@@ -57,12 +57,14 @@ func (h *ImageHandler) Pull(c *gin.Context) {
 		respondJSON(c, service2.Error(service2.ErrCodeDockerAPI, err.Error()))
 		return
 	}
-	defer rc.Close()
+	defer func() { _ = rc.Close() }()
 
 	c.Header("Content-Type", "application/json")
 	c.Header("Transfer-Encoding", "chunked")
 	c.Status(http.StatusOK)
-	io.Copy(c.Writer, rc)
+	if _, err := io.Copy(c.Writer, rc); err != nil {
+		_ = c.Error(err)
+	}
 }
 
 // Remove DELETE /api/v1/images/:id
@@ -105,12 +107,14 @@ func (h *ImageHandler) Push(c *gin.Context) {
 		respondJSON(c, service2.Error(service2.ErrCodeDockerAPI, err.Error()))
 		return
 	}
-	defer rc.Close()
+	defer func() { _ = rc.Close() }()
 
 	c.Header("Content-Type", "application/json")
 	c.Header("Transfer-Encoding", "chunked")
 	c.Status(http.StatusOK)
-	io.Copy(c.Writer, rc)
+	if _, err := io.Copy(c.Writer, rc); err != nil {
+		_ = c.Error(err)
+	}
 }
 
 // Save GET /api/v1/images/:id/save
@@ -120,12 +124,14 @@ func (h *ImageHandler) Save(c *gin.Context) {
 		respondJSON(c, service2.Error(service2.ErrCodeDockerAPI, err.Error()))
 		return
 	}
-	defer rc.Close()
+	defer func() { _ = rc.Close() }()
 
 	c.Header("Content-Type", "application/x-tar")
 	c.Header("Content-Disposition", "attachment; filename=image.tar")
 	c.Status(http.StatusOK)
-	io.Copy(c.Writer, rc)
+	if _, err := io.Copy(c.Writer, rc); err != nil {
+		_ = c.Error(err)
+	}
 }
 
 // Load POST /api/v1/images/load
@@ -135,16 +141,20 @@ func (h *ImageHandler) Load(c *gin.Context) {
 		respondJSON(c, service2.Error(service2.ErrCodeInvalidParam, "缺少file参数"))
 		return
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	resp, err := h.svc.ImageLoad(c.Request.Context(), file, false)
 	if err != nil {
 		respondJSON(c, service2.Error(service2.ErrCodeDockerAPI, err.Error()))
 		return
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
-	body, _ := io.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		respondJSON(c, service2.Error(service2.ErrCodeDockerAPI, err.Error()))
+		return
+	}
 	respondJSON(c, service2.Success(gin.H{"output": string(body)}))
 }
 
@@ -157,7 +167,7 @@ func (h *ImageHandler) Import(c *gin.Context) {
 	}
 
 	// 通过 ImageLoad 实现导入（从body读取tar流）
-	buildOpts := types.ImageBuildOptions{
+	buildOpts := build.ImageBuildOptions{
 		Tags:   []string{req.Repository + ":" + req.Tag},
 		Remove: true,
 	}
