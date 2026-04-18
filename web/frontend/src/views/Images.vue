@@ -17,7 +17,7 @@
                    fixed-row-height
                    :columns="columns">
 
-      <div v-for="img in pagedImages" :key="img.repo" class="table-row">
+      <div v-for="img in pagedImages" :key="img.fullId" class="table-row">
         <div class="td" style="width: 40px; display: flex; align-items: center">
           <div class="row-icon" :style="{ background: img.color }"></div>
         </div>
@@ -28,7 +28,7 @@
         <span class="td col-created td-muted-sm">{{ img.created }}</span>
         <div class="td td-actions" style="flex: 1">
           <dp-button text="运行" size="small" variant="text" type="info" />
-          <dp-button text="移除" size="small" variant="text" type="danger" />
+          <dp-button text="移除" size="small" variant="text" type="danger" @click="removeImage(img.fullId)" />
         </div>
       </div>
     </dp-data-table>
@@ -50,7 +50,7 @@ import DpButton from "@/components/dp-button.vue";
 import DpSearchInput from "@/components/dp-search-input.vue";
 import DpPagination from "@/components/dp-pagination.vue";
 import {ImageState} from '@/composables/Images';
-const {state, pagedImages} = ImageState();
+const {state, pagedImages, removeImage} = ImageState();
 
 const columns = [
   { key: 'icon', width: 40 },
