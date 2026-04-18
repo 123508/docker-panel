@@ -37,7 +37,13 @@ export function call<T>(
 ) {
     const promise = (async () => {
         try {
-            const resp = await http({ method, url: endpoint, data })
+            const reqConfig: any = { method, url: endpoint }
+            if (method.toUpperCase() === 'GET') {
+                reqConfig.params = data
+            } else {
+                reqConfig.data = data
+            }
+            const resp = await http(reqConfig)
             const res = resp.data
 
             if (res.code !== 0) {
