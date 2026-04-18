@@ -10,7 +10,6 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
@@ -35,7 +34,7 @@ func TestContainerHandler_List(t *testing.T) {
 	r := setupTestRouter(svc)
 
 	t.Run("success", func(t *testing.T) {
-		mockClient.EXPECT().ContainerList(gomock.Any(), gomock.Any()).Return([]types.Container{
+		mockClient.EXPECT().ContainerList(gomock.Any(), gomock.Any()).Return([]container.Summary{
 			{ID: "c1", Names: []string{"/test-c1"}},
 		}, nil)
 
@@ -71,7 +70,8 @@ func TestContainerHandler_List(t *testing.T) {
 
 		assert.Equal(t, http.StatusBadRequest, w.Code)
 		var resp service.Response
-		json.Unmarshal(w.Body.Bytes(), &resp)
+		err := json.Unmarshal(w.Body.Bytes(), &resp)
+		require.NoError(t, err)
 		assert.Equal(t, service.ErrCodeInvalidParam, resp.Code)
 	})
 }
@@ -89,7 +89,8 @@ func TestContainerHandler_Create(t *testing.T) {
 			Name:  "test-container",
 			Image: "nginx:latest",
 		}
-		body, _ := json.Marshal(createReq)
+		body, err := json.Marshal(createReq)
+		require.NoError(t, err)
 
 		mockClient.EXPECT().ContainerCreate(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), "test-container").
 			Return(container.CreateResponse{ID: "new-c1"}, nil)
@@ -101,7 +102,8 @@ func TestContainerHandler_Create(t *testing.T) {
 
 		assert.Equal(t, http.StatusOK, w.Code)
 		var resp service.Response
-		json.Unmarshal(w.Body.Bytes(), &resp)
+		err = json.Unmarshal(w.Body.Bytes(), &resp)
+		require.NoError(t, err)
 		assert.Equal(t, 0, resp.Code)
 	})
 
@@ -113,7 +115,8 @@ func TestContainerHandler_Create(t *testing.T) {
 
 		assert.Equal(t, http.StatusBadRequest, w.Code)
 		var resp service.Response
-		json.Unmarshal(w.Body.Bytes(), &resp)
+		err := json.Unmarshal(w.Body.Bytes(), &resp)
+		require.NoError(t, err)
 		assert.Equal(t, service.ErrCodeInvalidParam, resp.Code)
 	})
 }

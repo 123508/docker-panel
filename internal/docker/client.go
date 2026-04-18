@@ -5,6 +5,7 @@ import (
 	"io"
 
 	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/build"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/api/types/image"
@@ -15,8 +16,8 @@ import (
 
 // DockerClientInterface 定义 Docker 客户端操作接口，便于测试 mock
 type DockerClientInterface interface {
-	ContainerList(ctx context.Context, options container.ListOptions) ([]types.Container, error)
-	ContainerInspect(ctx context.Context, containerID string) (types.ContainerJSON, error)
+	ContainerList(ctx context.Context, options container.ListOptions) ([]container.Summary, error)
+	ContainerInspect(ctx context.Context, containerID string) (container.InspectResponse, error)
 	ContainerCreate(ctx context.Context, config *container.Config, hostConfig *container.HostConfig, networkingConfig *network.NetworkingConfig, containerName string) (container.CreateResponse, error)
 	ContainerStart(ctx context.Context, containerID string, options container.StartOptions) error
 	ContainerStop(ctx context.Context, containerID string, options container.StopOptions) error
@@ -29,13 +30,13 @@ type DockerClientInterface interface {
 	ContainerLogs(ctx context.Context, containerID string, options container.LogsOptions) (io.ReadCloser, error)
 	ContainerExecCreate(ctx context.Context, containerID string, config container.ExecOptions) (container.ExecCreateResponse, error)
 	ContainerExecAttach(ctx context.Context, execID string, config container.ExecAttachOptions) (types.HijackedResponse, error)
-	ContainerTop(ctx context.Context, containerID string, arguments []string) (container.ContainerTopOKBody, error)
+	ContainerTop(ctx context.Context, containerID string, arguments []string) (container.TopResponse, error)
 	ContainerExport(ctx context.Context, containerID string) (io.ReadCloser, error)
 	ImageList(ctx context.Context, options image.ListOptions) ([]image.Summary, error)
-	ImageInspect(ctx context.Context, imageID string) (types.ImageInspect, error)
+	ImageInspect(ctx context.Context, imageID string) (image.InspectResponse, error)
 	ImagePull(ctx context.Context, refStr string, options image.PullOptions) (io.ReadCloser, error)
 	ImageRemove(ctx context.Context, imageID string, options image.RemoveOptions) ([]image.DeleteResponse, error)
-	ImageBuild(ctx context.Context, buildContext io.Reader, options types.ImageBuildOptions) (types.ImageBuildResponse, error)
+	ImageBuild(ctx context.Context, buildContext io.Reader, options build.ImageBuildOptions) (build.ImageBuildResponse, error)
 	ImageSave(ctx context.Context, imageIDs []string) (io.ReadCloser, error)
 	ImageLoad(ctx context.Context, input io.Reader, quiet bool) (image.LoadResponse, error)
 	ImageTag(ctx context.Context, source, target string) error
@@ -79,12 +80,12 @@ func (d *DockerClient) Version(ctx context.Context) (types.Version, error) {
 // ========== 容器操作 ==========
 
 // ContainerList 列出容器
-func (d *DockerClient) ContainerList(ctx context.Context, options container.ListOptions) ([]types.Container, error) {
+func (d *DockerClient) ContainerList(ctx context.Context, options container.ListOptions) ([]container.Summary, error) {
 	return d.cli.ContainerList(ctx, options)
 }
 
 // ContainerInspect 获取容器详情
-func (d *DockerClient) ContainerInspect(ctx context.Context, containerID string) (types.ContainerJSON, error) {
+func (d *DockerClient) ContainerInspect(ctx context.Context, containerID string) (container.InspectResponse, error) {
 	return d.cli.ContainerInspect(ctx, containerID)
 }
 
@@ -155,7 +156,7 @@ func (d *DockerClient) ContainerExecAttach(ctx context.Context, execID string, c
 }
 
 // ContainerTop 查看容器进程
-func (d *DockerClient) ContainerTop(ctx context.Context, containerID string, arguments []string) (container.ContainerTopOKBody, error) {
+func (d *DockerClient) ContainerTop(ctx context.Context, containerID string, arguments []string) (container.TopResponse, error) {
 	return d.cli.ContainerTop(ctx, containerID, arguments)
 }
 
@@ -172,7 +173,7 @@ func (d *DockerClient) ImageList(ctx context.Context, options image.ListOptions)
 }
 
 // ImageInspect 获取镜像详情
-func (d *DockerClient) ImageInspect(ctx context.Context, imageID string) (types.ImageInspect, error) {
+func (d *DockerClient) ImageInspect(ctx context.Context, imageID string) (image.InspectResponse, error) {
 	return d.cli.ImageInspect(ctx, imageID)
 }
 
@@ -187,7 +188,7 @@ func (d *DockerClient) ImageRemove(ctx context.Context, imageID string, options 
 }
 
 // ImageBuild 构建镜像
-func (d *DockerClient) ImageBuild(ctx context.Context, buildContext io.Reader, options types.ImageBuildOptions) (types.ImageBuildResponse, error) {
+func (d *DockerClient) ImageBuild(ctx context.Context, buildContext io.Reader, options build.ImageBuildOptions) (build.ImageBuildResponse, error) {
 	return d.cli.ImageBuild(ctx, buildContext, options)
 }
 

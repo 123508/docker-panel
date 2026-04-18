@@ -24,7 +24,7 @@ func TestContainerService_ContainerList_Success(t *testing.T) {
 	ctx := context.Background()
 	req := ContainerListRequest{All: true, Limit: 10}
 
-	mockContainers := []types.Container{
+	mockContainers := []container.Summary{
 		{
 			ID:    "container_id_1",
 			Names: []string{"/test_container"},
@@ -48,7 +48,7 @@ func TestContainerService_ContainerList_Empty(t *testing.T) {
 	service := NewContainerService(mockClient)
 	ctx := context.Background()
 
-	mockClient.EXPECT().ContainerList(ctx, gomock.Any()).Return([]types.Container{}, nil)
+	mockClient.EXPECT().ContainerList(ctx, gomock.Any()).Return([]container.Summary{}, nil)
 
 	res, err := service.ContainerList(ctx, ContainerListRequest{})
 	assert.NoError(t, err)
@@ -63,7 +63,7 @@ func TestContainerService_ContainerList_DockerError(t *testing.T) {
 	service := NewContainerService(mockClient)
 	ctx := context.Background()
 
-	mockClient.EXPECT().ContainerList(ctx, gomock.Any()).Return(([]types.Container)(nil), errors.New("docker error"))
+	mockClient.EXPECT().ContainerList(ctx, gomock.Any()).Return(([]container.Summary)(nil), errors.New("docker error"))
 
 	res, err := service.ContainerList(ctx, ContainerListRequest{})
 	assert.Error(t, err)
@@ -80,11 +80,11 @@ func TestContainerService_ContainerInspect_Success(t *testing.T) {
 	ctx := context.Background()
 
 	containerID := "test_id"
-	mockInspect := types.ContainerJSON{
-		ContainerJSONBase: &types.ContainerJSONBase{
+	mockInspect := container.InspectResponse{
+		ContainerJSONBase: &container.ContainerJSONBase{
 			ID:    containerID,
 			Name:  "/test_container",
-			State: &types.ContainerState{Status: "running", Running: true},
+			State: &container.State{Status: "running", Running: true},
 		},
 		Config: &container.Config{
 			Image: "nginx:latest",
@@ -107,7 +107,7 @@ func TestContainerService_ContainerInspect_NotFound(t *testing.T) {
 	service := NewContainerService(mockClient)
 	ctx := context.Background()
 
-	mockClient.EXPECT().ContainerInspect(ctx, "invalid_id").Return(types.ContainerJSON{}, errors.New("No such container: invalid_id"))
+	mockClient.EXPECT().ContainerInspect(ctx, "invalid_id").Return(container.InspectResponse{}, errors.New("No such container: invalid_id"))
 
 	res, err := service.ContainerInspect(ctx, "invalid_id")
 	assert.Error(t, err)
@@ -405,7 +405,7 @@ func TestContainerService_ContainerTop_Success(t *testing.T) {
 	containerID := "test_id"
 	psArgs := "aux"
 
-	topBody := container.ContainerTopOKBody{
+	topBody := container.TopResponse{
 		Titles:    []string{"PID", "USER"},
 		Processes: [][]string{{"1", "root"}},
 	}
@@ -428,7 +428,7 @@ func TestContainerService_ContainerTop_NotRunning(t *testing.T) {
 	containerID := "test_id"
 	psArgs := ""
 
-	mockClient.EXPECT().ContainerTop(ctx, containerID, []string{}).Return(container.ContainerTopOKBody{}, errors.New("Container is not running"))
+	mockClient.EXPECT().ContainerTop(ctx, containerID, []string{}).Return(container.TopResponse{}, errors.New("Container is not running"))
 
 	res, err := service.ContainerTop(ctx, containerID, psArgs)
 	assert.Error(t, err)

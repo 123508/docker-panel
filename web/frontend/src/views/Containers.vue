@@ -13,7 +13,7 @@
     <dp-data-table :bordered="true"
                    :columns="columns">
 
-      <div v-for="c in pagedContainers" :key="c.name" class="table-row">
+      <div v-for="c in pagedContainers" :key="c.fullId" class="table-row">
         <div class="td" style="width: 60px; display: flex; justify-content: center">
           <div class="row-icon"></div>
         </div>
@@ -33,13 +33,13 @@
         <span class="td td-muted-sm" style="width: 120px">{{ c.created }}</span>
         <div class="td td-actions" style="flex: 1">
           <template v-if="c.running">
-            <dp-button text="停止" size="small" type="danger" variant="text"/>
+            <dp-button text="停止" size="small" type="danger" variant="text" @click="stopContainer(c.fullId)"/>
             <dp-button text="重启" size="small" type="info" variant="text"/>
             <dp-button text="日志" size="small" variant="text"/>
           </template>
           <template v-else>
-            <dp-button text="启动" size="small" type="primary" variant="text"/>
-            <dp-button text="移除" size="small" type="danger" variant="text"/>
+            <dp-button text="启动" size="small" type="primary" variant="text" @click="startContainer(c.fullId)"/>
+            <dp-button text="移除" size="small" type="danger" variant="text" @click="removeContainer(c.fullId)"/>
             <dp-button text="日志" size="small" variant="text"/>
           </template>
         </div>
@@ -66,7 +66,7 @@ import DpSearchInput from '@/components/dp-search-input.vue';
 import DpPagination from '@/components/dp-pagination.vue';
 import {ContainerState} from '@/composables/Containers';
 
-const { state, pagedContainers } = ContainerState();
+const { state, pagedContainers, startContainer, stopContainer, removeContainer } = ContainerState();
 
 const columns = [
   { key: 'icon', width: 60 },
