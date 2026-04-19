@@ -1,15 +1,14 @@
-<template>
+﻿<template>
   <dp-page-header title="卷" gap="24px">
     <template #actions>
       <div class="header-actions">
-        <dp-button text="+ 创建" size="large" type="primary" class="btn" />
+        <dp-button text="+ 创建" size="large" type="primary" class="btn" @click="createVolume" />
       </div>
     </template>
 
     <dp-stat-bar :items="state.stats" />
 
     <dp-data-table :bordered="false" header-bg row-gap fixed-row-height :columns="columns">
-
       <div v-for="v in pagedVolumes" :key="v.name" class="table-row">
         <span class="td col-name">{{ v.name }}</span>
         <span class="td col-driver td-muted">{{ v.driver }}</span>
@@ -19,16 +18,17 @@
           <dp-count-badge :count="v.containers" />
         </div>
         <div class="td td-actions" style="flex: 1">
-          <dp-button text="查看" size="small" variant="text" type="info"/>
-          <dp-button text="移除" size="small" variant="text" type="danger"/>
+          <dp-button text="查看" size="small" variant="text" type="info" @click="inspectVolume(v.name)" />
+          <dp-button text="移除" size="small" variant="text" type="danger" @click="removeVolume(v.name)" />
         </div>
       </div>
     </dp-data-table>
+
     <dp-pagination
-        :page="state.page"
-        :total="state.volumes.length"
-        :page-size="state.pageSize"
-        @change="state.page = $event"
+      :page="state.page"
+      :total="state.volumes.length"
+      :page-size="state.pageSize"
+      @change="state.page = $event"
     />
   </dp-page-header>
 </template>
@@ -38,11 +38,11 @@ import DpPageHeader from '@/components/dp-page-header.vue'
 import DpStatBar from '@/components/dp-stat-bar.vue'
 import DpDataTable from '@/components/dp-data-table.vue'
 import DpCountBadge from '@/components/dp-count-badge.vue'
-import DpButton from "@/components/dp-button.vue";
-import DpPagination from "@/components/dp-pagination.vue";
-import {computed, reactive} from "vue";
-import {VolumeState} from '@/composables/Volumes';
-const {state, pagedVolumes} = VolumeState();
+import DpButton from '@/components/dp-button.vue'
+import DpPagination from '@/components/dp-pagination.vue'
+import { VolumeState } from '@/composables/Volumes'
+
+const { state, pagedVolumes, createVolume, inspectVolume, removeVolume } = VolumeState()
 
 const columns = [
   { key: 'name', label: '名称', width: 140 },
@@ -52,12 +52,10 @@ const columns = [
   { key: 'containers', label: '容器', width: 100 },
   { key: 'actions', label: '操作', flex: 1 }
 ]
-
 </script>
 
 <style scoped>
-
-.btn{
+.btn {
   width: 140px;
   display: flex;
   align-items: center;
@@ -100,5 +98,4 @@ const columns = [
   align-items: center;
   gap: 16px;
 }
-
 </style>

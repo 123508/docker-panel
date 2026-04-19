@@ -44,13 +44,18 @@
     --button-primary-hover: #EAB308;
     --button-primary-text: #0F0F10;
 
+    --button-default: #141415;
+    --button-default-hover: #1a1a1e;
+    --button-default-text: #FAFAFA;
+    --button-default-border: #27272A;
+
     --button-success: #22C55E;
     --button-success-hover: #16A34A;
     --button-success-text: #fff;
 
     --button-danger: #EF4444;
     --button-danger-hover: #DC2626;
-    --button-danger-text: #fff;
+    --button-danger-text: #000;
 
     --button-warning: #F59E0B;
     --button-warning-hover: #D97706;
@@ -102,6 +107,11 @@ html.light {
     --button-primary: #0EA5E9;
     --button-primary-hover: #0284C7;
     --button-primary-text: #FFFFFF;
+
+    --button-default: #E8F1FF;
+    --button-default-hover: #DEECFF;
+    --button-default-text: #1E293B;
+    --button-default-border: #E2E8F0;
 
     --button-success: #22C55E;
     --button-success-hover: #16A34A;

@@ -1,7 +1,7 @@
-<template>
+﻿<template>
   <dp-page-header title="系统概览">
     <template #actions>
-      <button class="refresh-btn">
+      <button class="refresh-btn" @click="loadData" :disabled="state.loading || state.actionLoading">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <polyline points="23 4 23 10 17 10" />
           <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
@@ -25,9 +25,7 @@
         <router-link to="/containers" class="view-all">查看全部 →</router-link>
       </div>
 
-      <dp-data-table :bordered="true"
-                     :flex="false"
-                     height="54vh">
+      <dp-data-table :bordered="true" :flex="false" height="54vh">
         <template #head>
           <span class="th" style="width: 280px">名称</span>
           <span class="th" style="width: 200px">镜像</span>
@@ -36,7 +34,7 @@
           <span class="th" style="flex: 1">操作</span>
         </template>
 
-        <div v-for="c in pagedContainers" :key="c.name" class="table-row">
+        <div v-for="c in pagedContainers" :key="c.fullId" class="table-row">
           <div class="td td-name" style="width: 280px">
             <div class="container-icon"></div>
             <div class="name-col">
@@ -46,31 +44,29 @@
           </div>
           <span class="td td-image" style="width: 200px">{{ c.image }}</span>
           <div class="td" style="width: 120px">
-            <dp-status-badge :status="c.status === '运行中' ? 'running' : 'stopped'">
+            <dp-status-badge :status="c.running ? 'running' : 'stopped'">
               {{ c.status }}
             </dp-status-badge>
           </div>
           <span class="td td-port" style="width: 150px">{{ c.port }}</span>
           <div class="td td-actions" style="flex: 1">
             <template v-if="c.running">
-              <dp-button text="停止" size="small" type="danger" variant="text"/>
-              <dp-button text="重启" size="small" type="info" variant="text"/>
-              <dp-button text="日志" size="small" variant="text"/>
+              <dp-button text="停止" size="small" type="danger" variant="text" @click="stopContainer(c.fullId)" />
+              <dp-button text="重启" size="small" type="info" variant="text" @click="restartContainer(c.fullId)" />
             </template>
             <template v-else>
-              <dp-button text="启动" size="small" type="primary" variant="text"/>
-              <dp-button text="移除" size="small" type="danger" variant="text"/>
-              <dp-button text="日志" size="small" variant="text"/>
+              <dp-button text="启动" size="small" type="primary" variant="text" @click="startContainer(c.fullId)" />
+              <dp-button text="移除" size="small" type="danger" variant="text" @click="removeContainer(c.fullId)" />
             </template>
           </div>
         </div>
       </dp-data-table>
 
       <dp-pagination
-          :page="state.page"
-          :total="state.containers.length"
-          :page-size="state.pageSize"
-          @change="state.page = $event"
+        :page="state.page"
+        :total="state.containers.length"
+        :page-size="state.pageSize"
+        @change="state.page = $event"
       />
     </div>
   </dp-page-header>
@@ -80,12 +76,11 @@
 import DpPageHeader from '@/components/dp-page-header.vue'
 import DpDataTable from '@/components/dp-data-table.vue'
 import DpStatusBadge from '@/components/dp-status-badge.vue'
-import DpButton from "@/components/dp-button.vue";
-import DpPagination from "@/components/dp-pagination.vue";
-import {DashboardState} from '@/composables/Dashboard';
-const { state,pagedContainers } = DashboardState();
+import DpButton from '@/components/dp-button.vue'
+import DpPagination from '@/components/dp-pagination.vue'
+import { DashboardState } from '@/composables/Dashboard'
 
-
+const { state, pagedContainers, loadData, startContainer, stopContainer, restartContainer, removeContainer } = DashboardState()
 </script>
 
 <style scoped>
@@ -250,5 +245,4 @@ const { state,pagedContainers } = DashboardState();
   display: flex;
   gap: 12px;
 }
-
 </style>
