@@ -1,6 +1,7 @@
 import { reactive, computed, onMounted } from 'vue'
-import { getImageList, removeImage as apiRemoveImage } from '@/services/modules/image'
-import { ElMessage } from 'element-plus'
+import { getImageList, getImageInspect, pullImage as apiPullImage, removeImage as apiRemoveImage } from '@/services/modules/image'
+import { createContainer, startContainer } from '@/services/modules/container'
+import { ElMessage, ElMessageBox } from 'element-plus'
 
 export function ImageState() {
   const state = reactive({
@@ -74,6 +75,61 @@ export function ImageState() {
     }
   }
 
+  const searchImages = async () => {
+    await loadData()
+  }
+
+  const pullImage = async () => {
+    try {
+      const { value } = await ElMessageBox.prompt('请输入镜像名（如 nginx:latest）', '拉取镜像', {
+        confirmButtonText: '拉取',
+        cancelButtonText: '取消',
+        inputPattern: /\S+/,
+        inputErrorMessage: '镜像名不能为空'
+      })
+      await apiPullImage({ image: value.trim() })
+      ElMessage.success('镜像拉取成功')
+      await loadData()
+    } catch (e: any) {
+      if (e !== 'cancel' && e !== 'close') {
+        ElMessage.error(e.message || '拉取镜像失败')
+      }
+    }
+  }
+
+  const inspectImage = async (id: string) => {
+    try {
+      const detail = await getImageInspect(id)
+      await ElMessageBox.alert(JSON.stringify(detail, null, 2), '镜像详情', {
+        confirmButtonText: '关闭'
+      })
+    } catch (e: any) {
+      ElMessage.error(e.message || '获取镜像详情失败')
+    }
+  }
+
+  const runImage = async (imageRef: string, imageName?: string) => {
+    try {
+      const suffix = Date.now().toString(36).slice(-6)
+      const cleanName = (imageName || 'image').replace(/[^a-zA-Z0-9_.-]/g, '-').toLowerCase()
+      const name = `run-${cleanName}-${suffix}`.slice(0, 63)
+      const created = await createContainer({
+        name,
+        image: imageName || imageRef,
+        host_config: {},
+        networking_config: {}
+      })
+      const containerId = created?.id || created?.container_id
+      if (!containerId) {
+        throw new Error('创建容器后未返回容器 ID')
+      }
+      await startContainer(containerId)
+      ElMessage.success(`已启动容器: ${name}`)
+    } catch (e: any) {
+      ElMessage.error(e.message || '运行镜像失败')
+    }
+  }
+
   const filteredImages = computed(() => {
     const q = state.query.toLowerCase()
     if (!q) return state.images
@@ -91,6 +147,10 @@ export function ImageState() {
     state,
     pagedImages,
     filteredImages,
+    searchImages,
+    pullImage,
+    inspectImage,
+    runImage,
     removeImage
   }
 }

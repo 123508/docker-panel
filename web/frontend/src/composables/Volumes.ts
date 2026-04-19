@@ -1,6 +1,12 @@
 import { reactive, computed, onMounted } from 'vue'
-import { getVolumeList, getVolumeInspect, getVolumeContainers } from '@/services/modules/volume'
-import { ElMessage } from 'element-plus'
+import {
+  getVolumeList,
+  getVolumeInspect,
+  getVolumeContainers,
+  createVolume as apiCreateVolume,
+  removeVolume as apiRemoveVolume
+} from '@/services/modules/volume'
+import { ElMessage, ElMessageBox } from 'element-plus'
 
 function formatBytes(bytes: number): string {
   if (!Number.isFinite(bytes) || bytes <= 0) return '0 B'
@@ -105,6 +111,52 @@ export function VolumeState() {
     loadData()
   })
 
+  const createVolume = async () => {
+    try {
+      const { value } = await ElMessageBox.prompt('请输入卷名称', '创建卷', {
+        confirmButtonText: '创建',
+        cancelButtonText: '取消',
+        inputPattern: /\S+/,
+        inputErrorMessage: '卷名称不能为空'
+      })
+      await apiCreateVolume({ name: value.trim() })
+      ElMessage.success('卷创建成功')
+      await loadData()
+    } catch (e: any) {
+      if (e !== 'cancel' && e !== 'close') {
+        ElMessage.error(e.message || '创建卷失败')
+      }
+    }
+  }
+
+  const inspectVolume = async (name: string) => {
+    try {
+      const detail = await getVolumeInspect(name)
+      await ElMessageBox.alert(JSON.stringify(detail, null, 2), '卷详情', {
+        confirmButtonText: '关闭'
+      })
+    } catch (e: any) {
+      ElMessage.error(e.message || '获取卷详情失败')
+    }
+  }
+
+  const removeVolume = async (name: string) => {
+    try {
+      await ElMessageBox.confirm('确认删除该卷？', '删除确认', {
+        confirmButtonText: '删除',
+        cancelButtonText: '取消',
+        type: 'warning'
+      })
+      await apiRemoveVolume(name, { force: true })
+      ElMessage.success('卷删除成功')
+      await loadData()
+    } catch (e: any) {
+      if (e !== 'cancel' && e !== 'close') {
+        ElMessage.error(e.message || '删除卷失败')
+      }
+    }
+  }
+
   const pagedVolumes = computed(() => {
     const start = (state.page - 1) * state.pageSize
     return state.volumes.slice(start, start + state.pageSize)
@@ -112,6 +164,9 @@ export function VolumeState() {
 
   return {
     state,
-    pagedVolumes
+    pagedVolumes,
+    createVolume,
+    inspectVolume,
+    removeVolume
   }
 }

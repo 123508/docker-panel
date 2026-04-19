@@ -1,5 +1,11 @@
 import { reactive, computed, onMounted } from 'vue'
-import { getContainerList, startContainer as apiStartContainer, stopContainer as apiStopContainer, removeContainer as apiRemoveContainer } from '@/services/modules/container'
+import {
+  getContainerList,
+  startContainer as apiStartContainer,
+  stopContainer as apiStopContainer,
+  restartContainer as apiRestartContainer,
+  removeContainer as apiRemoveContainer
+} from '@/services/modules/container'
 import { ElMessage } from 'element-plus'
 
 export function ContainerState() {
@@ -83,6 +89,16 @@ export function ContainerState() {
     }
   }
 
+  const restartContainer = async (id: string) => {
+    try {
+      await apiRestartContainer(id)
+      ElMessage.success('瀹瑰櫒宸查噸鍚?')
+      await loadData()
+    } catch (e: any) {
+      ElMessage.error(e.message || '閲嶅惎瀹瑰櫒澶辫触')
+    }
+  }
+
   const filteredContainers = computed(() => {
     const query = state.query.toLowerCase()
     if (!query) return state.containers
@@ -98,8 +114,10 @@ export function ContainerState() {
     state,
     filteredContainers,
     pagedContainers,
+    loadData,
     startContainer,
     stopContainer,
+    restartContainer,
     removeContainer
   }
 }

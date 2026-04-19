@@ -1,6 +1,11 @@
 import { reactive, computed, onMounted } from 'vue'
-import { getNetworkList, getNetworkInspect } from '@/services/modules/network'
-import { ElMessage } from 'element-plus'
+import {
+  getNetworkList,
+  getNetworkInspect,
+  createNetwork as apiCreateNetwork,
+  removeNetwork as apiRemoveNetwork
+} from '@/services/modules/network'
+import { ElMessage, ElMessageBox } from 'element-plus'
 
 const BUILTIN_NETWORKS = ['bridge', 'host', 'none']
 
@@ -78,6 +83,52 @@ export function NetworkState() {
     loadData()
   })
 
+  const createNetwork = async () => {
+    try {
+      const { value } = await ElMessageBox.prompt('请输入网络名称', '创建网络', {
+        confirmButtonText: '创建',
+        cancelButtonText: '取消',
+        inputPattern: /\S+/,
+        inputErrorMessage: '网络名称不能为空'
+      })
+      await apiCreateNetwork({ name: value.trim() })
+      ElMessage.success('网络创建成功')
+      await loadData()
+    } catch (e: any) {
+      if (e !== 'cancel' && e !== 'close') {
+        ElMessage.error(e.message || '创建网络失败')
+      }
+    }
+  }
+
+  const inspectNetwork = async (id: string) => {
+    try {
+      const detail = await getNetworkInspect(id)
+      await ElMessageBox.alert(JSON.stringify(detail, null, 2), '网络详情', {
+        confirmButtonText: '关闭'
+      })
+    } catch (e: any) {
+      ElMessage.error(e.message || '获取网络详情失败')
+    }
+  }
+
+  const removeNetwork = async (id: string) => {
+    try {
+      await ElMessageBox.confirm('确认删除该网络？', '删除确认', {
+        confirmButtonText: '删除',
+        cancelButtonText: '取消',
+        type: 'warning'
+      })
+      await apiRemoveNetwork(id)
+      ElMessage.success('网络删除成功')
+      await loadData()
+    } catch (e: any) {
+      if (e !== 'cancel' && e !== 'close') {
+        ElMessage.error(e.message || '删除网络失败')
+      }
+    }
+  }
+
   const pagedNetworks = computed(() => {
     const start = (state.page - 1) * state.pageSize
     return state.networks.slice(start, start + state.pageSize)
@@ -85,6 +136,9 @@ export function NetworkState() {
 
   return {
     state,
-    pagedNetworks
+    pagedNetworks,
+    createNetwork,
+    inspectNetwork,
+    removeNetwork
   }
 }

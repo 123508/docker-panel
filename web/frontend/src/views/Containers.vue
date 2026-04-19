@@ -1,9 +1,9 @@
-<template>
+﻿<template>
   <dp-page-header title="容器">
     <template #actions>
       <dp-container-header-actions class="header-actions">
         <dp-search-input v-model="state.query" />
-        <dp-button text="筛选" size="medium" variant="outlined" />
+        <dp-button text="刷新" size="medium" variant="outlined" @click="refreshList" />
         <dp-button text="+ 创建" size="medium" type="primary" class="create-btn" @click="goCreate" />
       </dp-container-header-actions>
     </template>
@@ -33,13 +33,11 @@
           <dp-button text="详情" size="small" type="info" variant="text" @click="goDetail(c.fullId)" />
           <template v-if="c.running">
             <dp-button text="停止" size="small" type="danger" variant="text" @click="stopContainer(c.fullId)" />
-            <dp-button text="重启" size="small" type="info" variant="text" />
-            <dp-button text="日志" size="small" variant="text" />
+            <dp-button text="重启" size="small" type="info" variant="text" @click="restartContainer(c.fullId)" />
           </template>
           <template v-else>
             <dp-button text="启动" size="small" type="primary" variant="text" @click="startContainer(c.fullId)" />
             <dp-button text="移除" size="small" type="danger" variant="text" @click="removeContainer(c.fullId)" />
-            <dp-button text="日志" size="small" variant="text" />
           </template>
         </div>
       </div>
@@ -67,7 +65,7 @@ import DpContainerHeaderActions from '@/components/container/dp-container-header
 import { ContainerState } from '@/composables/Containers'
 
 const router = useRouter()
-const { state, pagedContainers, startContainer, stopContainer, removeContainer } = ContainerState()
+const { state, pagedContainers, loadData, startContainer, stopContainer, restartContainer, removeContainer } = ContainerState()
 
 const goCreate = () => {
   router.push('/containers/create')
@@ -75,6 +73,10 @@ const goCreate = () => {
 
 const goDetail = (id: string) => {
   router.push(`/containers/${id}`)
+}
+
+const refreshList = async () => {
+  await loadData()
 }
 
 const columns = [
