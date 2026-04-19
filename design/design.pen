@@ -4,8 +4,8 @@
     {
       "type": "frame",
       "id": "bi8Au",
-      "x": -1127,
-      "y": -503,
+      "x": -2067,
+      "y": -803,
       "name": "Frame",
       "clip": true,
       "width": 800,
@@ -33487,6 +33487,585 @@
           ]
         }
       ]
+    },
+    {
+      "type": "frame",
+      "id": "16tmG",
+      "x": -1065,
+      "y": -704,
+      "name": "Modal_Light",
+      "theme": {
+        "mode": "light"
+      },
+      "width": 800,
+      "height": 600,
+      "fill": "#F0F2F5",
+      "layout": "none",
+      "children": [
+        {
+          "type": "frame",
+          "id": "r2ydo",
+          "x": 0,
+          "y": 0,
+          "name": "overlayLight",
+          "width": 800,
+          "height": 600,
+          "fill": "$overlay-bg",
+          "layout": "vertical",
+          "justifyContent": "center",
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "frame",
+              "id": "JJVNl",
+              "name": "modalLight",
+              "width": 480,
+              "fill": "$bg-color",
+              "cornerRadius": 8,
+              "effect": {
+                "type": "shadow",
+                "shadowType": "outer",
+                "color": "#0000001A",
+                "offset": {
+                  "x": 0,
+                  "y": 8
+                },
+                "blur": 24
+              },
+              "layout": "vertical",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "yveRd",
+                  "name": "headerLight",
+                  "width": "fill_container",
+                  "stroke": {
+                    "thickness": {
+                      "bottom": 1
+                    },
+                    "fill": "$border-color"
+                  },
+                  "padding": [
+                    16,
+                    24
+                  ],
+                  "justifyContent": "space_between",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "RKOhT",
+                      "name": "titleLight",
+                      "fill": "$text-color-primary",
+                      "content": "Dialog Title",
+                      "fontFamily": "Inter",
+                      "fontSize": 16,
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "icon_font",
+                      "id": "2nJBn",
+                      "name": "closeLight",
+                      "width": 20,
+                      "height": 20,
+                      "iconFontName": "x",
+                      "iconFontFamily": "lucide",
+                      "fill": "$text-color-secondary"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "SKGnd",
+                  "name": "contentLight",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 12,
+                  "padding": 24,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "zBezb",
+                      "name": "t1Light",
+                      "fill": "$text-color-secondary",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Some contents...",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "SJ2J3",
+                      "name": "t2Light",
+                      "fill": "$text-color-secondary",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Some contents...",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "wfsVx",
+                      "name": "t3Light",
+                      "fill": "$text-color-secondary",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Some contents...",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "ndqM2",
+                  "name": "footerLight",
+                  "width": "fill_container",
+                  "stroke": {
+                    "thickness": {
+                      "top": 1
+                    },
+                    "fill": "$border-color"
+                  },
+                  "gap": 12,
+                  "padding": [
+                    12,
+                    24
+                  ],
+                  "justifyContent": "end",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "YwF82",
+                      "name": "btnCancelLight",
+                      "fill": "$default-btn-bg",
+                      "cornerRadius": 4,
+                      "stroke": {
+                        "thickness": 1,
+                        "fill": "$border-color"
+                      },
+                      "padding": [
+                        6,
+                        16
+                      ],
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "KOSBv",
+                          "name": "txtCancelLight",
+                          "fill": "$default-btn-text",
+                          "content": "Cancel",
+                          "fontFamily": "Inter",
+                          "fontSize": 14,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "hnI9r",
+                      "name": "btnOkLight",
+                      "fill": "$primary-btn-bg",
+                      "cornerRadius": 4,
+                      "padding": [
+                        6,
+                        16
+                      ],
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "drvd4",
+                          "name": "txtOkLight",
+                          "fill": "$primary-btn-text",
+                          "content": "OK",
+                          "fontFamily": "Inter",
+                          "fontSize": 14,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "fEAlE",
+      "x": -1065,
+      "y": -50,
+      "name": "Modal_Dark",
+      "theme": {
+        "mode": "dark"
+      },
+      "width": 800,
+      "height": 600,
+      "fill": "#141414",
+      "layout": "none",
+      "children": [
+        {
+          "type": "frame",
+          "id": "98MJy",
+          "x": 0,
+          "y": 0,
+          "name": "overlayLight",
+          "width": 800,
+          "height": 600,
+          "fill": "$overlay-bg",
+          "layout": "vertical",
+          "justifyContent": "center",
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "frame",
+              "id": "0PRG5",
+              "name": "modalLight",
+              "width": 480,
+              "fill": "$bg-color",
+              "cornerRadius": 8,
+              "effect": {
+                "type": "shadow",
+                "shadowType": "outer",
+                "color": "#0000001A",
+                "offset": {
+                  "x": 0,
+                  "y": 8
+                },
+                "blur": 24
+              },
+              "layout": "vertical",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "3MGmx",
+                  "name": "headerLight",
+                  "width": "fill_container",
+                  "stroke": {
+                    "thickness": {
+                      "bottom": 1
+                    },
+                    "fill": "$border-color"
+                  },
+                  "padding": [
+                    16,
+                    24
+                  ],
+                  "justifyContent": "space_between",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "bCFuk",
+                      "name": "titleLight",
+                      "fill": "$text-color-primary",
+                      "content": "Dialog Title",
+                      "fontFamily": "Inter",
+                      "fontSize": 16,
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "icon_font",
+                      "id": "RInT8",
+                      "name": "closeLight",
+                      "width": 20,
+                      "height": 20,
+                      "iconFontName": "x",
+                      "iconFontFamily": "lucide",
+                      "fill": "$text-color-secondary"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "Cuvym",
+                  "name": "contentLight",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 12,
+                  "padding": 24,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "xvfFC",
+                      "name": "t1Light",
+                      "fill": "$text-color-secondary",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Some contents...",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "2zGaW",
+                      "name": "t2Light",
+                      "fill": "$text-color-secondary",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Some contents...",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "AGKWL",
+                      "name": "t3Light",
+                      "fill": "$text-color-secondary",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Some contents...",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "uIhjd",
+                  "name": "footerLight",
+                  "width": "fill_container",
+                  "stroke": {
+                    "thickness": {
+                      "top": 1
+                    },
+                    "fill": "$border-color"
+                  },
+                  "gap": 12,
+                  "padding": [
+                    12,
+                    24
+                  ],
+                  "justifyContent": "end",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "TvmbH",
+                      "name": "btnCancelLight",
+                      "fill": "$default-btn-bg",
+                      "cornerRadius": 4,
+                      "stroke": {
+                        "thickness": 1,
+                        "fill": "$border-color"
+                      },
+                      "padding": [
+                        6,
+                        16
+                      ],
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "il3hX",
+                          "name": "txtCancelLight",
+                          "fill": "$default-btn-text",
+                          "content": "Cancel",
+                          "fontFamily": "Inter",
+                          "fontSize": 14,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "0k59V",
+                      "name": "btnOkLight",
+                      "fill": "#facc15ff",
+                      "cornerRadius": 4,
+                      "padding": [
+                        6,
+                        16
+                      ],
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "zJ0gj",
+                          "name": "txtOkLight",
+                          "fill": "#010000ff",
+                          "content": "OK",
+                          "fontFamily": "Inter",
+                          "fontSize": 14,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
     }
-  ]
+  ],
+  "themes": {
+    "mode": [
+      "light",
+      "dark"
+    ]
+  },
+  "variables": {
+    "overlay-bg": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#00000033",
+          "theme": {
+            "mode": "light"
+          }
+        },
+        {
+          "value": "#00000099",
+          "theme": {
+            "mode": "dark"
+          }
+        }
+      ]
+    },
+    "bg-color": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#FFFFFF",
+          "theme": {
+            "mode": "light"
+          }
+        },
+        {
+          "value": "#1E1E1E",
+          "theme": {
+            "mode": "dark"
+          }
+        }
+      ]
+    },
+    "border-color": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#EAEAEA",
+          "theme": {
+            "mode": "light"
+          }
+        },
+        {
+          "value": "#333333",
+          "theme": {
+            "mode": "dark"
+          }
+        }
+      ]
+    },
+    "text-color-primary": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#333333",
+          "theme": {
+            "mode": "light"
+          }
+        },
+        {
+          "value": "#E0E0E0",
+          "theme": {
+            "mode": "dark"
+          }
+        }
+      ]
+    },
+    "text-color-secondary": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#666666",
+          "theme": {
+            "mode": "light"
+          }
+        },
+        {
+          "value": "#A0A0A0",
+          "theme": {
+            "mode": "dark"
+          }
+        }
+      ]
+    },
+    "default-btn-bg": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#F5F5F5",
+          "theme": {
+            "mode": "light"
+          }
+        },
+        {
+          "value": "#2A2A2A",
+          "theme": {
+            "mode": "dark"
+          }
+        }
+      ]
+    },
+    "default-btn-text": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#333333",
+          "theme": {
+            "mode": "light"
+          }
+        },
+        {
+          "value": "#E0E0E0",
+          "theme": {
+            "mode": "dark"
+          }
+        }
+      ]
+    },
+    "primary-btn-bg": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#1890FF",
+          "theme": {
+            "mode": "light"
+          }
+        },
+        {
+          "value": "#177DDC",
+          "theme": {
+            "mode": "dark"
+          }
+        }
+      ]
+    },
+    "primary-btn-text": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#FFFFFF",
+          "theme": {
+            "mode": "light"
+          }
+        },
+        {
+          "value": "#FFFFFF",
+          "theme": {
+            "mode": "dark"
+          }
+        }
+      ]
+    }
+  }
 }

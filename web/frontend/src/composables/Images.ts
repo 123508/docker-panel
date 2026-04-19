@@ -16,7 +16,14 @@ export function ImageState() {
       { label: '悬空:', value: '0', variant: 'dangling' }
     ],
 
-    images: [] as any[]
+    images: [] as any[],
+
+    runDialogVisible: false,
+    runDialogTitle: '运行镜像',
+    runDialogContent: '',
+    runDialogOkText: '关闭',
+    runDialogCancelText: '取消',
+    runDialogIsRunning: false
   })
 
   const loadData = async () => {
@@ -109,6 +116,13 @@ export function ImageState() {
   }
 
   const runImage = async (imageRef: string, imageName?: string) => {
+    state.runDialogTitle = '运行镜像'
+    state.runDialogContent = `正在启动镜像 ${imageName || imageRef}，请稍候...`
+    state.runDialogOkText = '关闭'
+    state.runDialogCancelText = '取消'
+    state.runDialogIsRunning = true
+    state.runDialogVisible = true
+
     try {
       const suffix = Date.now().toString(36).slice(-6)
       const cleanName = (imageName || 'image').replace(/[^a-zA-Z0-9_.-]/g, '-').toLowerCase()
@@ -124,9 +138,12 @@ export function ImageState() {
         throw new Error('创建容器后未返回容器 ID')
       }
       await startContainer(containerId)
-      ElMessage.success(`已启动容器: ${name}`)
+      
+      state.runDialogContent = `✅ 成功启动容器: \n名称: ${name}\nID: ${containerId}`
     } catch (e: any) {
-      ElMessage.error(e.message || '运行镜像失败')
+      state.runDialogContent = `❌ 运行镜像失败: \n${e.message || '未知错误'}`
+    } finally {
+      state.runDialogIsRunning = false
     }
   }
 
