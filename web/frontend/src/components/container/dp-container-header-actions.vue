@@ -4,6 +4,12 @@
   </div>
 </template>
 
+<script setup lang="ts">
+defineOptions({
+  name: 'dp-container-header-actions'
+})
+</script>
+
 <style scoped>
 .header-actions {
   display: flex;

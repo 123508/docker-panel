@@ -1,11 +1,11 @@
 <template>
   <dp-page-header title="容器">
     <template #actions>
-      <container-header-actions class="header-actions">
+      <dp-container-header-actions class="header-actions">
         <dp-search-input v-model="state.query" />
         <dp-button text="筛选" size="medium" variant="outlined" />
         <dp-button text="+ 创建" size="medium" type="primary" class="create-btn" @click="goCreate" />
-      </container-header-actions>
+      </dp-container-header-actions>
     </template>
 
     <dp-stat-bar :items="state.stats" bordered />
@@ -63,7 +63,7 @@ import DpStatusBadge from '@/components/dp-status-badge.vue'
 import DpButton from '@/components/dp-button.vue'
 import DpSearchInput from '@/components/dp-search-input.vue'
 import DpPagination from '@/components/dp-pagination.vue'
-import ContainerHeaderActions from '@/components/container/ContainerHeaderActions.vue'
+import DpContainerHeaderActions from '@/components/container/dp-container-header-actions.vue'
 import { ContainerState } from '@/composables/Containers'
 
 const router = useRouter()

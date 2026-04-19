@@ -5,19 +5,34 @@ import {
   getCreateContainerImageOptions,
   getCreateContainerNetworkOptions
 } from '@/services/modules/container-create'
+import type { ContainerCreateRequest, MountRequest } from '@/services/modules/container'
 
-function parseByLine(text: string): string[] {
-  return text
-    .split('\n')
-    .map(s => s.trim())
-    .filter(Boolean)
+type RestartPolicyName = 'no' | 'always' | 'on-failure' | 'unless-stopped'
+
+interface PortRow {
+  containerPort: string
+  hostPort: string
+}
+
+interface EnvRow {
+  key: string
+  value: string
+}
+
+interface VolumeRow {
+  source: string
+  target: string
 }
 
 function parseCmd(text: string): string[] {
   return text
     .split(' ')
-    .map(s => s.trim())
+    .map((s) => s.trim())
     .filter(Boolean)
+}
+
+function isLikelyHostPath(source: string): boolean {
+  return source.includes('/') || source.includes('\\') || /^[A-Za-z]:/.test(source)
 }
 
 export function ContainerCreateState() {
@@ -30,15 +45,48 @@ export function ContainerCreateState() {
       name: '',
       image: '',
       cmd: '',
-      envText: '',
       networkMode: 'bridge',
-      restartPolicy: 'unless-stopped',
-      portHost: '',
-      portContainer: ''
+      restartPolicy: 'unless-stopped' as RestartPolicyName,
+      ports: [{ containerPort: '', hostPort: '' }] as PortRow[],
+      envs: [{ key: '', value: '' }] as EnvRow[],
+      volumes: [{ source: '', target: '' }] as VolumeRow[]
     }
   })
 
   const canSubmit = computed(() => !!state.form.name && !!state.form.image)
+
+  const addPortRow = () => {
+    state.form.ports.push({ containerPort: '', hostPort: '' })
+  }
+
+  const removePortRow = (index: number) => {
+    state.form.ports.splice(index, 1)
+    if (state.form.ports.length === 0) {
+      addPortRow()
+    }
+  }
+
+  const addEnvRow = () => {
+    state.form.envs.push({ key: '', value: '' })
+  }
+
+  const removeEnvRow = (index: number) => {
+    state.form.envs.splice(index, 1)
+    if (state.form.envs.length === 0) {
+      addEnvRow()
+    }
+  }
+
+  const addVolumeRow = () => {
+    state.form.volumes.push({ source: '', target: '' })
+  }
+
+  const removeVolumeRow = (index: number) => {
+    state.form.volumes.splice(index, 1)
+    if (state.form.volumes.length === 0) {
+      addVolumeRow()
+    }
+  }
 
   const loadOptions = async () => {
     try {
@@ -56,6 +104,7 @@ export function ContainerCreateState() {
         .filter(Boolean)
 
       state.networkOptions = networks.map((n: any) => n.name).filter(Boolean)
+
       if (!state.form.image && state.imageOptions.length > 0) {
         state.form.image = state.imageOptions[0]
       }
@@ -77,25 +126,49 @@ export function ContainerCreateState() {
 
     try {
       state.creating = true
-      const portBindings = (state.form.portHost && state.form.portContainer)
-        ? {
-            [`${state.form.portContainer}/tcp`]: [{ host_port: state.form.portHost }]
-          }
-        : undefined
 
-      const payload: any = {
-        name: state.form.name,
-        image: state.form.image,
-        cmd: state.form.cmd ? parseCmd(state.form.cmd) : undefined,
-        env: state.form.envText ? parseByLine(state.form.envText) : undefined,
+      const envList = state.form.envs
+        .filter((row) => row.key.trim())
+        .map((row) => `${row.key.trim()}=${row.value.trim()}`)
+
+      const portBindings = state.form.ports.reduce<Record<string, Array<{ host_ip?: string; host_port: string }>>>(
+        (acc, row) => {
+          const containerPort = row.containerPort.trim()
+          const hostPort = row.hostPort.trim()
+          if (!containerPort || !hostPort) return acc
+          acc[`${containerPort}/tcp`] = [{ host_port: hostPort }]
+          return acc
+        },
+        {}
+      )
+
+      const mounts = state.form.volumes.reduce<MountRequest[]>((acc, row) => {
+        const source = row.source.trim()
+        const target = row.target.trim()
+        if (!source || !target) return acc
+        acc.push({
+          type: isLikelyHostPath(source) ? 'bind' : 'volume',
+          source,
+          target
+        })
+        return acc
+      }, [])
+
+      const payload: ContainerCreateRequest = {
+        name: state.form.name.trim(),
+        image: state.form.image.trim(),
+        cmd: state.form.cmd.trim() ? parseCmd(state.form.cmd) : undefined,
+        env: envList.length ? envList : undefined,
         host_config: {
           network_mode: state.form.networkMode,
           restart_policy: {
             name: state.form.restartPolicy,
             maximum_retry_count: 0
           },
-          port_bindings: portBindings
-        }
+          port_bindings: Object.keys(portBindings).length ? portBindings : undefined,
+          mounts: mounts.length ? mounts : undefined
+        },
+        networking_config: undefined
       }
 
       const res = await createNewContainer(payload)
@@ -116,6 +189,12 @@ export function ContainerCreateState() {
   return {
     state,
     canSubmit,
-    submit
+    submit,
+    addPortRow,
+    removePortRow,
+    addEnvRow,
+    removeEnvRow,
+    addVolumeRow,
+    removeVolumeRow
   }
 }

@@ -6,6 +6,10 @@
 </template>
 
 <script setup lang="ts">
+defineOptions({
+  name: 'dp-container-section-card'
+})
+
 defineProps<{
   title?: string
 }>()

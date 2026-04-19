@@ -135,6 +135,17 @@ const isDisabled = computed(() => {
   color: var(--accent-text);
 }
 
+.button-filled.button-default {
+  background: var(--button-default);
+  color: var(--button-default-text);
+  border: 1px solid var(--button-default-border);
+}
+
+.button-filled.button-danger {
+  background: var(--button-danger);
+  color: var(--button-danger-text);
+}
+
 .button-outlined {
   color: var(--text-primary);
 }
@@ -174,6 +185,14 @@ const isDisabled = computed(() => {
 
 .button-large.button-filled.button-primary:hover:not([data-disabled="true"]) {
   background: var(--accent-hover);
+}
+
+.button-filled.button-danger:hover:not([data-disabled="true"]) {
+  background: var(--button-danger-hover);
+}
+
+.button-filled.button-default:hover:not([data-disabled="true"]) {
+  background: var(--button-default-hover);
 }
 
 .button-outlined:hover:not([data-disabled="true"]) {

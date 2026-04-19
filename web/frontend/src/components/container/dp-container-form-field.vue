@@ -9,6 +9,10 @@
 </template>
 
 <script setup lang="ts">
+defineOptions({
+  name: 'dp-container-form-field'
+})
+
 defineProps<{
   label: string
   required?: boolean
