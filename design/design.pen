@@ -34118,12 +34118,42 @@
               ]
             }
           ]
+        },
+        {
+          "type": "frame",
+          "id": "ttabh",
+          "layoutPosition": "absolute",
+          "x": 1380,
+          "y": 24,
+          "name": "themeBtnArea",
+          "width": 36,
+          "height": 36,
+          "cornerRadius": 18,
+          "stroke": {
+            "thickness": 1,
+            "fill": "$border-color"
+          },
+          "layout": "none",
+          "children": [
+            {
+              "type": "icon_font",
+              "id": "HvbA4",
+              "x": 10,
+              "y": 10,
+              "name": "themeIcon",
+              "width": 16,
+              "height": 16,
+              "iconFontName": "sun",
+              "iconFontFamily": "lucide",
+              "fill": "$text-color-primary"
+            }
+          ]
         }
       ]
     },
     {
       "type": "frame",
-      "id": "38Ta1",
+      "id": "vsaKO",
       "x": -1440,
       "y": 100,
       "name": "Login_Dark",
@@ -34138,7 +34168,7 @@
       "children": [
         {
           "type": "frame",
-          "id": "DImBM",
+          "id": "5IXx3",
           "name": "loginCard",
           "width": 400,
           "fill": "$bg-color",
@@ -34153,7 +34183,7 @@
           "children": [
             {
               "type": "frame",
-              "id": "q9C95",
+              "id": "GC9gA",
               "name": "header",
               "width": "fill_container",
               "layout": "vertical",
@@ -34161,7 +34191,7 @@
               "children": [
                 {
                   "type": "text",
-                  "id": "YKHq9",
+                  "id": "7VCUM",
                   "name": "title",
                   "fill": "$text-color-primary",
                   "textGrowth": "fixed-width",
@@ -34174,7 +34204,7 @@
                 },
                 {
                   "type": "text",
-                  "id": "OUUba",
+                  "id": "hVdaS",
                   "name": "subtitle",
                   "fill": "$text-color-secondary",
                   "textGrowth": "fixed-width",
@@ -34189,7 +34219,7 @@
             },
             {
               "type": "frame",
-              "id": "jTb1S",
+              "id": "T49Wz",
               "name": "form",
               "width": "fill_container",
               "layout": "vertical",
@@ -34197,7 +34227,7 @@
               "children": [
                 {
                   "type": "frame",
-                  "id": "HqaEs",
+                  "id": "c3xgJ",
                   "name": "userGroup",
                   "width": "fill_container",
                   "layout": "vertical",
@@ -34205,7 +34235,7 @@
                   "children": [
                     {
                       "type": "text",
-                      "id": "byP5N",
+                      "id": "rZKgZ",
                       "name": "userLabel",
                       "fill": "$text-color-primary",
                       "content": "用户名",
@@ -34215,7 +34245,7 @@
                     },
                     {
                       "type": "frame",
-                      "id": "aPbwT",
+                      "id": "UlXHP",
                       "name": "userInput",
                       "width": "fill_container",
                       "height": 40,
@@ -34233,7 +34263,7 @@
                       "children": [
                         {
                           "type": "text",
-                          "id": "G94FK",
+                          "id": "kwnBg",
                           "name": "userPlaceholder",
                           "fill": "$text-color-secondary",
                           "content": "请输入用户名",
@@ -34247,7 +34277,7 @@
                 },
                 {
                   "type": "frame",
-                  "id": "Gj9Qm",
+                  "id": "Kop6n",
                   "name": "passGroup",
                   "width": "fill_container",
                   "layout": "vertical",
@@ -34255,7 +34285,7 @@
                   "children": [
                     {
                       "type": "text",
-                      "id": "MDkeR",
+                      "id": "qOgO5",
                       "name": "passLabel",
                       "fill": "$text-color-primary",
                       "content": "密码",
@@ -34265,7 +34295,7 @@
                     },
                     {
                       "type": "frame",
-                      "id": "jbkcf",
+                      "id": "Lcayx",
                       "name": "passInput",
                       "width": "fill_container",
                       "height": 40,
@@ -34284,7 +34314,7 @@
                       "children": [
                         {
                           "type": "text",
-                          "id": "lfVhU",
+                          "id": "UZbV5",
                           "name": "passPlaceholder",
                           "fill": "$text-color-secondary",
                           "content": "请输入密码",
@@ -34294,7 +34324,7 @@
                         },
                         {
                           "type": "icon_font",
-                          "id": "BZLIV",
+                          "id": "zdp7r",
                           "name": "eyeIcon",
                           "width": 18,
                           "height": 18,
@@ -34309,7 +34339,7 @@
                 },
                 {
                   "type": "frame",
-                  "id": "zkz7Z",
+                  "id": "Vas3O",
                   "name": "btn",
                   "width": "fill_container",
                   "height": 40,
@@ -34320,7 +34350,7 @@
                   "children": [
                     {
                       "type": "text",
-                      "id": "08vlC",
+                      "id": "9Qdlb",
                       "name": "btnText",
                       "fill": "#000000ff",
                       "content": "登录",
@@ -34331,6 +34361,36 @@
                   ]
                 }
               ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "DWLxp",
+          "layoutPosition": "absolute",
+          "x": 1380,
+          "y": 24,
+          "name": "themeBtnArea",
+          "width": 36,
+          "height": 36,
+          "cornerRadius": 18,
+          "stroke": {
+            "thickness": 1,
+            "fill": "$border-color"
+          },
+          "layout": "none",
+          "children": [
+            {
+              "type": "icon_font",
+              "id": "wXP3c",
+              "x": 10,
+              "y": 10,
+              "name": "themeIcon",
+              "width": 16,
+              "height": 16,
+              "iconFontName": "moon",
+              "iconFontFamily": "lucide",
+              "fill": "$text-color-primary"
             }
           ]
         }
