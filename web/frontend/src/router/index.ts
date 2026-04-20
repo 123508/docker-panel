@@ -10,10 +10,15 @@ import Images from '@/views/Images.vue'
 import Volumes from '@/views/Volumes.vue'
 import Networks from '@/views/Networks.vue'
 import Compose from '@/views/Compose.vue'
+import Login from '@/views/Login.vue'
 
 const routes = [
     {
         path: '/',
+        component: Login
+    },
+    {
+        path: '/dashboard',
         component: AppLayout,
         children: [
             {
