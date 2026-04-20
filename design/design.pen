@@ -4,8 +4,8 @@
     {
       "type": "frame",
       "id": "bi8Au",
-      "x": -2067,
-      "y": -803,
+      "x": -4144,
+      "y": -897,
       "name": "Frame",
       "clip": true,
       "width": 800,
@@ -33491,8 +33491,8 @@
     {
       "type": "frame",
       "id": "16tmG",
-      "x": -1065,
-      "y": -704,
+      "x": -2834,
+      "y": -819,
       "name": "Modal_Light",
       "theme": {
         "mode": "light"
@@ -33557,7 +33557,7 @@
                       "id": "RKOhT",
                       "name": "titleLight",
                       "fill": "$text-color-primary",
-                      "content": "Dialog Title",
+                      "content": "弹窗标题",
                       "fontFamily": "Inter",
                       "fontSize": 16,
                       "fontWeight": "600"
@@ -33590,7 +33590,7 @@
                       "fill": "$text-color-secondary",
                       "textGrowth": "fixed-width",
                       "width": "fill_container",
-                      "content": "Some contents...",
+                      "content": "这里是一些弹窗内容...",
                       "fontFamily": "Inter",
                       "fontSize": 14,
                       "fontWeight": "normal"
@@ -33602,7 +33602,7 @@
                       "fill": "$text-color-secondary",
                       "textGrowth": "fixed-width",
                       "width": "fill_container",
-                      "content": "Some contents...",
+                      "content": "您可以在这里放置提示信息、",
                       "fontFamily": "Inter",
                       "fontSize": 14,
                       "fontWeight": "normal"
@@ -33614,7 +33614,7 @@
                       "fill": "$text-color-secondary",
                       "textGrowth": "fixed-width",
                       "width": "fill_container",
-                      "content": "Some contents...",
+                      "content": "表单或者其他交互元素。",
                       "fontFamily": "Inter",
                       "fontSize": 14,
                       "fontWeight": "normal"
@@ -33659,7 +33659,7 @@
                           "id": "KOSBv",
                           "name": "txtCancelLight",
                           "fill": "$default-btn-text",
-                          "content": "Cancel",
+                          "content": "取消",
                           "fontFamily": "Inter",
                           "fontSize": 14,
                           "fontWeight": "normal"
@@ -33682,7 +33682,7 @@
                           "id": "drvd4",
                           "name": "txtOkLight",
                           "fill": "$primary-btn-text",
-                          "content": "OK",
+                          "content": "确定",
                           "fontFamily": "Inter",
                           "fontSize": 14,
                           "fontWeight": "normal"
@@ -33700,8 +33700,8 @@
     {
       "type": "frame",
       "id": "fEAlE",
-      "x": -1065,
-      "y": -50,
+      "x": -2834,
+      "y": -165,
       "name": "Modal_Dark",
       "theme": {
         "mode": "dark"
@@ -33766,7 +33766,7 @@
                       "id": "bCFuk",
                       "name": "titleLight",
                       "fill": "$text-color-primary",
-                      "content": "Dialog Title",
+                      "content": "弹窗标题",
                       "fontFamily": "Inter",
                       "fontSize": 16,
                       "fontWeight": "600"
@@ -33799,7 +33799,7 @@
                       "fill": "$text-color-secondary",
                       "textGrowth": "fixed-width",
                       "width": "fill_container",
-                      "content": "Some contents...",
+                      "content": "这里是一些弹窗内容...",
                       "fontFamily": "Inter",
                       "fontSize": 14,
                       "fontWeight": "normal"
@@ -33811,7 +33811,7 @@
                       "fill": "$text-color-secondary",
                       "textGrowth": "fixed-width",
                       "width": "fill_container",
-                      "content": "Some contents...",
+                      "content": "您可以在这里放置提示信息、",
                       "fontFamily": "Inter",
                       "fontSize": 14,
                       "fontWeight": "normal"
@@ -33823,7 +33823,7 @@
                       "fill": "$text-color-secondary",
                       "textGrowth": "fixed-width",
                       "width": "fill_container",
-                      "content": "Some contents...",
+                      "content": "表单或者其他交互元素。",
                       "fontFamily": "Inter",
                       "fontSize": 14,
                       "fontWeight": "normal"
@@ -33868,7 +33868,7 @@
                           "id": "il3hX",
                           "name": "txtCancelLight",
                           "fill": "$default-btn-text",
-                          "content": "Cancel",
+                          "content": "取消",
                           "fontFamily": "Inter",
                           "fontSize": 14,
                           "fontWeight": "normal"
@@ -33879,7 +33879,7 @@
                       "type": "frame",
                       "id": "0k59V",
                       "name": "btnOkLight",
-                      "fill": "#facc15ff",
+                      "fill": "$primary-btn-bg",
                       "cornerRadius": 4,
                       "padding": [
                         6,
@@ -33891,7 +33891,7 @@
                           "id": "zJ0gj",
                           "name": "txtOkLight",
                           "fill": "#010000ff",
-                          "content": "OK",
+                          "content": "确定",
                           "fontFamily": "Inter",
                           "fontSize": 14,
                           "fontWeight": "normal"
@@ -33901,6 +33901,496 @@
                   ]
                 }
               ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "wEatK",
+      "x": -1440,
+      "y": -1403,
+      "name": "Login_Light",
+      "theme": {
+        "mode": "light"
+      },
+      "width": 1440,
+      "height": 900,
+      "fill": "$bg-color",
+      "justifyContent": "center",
+      "alignItems": "center",
+      "children": [
+        {
+          "type": "frame",
+          "id": "z8rJg",
+          "name": "loginCard",
+          "width": 400,
+          "fill": "$bg-color",
+          "cornerRadius": 8,
+          "stroke": {
+            "thickness": 1,
+            "fill": "$border-color"
+          },
+          "layout": "vertical",
+          "gap": 32,
+          "padding": 40,
+          "children": [
+            {
+              "type": "frame",
+              "id": "sJuDQ",
+              "name": "header",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 8,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "4bx3q",
+                  "name": "title",
+                  "fill": "$text-color-primary",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Docker Panel",
+                  "textAlign": "center",
+                  "fontFamily": "Inter",
+                  "fontSize": 28,
+                  "fontWeight": "bold"
+                },
+                {
+                  "type": "text",
+                  "id": "9HkQf",
+                  "name": "subtitle",
+                  "fill": "$text-color-secondary",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "登录以管理您的容器",
+                  "textAlign": "center",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "1lCFD",
+              "name": "form",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 20,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "U65e1",
+                  "name": "userGroup",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 8,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "icZDr",
+                      "name": "userLabel",
+                      "fill": "$text-color-primary",
+                      "content": "用户名",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "500"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "AQwgw",
+                      "name": "userInput",
+                      "width": "fill_container",
+                      "height": 40,
+                      "fill": "$bg-color",
+                      "cornerRadius": 4,
+                      "stroke": {
+                        "thickness": 1,
+                        "fill": "$border-color"
+                      },
+                      "padding": [
+                        0,
+                        12
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "aXDcI",
+                          "name": "userPlaceholder",
+                          "fill": "$text-color-secondary",
+                          "content": "请输入用户名",
+                          "fontFamily": "Inter",
+                          "fontSize": 14,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "lQmoz",
+                  "name": "passGroup",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 8,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "lrf4I",
+                      "name": "passLabel",
+                      "fill": "$text-color-primary",
+                      "content": "密码",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "500"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "Mrrbg",
+                      "name": "passInput",
+                      "width": "fill_container",
+                      "height": 40,
+                      "fill": "$bg-color",
+                      "cornerRadius": 4,
+                      "stroke": {
+                        "thickness": 1,
+                        "fill": "$border-color"
+                      },
+                      "padding": [
+                        0,
+                        12
+                      ],
+                      "justifyContent": "space_between",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "X5KUA",
+                          "name": "passPlaceholder",
+                          "fill": "$text-color-secondary",
+                          "content": "请输入密码",
+                          "fontFamily": "Inter",
+                          "fontSize": 14,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "icon_font",
+                          "id": "1PvGC",
+                          "name": "eyeIcon",
+                          "width": 18,
+                          "height": 18,
+                          "iconFontName": "eye-off",
+                          "iconFontFamily": "lucide",
+                          "weight": 400,
+                          "fill": "$text-color-secondary"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "MHXmL",
+                  "name": "btn",
+                  "width": "fill_container",
+                  "height": 40,
+                  "fill": "$primary-btn-bg",
+                  "cornerRadius": 4,
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "ynVWW",
+                      "name": "btnText",
+                      "fill": "$primary-btn-text",
+                      "content": "登录",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "bold"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "ttabh",
+          "layoutPosition": "absolute",
+          "x": 1380,
+          "y": 24,
+          "name": "themeBtnArea",
+          "width": 36,
+          "height": 36,
+          "cornerRadius": 18,
+          "stroke": {
+            "thickness": 1,
+            "fill": "$border-color"
+          },
+          "layout": "none",
+          "children": [
+            {
+              "type": "icon_font",
+              "id": "HvbA4",
+              "x": 10,
+              "y": 10,
+              "name": "themeIcon",
+              "width": 16,
+              "height": 16,
+              "iconFontName": "sun",
+              "iconFontFamily": "lucide",
+              "fill": "$text-color-primary"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "vsaKO",
+      "x": -1440,
+      "y": 100,
+      "name": "Login_Dark",
+      "theme": {
+        "mode": "dark"
+      },
+      "width": 1440,
+      "height": 900,
+      "fill": "$bg-color",
+      "justifyContent": "center",
+      "alignItems": "center",
+      "children": [
+        {
+          "type": "frame",
+          "id": "5IXx3",
+          "name": "loginCard",
+          "width": 400,
+          "fill": "$bg-color",
+          "cornerRadius": 8,
+          "stroke": {
+            "thickness": 1,
+            "fill": "$border-color"
+          },
+          "layout": "vertical",
+          "gap": 32,
+          "padding": 40,
+          "children": [
+            {
+              "type": "frame",
+              "id": "GC9gA",
+              "name": "header",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 8,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "7VCUM",
+                  "name": "title",
+                  "fill": "$text-color-primary",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Docker Panel",
+                  "textAlign": "center",
+                  "fontFamily": "Inter",
+                  "fontSize": 28,
+                  "fontWeight": "bold"
+                },
+                {
+                  "type": "text",
+                  "id": "hVdaS",
+                  "name": "subtitle",
+                  "fill": "$text-color-secondary",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "登录以管理您的容器",
+                  "textAlign": "center",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "T49Wz",
+              "name": "form",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 20,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "c3xgJ",
+                  "name": "userGroup",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 8,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "rZKgZ",
+                      "name": "userLabel",
+                      "fill": "$text-color-primary",
+                      "content": "用户名",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "500"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "UlXHP",
+                      "name": "userInput",
+                      "width": "fill_container",
+                      "height": 40,
+                      "fill": "$bg-color",
+                      "cornerRadius": 4,
+                      "stroke": {
+                        "thickness": 1,
+                        "fill": "$border-color"
+                      },
+                      "padding": [
+                        0,
+                        12
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "kwnBg",
+                          "name": "userPlaceholder",
+                          "fill": "$text-color-secondary",
+                          "content": "请输入用户名",
+                          "fontFamily": "Inter",
+                          "fontSize": 14,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "Kop6n",
+                  "name": "passGroup",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 8,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "qOgO5",
+                      "name": "passLabel",
+                      "fill": "$text-color-primary",
+                      "content": "密码",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "500"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "Lcayx",
+                      "name": "passInput",
+                      "width": "fill_container",
+                      "height": 40,
+                      "fill": "$bg-color",
+                      "cornerRadius": 4,
+                      "stroke": {
+                        "thickness": 1,
+                        "fill": "$border-color"
+                      },
+                      "padding": [
+                        0,
+                        12
+                      ],
+                      "justifyContent": "space_between",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "UZbV5",
+                          "name": "passPlaceholder",
+                          "fill": "$text-color-secondary",
+                          "content": "请输入密码",
+                          "fontFamily": "Inter",
+                          "fontSize": 14,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "icon_font",
+                          "id": "zdp7r",
+                          "name": "eyeIcon",
+                          "width": 18,
+                          "height": 18,
+                          "iconFontName": "eye-off",
+                          "iconFontFamily": "lucide",
+                          "weight": 400,
+                          "fill": "$text-color-secondary"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "Vas3O",
+                  "name": "btn",
+                  "width": "fill_container",
+                  "height": 40,
+                  "fill": "$primary-btn-bg",
+                  "cornerRadius": 4,
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "9Qdlb",
+                      "name": "btnText",
+                      "fill": "#000000ff",
+                      "content": "登录",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "bold"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "DWLxp",
+          "layoutPosition": "absolute",
+          "x": 1380,
+          "y": 24,
+          "name": "themeBtnArea",
+          "width": 36,
+          "height": 36,
+          "cornerRadius": 18,
+          "stroke": {
+            "thickness": 1,
+            "fill": "$border-color"
+          },
+          "layout": "none",
+          "children": [
+            {
+              "type": "icon_font",
+              "id": "wXP3c",
+              "x": 10,
+              "y": 10,
+              "name": "themeIcon",
+              "width": 16,
+              "height": 16,
+              "iconFontName": "moon",
+              "iconFontFamily": "lucide",
+              "fill": "$text-color-primary"
             }
           ]
         }
@@ -34043,7 +34533,7 @@
           }
         },
         {
-          "value": "#177DDC",
+          "value": "#facc15",
           "theme": {
             "mode": "dark"
           }
