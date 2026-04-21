@@ -38,6 +38,7 @@ func NewRouter(deps Dependencies) *gin.Engine {
 	}
 
 	v1 := apiGroup.Group("/v1")
+	v1.Use(AuthMiddleware())
 	{
 		RegisterContainerRoutes(v1, containerH)
 		RegisterImageRoutes(v1, imageH)
