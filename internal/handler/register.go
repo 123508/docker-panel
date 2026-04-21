@@ -14,6 +14,7 @@ type Dependencies struct {
 	ImageSvc     *service.ImageService
 	VolumeSvc    *service.VolumeService
 	NetworkSvc   *service.NetworkService
+	UserSvc      service.UserService
 }
 
 // NewRouter 创建并配置 gin.Engine，注册所有中间件和 HTTP 路由
@@ -28,10 +29,12 @@ func NewRouter(deps Dependencies) *gin.Engine {
 	imageH := NewImageHandler(deps.ImageSvc)
 	volumeH := NewVolumeHandler(deps.VolumeSvc)
 	networkH := NewNetworkHandler(deps.NetworkSvc)
+	userH := NewUserHandler(deps.UserSvc)
 
 	apiGroup := r.Group("/api")
 	{
 		apiGroup.GET("/health", healthHandler)
+		apiGroup.POST("/login", userH.Login)
 	}
 
 	v1 := apiGroup.Group("/v1")

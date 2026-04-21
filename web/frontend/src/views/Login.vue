@@ -36,16 +36,20 @@
 
         <div v-if="errorMessage" class="error-msg">{{ errorMessage }}</div>
 
-        <button class="btn" @click="handleLogin">登录</button>
+        <button class="btn" @click="handleLogin" :disabled="isLoading">
+          {{ isLoading ? '登录中...' : '登录' }}
+        </button>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { themePreference, setThemePreference } from '@/store/ui'
+import { setToken } from '@/store/auth'
+import { http } from '@/services/api'
 import DpIcon from "@/components/dp-icon.vue"
 
 const router = useRouter()
@@ -53,18 +57,43 @@ const username = ref('')
 const password = ref('')
 const showPassword = ref(false)
 const errorMessage = ref('')
+const isLoading = ref(false)
 
 const toggleTheme = () => {
   const newTheme = themePreference.value === 'dark' ? 'light' : 'dark'
   setThemePreference(newTheme)
 }
 
-const handleLogin = () => {
+const handleLogin = async () => {
+  if (!username.value || !password.value) {
+    errorMessage.value = '请输入用户名和密码'
+    return
+  }
+
   errorMessage.value = ''
-  if (username.value === 'admin' && password.value === 'admin') {
-    router.push('/dashboard')
-  } else {
-    errorMessage.value = '用户名或密码不正确'
+  isLoading.value = true
+
+  try {
+    const response = await http.post('/api/login', {
+      username: username.value,
+      password: password.value
+    })
+
+    const res = response.data
+    if (res.code === 0 && res.data && res.data.token) {
+      setToken(res.data.token)
+      router.push('/dashboard')
+    } else {
+      errorMessage.value = res.message || '登录失败'
+    }
+  } catch (error: any) {
+    if (error.response && error.response.data && error.response.data.message) {
+      errorMessage.value = error.response.data.message
+    } else {
+      errorMessage.value = '登录请求失败，请检查网络'
+    }
+  } finally {
+    isLoading.value = false
   }
 }
 </script>
@@ -211,11 +240,16 @@ const handleLogin = () => {
   display: flex;
   justify-content: center;
   align-items: center;
-  transition: background-color 0.2s;
+  transition: background-color 0.2s, opacity 0.2s;
 }
 
-.btn:hover {
+.btn:hover:not(:disabled) {
   opacity: 0.9;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .error-msg {

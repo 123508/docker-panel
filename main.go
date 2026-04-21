@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"docker-panel/internal/config"
+	"docker-panel/internal/db"
 	"docker-panel/internal/docker"
 	"docker-panel/internal/handler"
 	"docker-panel/internal/service"
@@ -52,6 +53,15 @@ func main() {
 		log.Fatalf("Failed to initialize config: %v", err)
 	}
 
+	if err := db.InitDB("docker-panel.db"); err != nil {
+		log.Fatalf("Failed to initialize database: %v", err)
+	}
+
+	userSvc := service.NewUserService()
+	if err := userSvc.InitAdmin(); err != nil {
+		log.Fatalf("Failed to initialize admin user: %v", err)
+	}
+
 	// 初始化 Docker 客户端
 	dockerClient, err := docker.NewDockerClient()
 	if err != nil {
@@ -69,6 +79,7 @@ func main() {
 		ImageSvc:     service.NewImageService(dockerClient),
 		VolumeSvc:    service.NewVolumeService(dockerClient),
 		NetworkSvc:   service.NewNetworkService(dockerClient),
+		UserSvc:      userSvc,
 	}
 
 	// 初始化路由

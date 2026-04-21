@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { token } from '@/store/auth'
 
 import AppLayout from '@/layouts/AppLayout.vue'
 
@@ -18,8 +19,13 @@ const routes = [
         component: Login
     },
     {
+        path: '/login',
+        component: Login
+    },
+    {
         path: '/dashboard',
         component: AppLayout,
+        meta: { requiresAuth: true },
         children: [
             {
                 path: '',
@@ -57,7 +63,25 @@ const routes = [
     }
 ]
 
-export default createRouter({
+const router = createRouter({
     history: createWebHistory(),
     routes
 })
+
+router.beforeEach((to, from, next) => {
+    if (to.matched.some(record => record.meta.requiresAuth)) {
+        if (!token.value) {
+            next({ path: '/login' })
+        } else {
+            next()
+        }
+    } else {
+        if (token.value && (to.path === '/' || to.path === '/login')) {
+            next({ path: '/dashboard' })
+        } else {
+            next()
+        }
+    }
+})
+
+export default router
