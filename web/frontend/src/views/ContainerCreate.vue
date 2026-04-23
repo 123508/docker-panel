@@ -127,13 +127,13 @@ const {
 } = ContainerCreateState()
 
 const goBack = () => {
-  router.push('/containers')
+  router.push('/dashboard/containers')
 }
 
 const handleSubmit = async () => {
   const id = await submit()
   if (id) {
-    router.push(`/containers/${id}`)
+    router.push(`/dashboard/containers/${id}`)
   }
 }
 </script>
