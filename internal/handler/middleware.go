@@ -2,6 +2,7 @@ package handler
 
 import (
 	"docker-panel/internal/service"
+	"docker-panel/internal/utils"
 	"net/http"
 	"strconv"
 	"strings"
@@ -36,6 +37,35 @@ func LoggerMiddleware() gin.HandlerFunc {
 			param.Method + " " + param.Path + " | " +
 			strings.TrimSpace(param.StatusCodeColor()+strings.TrimSpace(strconv.Itoa(param.StatusCode))) + "\n"
 	})
+}
+
+func AuthMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		authHeader := c.GetHeader("Authorization")
+		if authHeader == "" {
+			c.JSON(http.StatusUnauthorized, service.Error(service.ErrCodeUnauthorized, "missing authorization header"))
+			c.Abort()
+			return
+		}
+
+		parts := strings.SplitN(authHeader, " ", 2)
+		if len(parts) != 2 || parts[0] != "Bearer" {
+			c.JSON(http.StatusUnauthorized, service.Error(service.ErrCodeUnauthorized, "invalid authorization format"))
+			c.Abort()
+			return
+		}
+
+		tokenString := parts[1]
+		claims, err := utils.ParseToken(tokenString)
+		if err != nil {
+			c.JSON(http.StatusUnauthorized, service.Error(service.ErrCodeUnauthorized, "invalid token"))
+			c.Abort()
+			return
+		}
+
+		c.Set("userID", claims.UserID)
+		c.Next()
+	}
 }
 
 func respondJSON(c *gin.Context, resp service.Response) {

@@ -42,6 +42,9 @@ web/dist/
 .claude
 AGENTS.md
 
+# database
+*.db
+
 # another file
 *.docx
 *.pdf

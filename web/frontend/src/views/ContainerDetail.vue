@@ -117,7 +117,13 @@ import { ContainerDetailState } from '@/composables/ContainerDetail'
 const route = useRoute()
 const router = useRouter()
 
-const containerId = computed(() => String(route.params.id || ''))
+const containerId = computed(() => {
+  const pathId = route.params.id
+  if (pathId != null && String(pathId).trim() !== '') return String(pathId)
+  const queryId = route.query.id
+  if (queryId != null && String(queryId).trim() !== '') return String(queryId)
+  return ''
+})
 const { state, isRunning, displayName, start, stop, restart, remove } = ContainerDetailState(() => containerId.value)
 
 const shortId = computed(() => {
@@ -185,13 +191,13 @@ const logLines = computed(() => {
 })
 
 const goBack = () => {
-  router.push('/containers')
+  router.push('/dashboard/containers')
 }
 
 const handleRemove = async () => {
   const ok = await remove()
   if (ok) {
-    router.push('/containers')
+    router.push('/dashboard/containers')
   }
 }
 </script>

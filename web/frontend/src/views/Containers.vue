@@ -68,11 +68,11 @@ const router = useRouter()
 const { state, pagedContainers, loadData, startContainer, stopContainer, restartContainer, removeContainer } = ContainerState()
 
 const goCreate = () => {
-  router.push('/containers/create')
+  router.push('/dashboard/containers/create')
 }
 
 const goDetail = (id: string) => {
-  router.push(`/containers/${id}`)
+  router.push(`/dashboard/containers/${id}`)
 }
 
 const refreshList = async () => {

@@ -22,7 +22,7 @@
     <div class="section">
       <div class="section-header">
         <h2 class="section-title">活跃容器</h2>
-        <router-link to="/containers" class="view-all">查看全部 →</router-link>
+        <router-link to="/dashboard/containers" class="view-all">查看全部 →</router-link>
       </div>
 
       <dp-data-table :bordered="true" :flex="false" height="54vh">
