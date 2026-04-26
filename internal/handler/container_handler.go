@@ -15,12 +15,13 @@ var wsUpgrader = websocket.Upgrader{
 
 // ContainerHandler 容器 HTTP 处理器
 type ContainerHandler struct {
-	svc *service2.ContainerService
+	svc    *service2.ContainerService
+	recent *service2.RecentContainers // 最近操作容器 LRU，用于仪表盘活跃容器列表
 }
 
 // NewContainerHandler 创建 ContainerHandler
-func NewContainerHandler(svc *service2.ContainerService) *ContainerHandler {
-	return &ContainerHandler{svc: svc}
+func NewContainerHandler(svc *service2.ContainerService, recent *service2.RecentContainers) *ContainerHandler {
+	return &ContainerHandler{svc: svc, recent: recent}
 }
 
 // List GET /api/v1/containers
@@ -31,6 +32,22 @@ func (h *ContainerHandler) List(c *gin.Context) {
 		return
 	}
 	items, err := h.svc.ContainerList(c.Request.Context(), req)
+	if err != nil {
+		respondJSON(c, service2.Error(service2.ErrCodeDockerAPI, err.Error()))
+		return
+	}
+	respondJSON(c, service2.Success(items))
+}
+
+// RecentContainers GET /api/v1/containers/recent
+// 返回最近操作过的容器列表（LRU），用于仪表盘活跃容器展示。
+func (h *ContainerHandler) RecentContainers(c *gin.Context) {
+	ids := h.recent.GetIDs()
+	if len(ids) == 0 {
+		respondJSON(c, service2.Success([]service2.ContainerListItem{}))
+		return
+	}
+	items, err := h.svc.GetContainersByIDs(c.Request.Context(), ids)
 	if err != nil {
 		respondJSON(c, service2.Error(service2.ErrCodeDockerAPI, err.Error()))
 		return
@@ -60,15 +77,18 @@ func (h *ContainerHandler) Create(c *gin.Context) {
 		respondJSON(c, service2.Error(service2.ErrCodeDockerAPI, err.Error()))
 		return
 	}
+	h.recent.Record(id) // 将新创建的容器记录到 LRU 中
 	respondJSON(c, service2.Success(gin.H{"id": id}))
 }
 
 // Start POST /api/v1/containers/:id/start
 func (h *ContainerHandler) Start(c *gin.Context) {
-	if err := h.svc.ContainerStart(c.Request.Context(), c.Param("id")); err != nil {
+	id := c.Param("id")
+	if err := h.svc.ContainerStart(c.Request.Context(), id); err != nil {
 		respondJSON(c, service2.Error(service2.ErrCodeDockerAPI, err.Error()))
 		return
 	}
+	h.recent.Record(id) // 操作成功后将容器记录到 LRU 中
 	respondJSON(c, service2.Success(nil))
 }
 
@@ -78,10 +98,12 @@ func (h *ContainerHandler) Stop(c *gin.Context) {
 	if err := c.ShouldBindJSON(&req); err != nil {
 		_ = c.Error(err)
 	}
-	if err := h.svc.ContainerStop(c.Request.Context(), c.Param("id"), req.Timeout); err != nil {
+	id := c.Param("id")
+	if err := h.svc.ContainerStop(c.Request.Context(), id, req.Timeout); err != nil {
 		respondJSON(c, service2.Error(service2.ErrCodeDockerAPI, err.Error()))
 		return
 	}
+	h.recent.Record(id) // 操作成功后将容器记录到 LRU 中
 	respondJSON(c, service2.Success(nil))
 }
 
@@ -91,10 +113,12 @@ func (h *ContainerHandler) Kill(c *gin.Context) {
 	if err := c.ShouldBindJSON(&req); err != nil {
 		_ = c.Error(err)
 	}
-	if err := h.svc.ContainerKill(c.Request.Context(), c.Param("id"), req.Signal); err != nil {
+	id := c.Param("id")
+	if err := h.svc.ContainerKill(c.Request.Context(), id, req.Signal); err != nil {
 		respondJSON(c, service2.Error(service2.ErrCodeDockerAPI, err.Error()))
 		return
 	}
+	h.recent.Record(id) // 操作成功后将容器记录到 LRU 中
 	respondJSON(c, service2.Success(nil))
 }
 
@@ -104,28 +128,34 @@ func (h *ContainerHandler) Restart(c *gin.Context) {
 	if err := c.ShouldBindJSON(&req); err != nil {
 		_ = c.Error(err)
 	}
-	if err := h.svc.ContainerRestart(c.Request.Context(), c.Param("id"), req.Timeout); err != nil {
+	id := c.Param("id")
+	if err := h.svc.ContainerRestart(c.Request.Context(), id, req.Timeout); err != nil {
 		respondJSON(c, service2.Error(service2.ErrCodeDockerAPI, err.Error()))
 		return
 	}
+	h.recent.Record(id) // 操作成功后将容器记录到 LRU 中
 	respondJSON(c, service2.Success(nil))
 }
 
 // Pause POST /api/v1/containers/:id/pause
 func (h *ContainerHandler) Pause(c *gin.Context) {
-	if err := h.svc.ContainerPause(c.Request.Context(), c.Param("id")); err != nil {
+	id := c.Param("id")
+	if err := h.svc.ContainerPause(c.Request.Context(), id); err != nil {
 		respondJSON(c, service2.Error(service2.ErrCodeDockerAPI, err.Error()))
 		return
 	}
+	h.recent.Record(id) // 操作成功后将容器记录到 LRU 中
 	respondJSON(c, service2.Success(nil))
 }
 
 // Unpause POST /api/v1/containers/:id/unpause
 func (h *ContainerHandler) Unpause(c *gin.Context) {
-	if err := h.svc.ContainerUnpause(c.Request.Context(), c.Param("id")); err != nil {
+	id := c.Param("id")
+	if err := h.svc.ContainerUnpause(c.Request.Context(), id); err != nil {
 		respondJSON(c, service2.Error(service2.ErrCodeDockerAPI, err.Error()))
 		return
 	}
+	h.recent.Record(id) // 操作成功后将容器记录到 LRU 中
 	respondJSON(c, service2.Success(nil))
 }
 
@@ -135,10 +165,12 @@ func (h *ContainerHandler) Remove(c *gin.Context) {
 	if err := c.ShouldBindQuery(&req); err != nil {
 		_ = c.Error(err)
 	}
-	if err := h.svc.ContainerRemove(c.Request.Context(), c.Param("id"), req.Force, req.RemoveVolumes); err != nil {
+	id := c.Param("id")
+	if err := h.svc.ContainerRemove(c.Request.Context(), id, req.Force, req.RemoveVolumes); err != nil {
 		respondJSON(c, service2.Error(service2.ErrCodeDockerAPI, err.Error()))
 		return
 	}
+	h.recent.Remove(id) // 容器已删除，从 LRU 中移除记录
 	respondJSON(c, service2.Success(nil))
 }
 
@@ -149,10 +181,12 @@ func (h *ContainerHandler) Rename(c *gin.Context) {
 		respondJSON(c, service2.Error(service2.ErrCodeInvalidParam, err.Error()))
 		return
 	}
-	if err := h.svc.ContainerRename(c.Request.Context(), c.Param("id"), req.NewName); err != nil {
+	id := c.Param("id")
+	if err := h.svc.ContainerRename(c.Request.Context(), id, req.NewName); err != nil {
 		respondJSON(c, service2.Error(service2.ErrCodeDockerAPI, err.Error()))
 		return
 	}
+	h.recent.Record(id) // 操作成功后将容器记录到 LRU 中
 	respondJSON(c, service2.Success(nil))
 }
 
@@ -194,7 +228,8 @@ func (h *ContainerHandler) Exec(c *gin.Context) {
 	req.AttachStdout = true
 	req.AttachStderr = true
 
-	hijack, err := h.svc.ContainerExec(c.Request.Context(), c.Param("id"), req)
+	id := c.Param("id")
+	hijack, err := h.svc.ContainerExec(c.Request.Context(), id, req)
 	if err != nil {
 		respondJSON(c, service2.Error(service2.ErrCodeDockerAPI, err.Error()))
 		return
@@ -206,6 +241,7 @@ func (h *ContainerHandler) Exec(c *gin.Context) {
 		respondJSON(c, service2.Error(service2.ErrCodeDockerAPI, err.Error()))
 		return
 	}
+	h.recent.Record(id) // exec 成功后将容器记录到 LRU 中
 	respondJSON(c, service2.Success(gin.H{"output": string(output)}))
 }
 

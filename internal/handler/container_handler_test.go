@@ -20,7 +20,8 @@ import (
 func setupTestRouter(svc *service.ContainerService) *gin.Engine {
 	gin.SetMode(gin.TestMode)
 	r := gin.New()
-	h := NewContainerHandler(svc)
+	recent := service.NewRecentContainers()
+	h := NewContainerHandler(svc, recent)
 	RegisterContainerRoutes(r.Group("/api/v1"), h)
 	return r
 }

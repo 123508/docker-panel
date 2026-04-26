@@ -637,3 +637,28 @@ func (s *ContainerService) ContainerTop(ctx context.Context, containerID string,
 func (s *ContainerService) ContainerExport(ctx context.Context, containerID string) (io.ReadCloser, error) {
 	return s.docker.ContainerExport(ctx, containerID)
 }
+
+// GetContainersByIDs 根据容器 ID 列表查询容器简要信息。
+// 先获取全量容器列表，再按传入的 ID 顺序筛选，保留请求的先后次序。
+func (s *ContainerService) GetContainersByIDs(ctx context.Context, ids []string) ([]ContainerListItem, error) {
+	// 获取全部容器
+	all, err := s.ContainerList(ctx, ContainerListRequest{All: true})
+	if err != nil {
+		return nil, err
+	}
+
+	// 构建 ID 到容器信息的映射
+	ordered := make(map[string]ContainerListItem, len(all))
+	for _, item := range all {
+		ordered[item.ID] = item
+	}
+
+	// 按传入的 ID 顺序返回结果，保持 LRU 中的先后次序
+	result := make([]ContainerListItem, 0, len(ids))
+	for _, id := range ids {
+		if item, ok := ordered[id]; ok {
+			result = append(result, item)
+		}
+	}
+	return result, nil
+}

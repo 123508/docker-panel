@@ -302,6 +302,13 @@ export async function getContainerList(params?: ContainerListRequest): Promise<a
     return res
 }
 
+// 获取最近操作过的容器列表（LRU）
+// 后端在每次容器操作（启动/停止/重启/删除/exec 等）成功后将容器 ID 记录到 LRU 中
+export async function getRecentContainers(): Promise<any> {
+    const res = await call("GET", "/api/v1/containers/recent", null).unwrap()
+    return res
+}
+
 // 3.3.2 容器详情
 export async function getContainerInspect(id: string): Promise<any> {
     const res = await call("GET", `/api/v1/containers/${id}`, null).unwrap()

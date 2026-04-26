@@ -74,12 +74,15 @@ func main() {
 	}()
 
 	// 初始化 Handler 层
+	// RecentContainers 是全局唯一的 LRU，跨请求共享，用于记录最近操作过的容器
+	recent := service.NewRecentContainers()
 	deps := handler.Dependencies{
 		ContainerSvc: service.NewContainerService(dockerClient),
 		ImageSvc:     service.NewImageService(dockerClient),
 		VolumeSvc:    service.NewVolumeService(dockerClient),
 		NetworkSvc:   service.NewNetworkService(dockerClient),
 		UserSvc:      userSvc,
+		Recent:       recent,
 	}
 
 	// 初始化路由
