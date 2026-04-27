@@ -15,6 +15,7 @@ type Dependencies struct {
 	VolumeSvc    *service.VolumeService
 	NetworkSvc   *service.NetworkService
 	UserSvc      service.UserService
+	Recent       *service.RecentContainers // 最近操作容器 LRU，用于仪表盘活跃容器
 }
 
 // NewRouter 创建并配置 gin.Engine，注册所有中间件和 HTTP 路由
@@ -25,7 +26,7 @@ func NewRouter(deps Dependencies) *gin.Engine {
 	r.Use(LoggerMiddleware())
 	r.Use(CORSMiddleware())
 
-	containerH := NewContainerHandler(deps.ContainerSvc)
+	containerH := NewContainerHandler(deps.ContainerSvc, deps.Recent)
 	imageH := NewImageHandler(deps.ImageSvc)
 	volumeH := NewVolumeHandler(deps.VolumeSvc)
 	networkH := NewNetworkHandler(deps.NetworkSvc)
@@ -55,6 +56,7 @@ func RegisterContainerRoutes(rg *gin.RouterGroup, h *ContainerHandler) {
 	{
 		containers.GET("", h.List)
 		containers.POST("", h.Create)
+		containers.GET("/recent", h.RecentContainers) // 必须在 /:id 之前注册，避免被通配符匹配
 		containers.GET("/:id", h.Inspect)
 		containers.DELETE("/:id", h.Remove)
 		containers.POST("/:id/start", h.Start)

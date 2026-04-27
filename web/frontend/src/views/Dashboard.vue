@@ -34,7 +34,7 @@
           <span class="th" style="flex: 1">操作</span>
         </template>
 
-        <div v-for="c in pagedContainers" :key="c.fullId" class="table-row">
+        <div v-for="c in state.recentContainers" :key="c.fullId" class="table-row">
           <div class="td td-name" style="width: 280px">
             <div class="container-icon"></div>
             <div class="name-col">
@@ -62,12 +62,6 @@
         </div>
       </dp-data-table>
 
-      <dp-pagination
-        :page="state.page"
-        :total="state.containers.length"
-        :page-size="state.pageSize"
-        @change="state.page = $event"
-      />
     </div>
   </dp-page-header>
 </template>
@@ -77,10 +71,9 @@ import DpPageHeader from '@/components/dp-page-header.vue'
 import DpDataTable from '@/components/dp-data-table.vue'
 import DpStatusBadge from '@/components/dp-status-badge.vue'
 import DpButton from '@/components/dp-button.vue'
-import DpPagination from '@/components/dp-pagination.vue'
 import { DashboardState } from '@/composables/Dashboard'
 
-const { state, pagedContainers, loadData, startContainer, stopContainer, restartContainer, removeContainer } = DashboardState()
+const { state, loadData, startContainer, stopContainer, restartContainer, removeContainer } = DashboardState()
 </script>
 
 <style scoped>

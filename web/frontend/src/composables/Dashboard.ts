@@ -1,7 +1,8 @@
-import { reactive, computed, onMounted } from 'vue'
+import { reactive, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import {
   getContainerList,
+  getRecentContainers,
   startContainer as apiStartContainer,
   stopContainer as apiStopContainer,
   restartContainer as apiRestartContainer,
@@ -18,8 +19,6 @@ function formatBytesToGB(bytes: number): string {
 
 export function DashboardState() {
   const state = reactive({
-    page: 1,
-    pageSize: 5,
     loading: false,
     actionLoading: false,
     metrics: [
@@ -28,25 +27,28 @@ export function DashboardState() {
       { label: '卷', value: '0', sub: '0 GB 已使用', subClass: 'muted' },
       { label: '网络', value: '0', sub: '0 自定义', subClass: 'muted' }
     ],
-    containers: [] as any[]
+    containers: [] as any[],       // 全部容器列表，用于统计指标
+    recentContainers: [] as any[]  // 活跃容器列表，优先展示 LRU 中的最近操作容器
   })
 
   const loadData = async () => {
     try {
       state.loading = true
-      const [containersRes, imagesRes, volumesRes, networksRes] = await Promise.all([
+      const [containersRes, recentRes, imagesRes, volumesRes, networksRes] = await Promise.all([
         getContainerList({ all: true }),
+        getRecentContainers(),
         getImageList({ all: true }),
         getVolumeList(),
         getNetworkList()
       ])
 
       const containers = Array.isArray(containersRes) ? containersRes : []
+      const recent = Array.isArray(recentRes) ? recentRes : []
       const images = Array.isArray(imagesRes) ? imagesRes : []
       const volumes = Array.isArray(volumesRes) ? volumesRes : []
       const networks = Array.isArray(networksRes) ? networksRes : []
 
-      state.containers = containers.map((c: any) => {
+      const mapContainer = (c: any) => {
         const name = Array.isArray(c.names) && c.names.length > 0
           ? c.names[0].replace(/^\//, '')
           : (c.id?.substring(0, 12) || 'unknown')
@@ -62,7 +64,20 @@ export function DashboardState() {
             ? c.ports.map((p: any) => `${p.public_port || p.private_port}:${p.private_port}`).join(', ')
             : ''
         }
-      })
+      }
+
+      state.containers = containers.map(mapContainer)
+
+      // 活跃容器：优先展示 LRU 中最近操作过的容器；
+      // 若 LRU 为空（首次加载或无操作记录），则回退展示创建时间最近的 5 个容器
+      if (recent.length > 0) {
+        state.recentContainers = recent.map(mapContainer)
+      } else {
+        state.recentContainers = [...containers]
+          .sort((a, b) => b.created - a.created)
+          .slice(0, 5)
+          .map(mapContainer)
+      }
 
       const runningCount = containers.filter((c: any) => c.state === 'running').length
       const imagesTotalSize = images.reduce((sum: number, img: any) => sum + Number(img.size || 0), 0)
@@ -151,14 +166,8 @@ export function DashboardState() {
     }
   }
 
-  const pagedContainers = computed(() => {
-    const start = (state.page - 1) * state.pageSize
-    return state.containers.slice(start, start + state.pageSize)
-  })
-
   return {
     state,
-    pagedContainers,
     loadData,
     startContainer,
     stopContainer,
