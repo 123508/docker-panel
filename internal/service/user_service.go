@@ -1,21 +1,21 @@
 package service
 
 import (
-	"crypto/rand"
-	"encoding/hex"
 	"errors"
 	"fmt"
 	"log"
 
+	"docker-panel/internal/config"
 	"docker-panel/internal/db"
 	"docker-panel/internal/models"
 	"docker-panel/internal/utils"
 
+	"gorm.io/gorm"
 	"golang.org/x/crypto/bcrypt"
 )
 
 type UserService interface {
-	InitAdmin() error
+	InitAdmin() (string, error)
 	Login(username, password string) (string, error)
 }
 
@@ -25,42 +25,64 @@ func NewUserService() UserService {
 	return &userService{}
 }
 
-func (s *userService) InitAdmin() error {
-	var count int64
-	db.DB.Model(&models.User{}).Where("username = ?", "admin").Count(&count)
-
-	if count > 0 {
-		return nil
+func (s *userService) InitAdmin() (string, error) {
+	adminUsername := "admin"
+	configPassword := ""
+	if config.AppConfig != nil {
+		if config.AppConfig.User.AdminUsername != "" {
+			adminUsername = config.AppConfig.User.AdminUsername
+		}
+		configPassword = config.AppConfig.User.AdminPassword
+	}
+	if configPassword == "" {
+		return "", errors.New("admin password is empty in config.toml")
 	}
 
-	bytes := make([]byte, 8)
-	if _, err := rand.Read(bytes); err != nil {
-		return fmt.Errorf("failed to generate random password: %w", err)
-	}
-	randomPassword := hex.EncodeToString(bytes)
-
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(randomPassword), bcrypt.DefaultCost)
-	if err != nil {
-		return fmt.Errorf("failed to hash password: %w", err)
+	var admin models.User
+	err := db.DB.Where("username = ?", adminUsername).First(&admin).Error
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return "", fmt.Errorf("failed to query admin user: %w", err)
 	}
 
-	admin := models.User{
-		Username: "admin",
-		Password: string(hashedPassword),
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		hashedPassword, hashErr := bcrypt.GenerateFromPassword([]byte(configPassword), bcrypt.DefaultCost)
+		if hashErr != nil {
+			return "", fmt.Errorf("failed to hash password: %w", hashErr)
+		}
+
+		admin = models.User{
+			Username: adminUsername,
+			Password: string(hashedPassword),
+		}
+
+		if createErr := db.DB.Create(&admin).Error; createErr != nil {
+			return "", fmt.Errorf("failed to create admin user: %w", createErr)
+		}
+
+		log.Printf("========================================================\n")
+		log.Printf("Initial Admin Account Created\n")
+		log.Printf("Username: %s\n", adminUsername)
+		log.Printf("Password: %s\n", configPassword)
+		log.Printf("Please change the password after logging in.\n")
+		log.Printf("========================================================\n")
+		return "", nil
 	}
 
-	if err := db.DB.Create(&admin).Error; err != nil {
-		return fmt.Errorf("failed to create admin user: %w", err)
+	if cmpErr := bcrypt.CompareHashAndPassword([]byte(admin.Password), []byte(configPassword)); cmpErr == nil {
+		return "", nil
 	}
 
-	log.Printf("========================================================\n")
-	log.Printf("Initial Admin Account Created\n")
-	log.Printf("Username: admin\n")
-	log.Printf("Password: %s\n", randomPassword)
-	log.Printf("Please change the password after logging in.\n")
-	log.Printf("========================================================\n")
+	hashedPassword, hashErr := bcrypt.GenerateFromPassword([]byte(configPassword), bcrypt.DefaultCost)
+	if hashErr != nil {
+		return "", fmt.Errorf("failed to hash password: %w", hashErr)
+	}
 
-	return nil
+	if updateErr := db.DB.Model(&admin).Update("password", string(hashedPassword)).Error; updateErr != nil {
+		return "", fmt.Errorf("failed to update admin password: %w", updateErr)
+	}
+
+	log.Printf("admin password in DB is out of sync with config, updated DB password for user: %s", adminUsername)
+	return "", nil
 }
 
 func (s *userService) Login(username, password string) (string, error) {

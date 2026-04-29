@@ -35,6 +35,7 @@ func printMsg(version types.Version, cfg *config.Config, addr string, r *gin.Eng
 	fmt.Printf("系统信息: %s/%s\n", version.Os, version.Arch)
 	fmt.Printf("\nDocker Panel 启动成功！\n")
 	fmt.Printf("管理员账号: %s\n", cfg.User.AdminUsername)
+	fmt.Printf("管理员密码: %s\n", cfg.User.AdminPassword)
 	fmt.Printf("绑定地址: %s\n", addr)
 	fmt.Printf("访问地址: http://localhost:%s\n\n", cfg.Server.BindPort)
 
@@ -58,8 +59,14 @@ func main() {
 	}
 
 	userSvc := service.NewUserService()
-	if err := userSvc.InitAdmin(); err != nil {
+	adminPassword, err := userSvc.InitAdmin()
+	if err != nil {
 		log.Fatalf("Failed to initialize admin user: %v", err)
+	}
+	if adminPassword != "" {
+		if err := config.SetAdminPassword(adminPassword); err != nil {
+			log.Fatalf("Failed to update admin password in config: %v", err)
+		}
 	}
 
 	// 初始化 Docker 客户端
