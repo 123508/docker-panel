@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div class="detail-page">
     <div class="detail-header">
       <div class="title-wrap">
@@ -7,7 +7,7 @@
       </div>
       <dp-container-header-actions class="detail-actions">
         <dp-button
-          text="返回列表"
+          text="← 返回"
           size="medium"
           variant="outlined"
           class="btn-back"
@@ -17,8 +17,7 @@
         <dp-button
           v-if="isRunning"
           text="停止"
-          type="default"
-          variant="text"
+          type="danger"
           size="medium"
           class="btn-stop"
           :disabled="state.actionLoading"
@@ -41,15 +40,6 @@
           :disabled="state.actionLoading"
           @click="restart"
         />
-        <dp-button
-          text="删除"
-          type="danger"
-          variant="filled"
-          size="medium"
-          class="btn-delete"
-          :disabled="state.actionLoading"
-          @click="handleRemove"
-        />
       </dp-container-header-actions>
     </div>
 
@@ -59,9 +49,10 @@
       <section class="status-card">
         <div class="status-item">
           <span class="item-label">状态</span>
-          <dp-status-badge :status="isRunning ? 'running' : 'stopped'">
+          <span class="status-value" :class="{ stopped: !isRunning }">
+            <i class="status-dot"></i>
             {{ isRunning ? '运行中' : '已停止' }}
-          </dp-status-badge>
+          </span>
         </div>
         <div class="status-item">
           <span class="item-label">运行时长</span>
@@ -69,15 +60,15 @@
         </div>
         <div class="status-item">
           <span class="item-label">CPU</span>
-          <span class="item-value">--</span>
+          <span class="item-value">{{ cpuText }}</span>
         </div>
         <div class="status-item">
           <span class="item-label">内存</span>
-          <span class="item-value">{{ memoryLimitText }}</span>
+          <span class="item-value">{{ memoryText }}</span>
         </div>
         <div class="status-item">
           <span class="item-label">网络</span>
-          <span class="item-value">{{ networkText }}</span>
+          <span class="item-value">{{ networkSummary }}</span>
         </div>
       </section>
 
@@ -85,9 +76,67 @@
         <h2 class="section-title">容器信息</h2>
         <dp-container-section-card class="info-grid-card">
           <div class="info-grid">
-            <div v-for="row in infoRows" :key="row.key" class="info-row">
-              <span class="row-label">{{ row.label }}</span>
-              <span class="row-value">{{ row.value }}</span>
+            <div class="info-row">
+              <div class="row-label">镜像</div>
+              <div class="row-value strong">{{ imageText }}</div>
+            </div>
+            <div class="info-row">
+              <div class="row-label">命令</div>
+              <div class="row-value muted">{{ commandText }}</div>
+            </div>
+            <div class="info-row">
+              <div class="row-label">端口</div>
+              <div class="row-value">
+                <div v-if="portRows.length" class="ports-table">
+                  <div class="ports-row ports-head">
+                    <span>容器端口</span>
+                    <span>主机端口</span>
+                    <span>协议</span>
+                  </div>
+                  <div v-for="port in portRows" :key="port.key" class="ports-row">
+                    <span>{{ port.private }}</span>
+                    <span>{{ port.public }}</span>
+                    <span>{{ port.type }}</span>
+                  </div>
+                </div>
+                <span v-else class="empty-value">N/A</span>
+              </div>
+            </div>
+            <div class="info-row">
+              <div class="row-label">环境变量</div>
+              <div class="row-value list-value">
+                <div v-for="item in envRows" :key="item.raw" class="kv-line">
+                  <strong>{{ item.key }}</strong><span>{{ item.value }}</span>
+                </div>
+                <span v-if="!envRows.length" class="empty-value">N/A</span>
+              </div>
+            </div>
+            <div class="info-row">
+              <div class="row-label">卷</div>
+              <div class="row-value list-value">
+                <div v-for="mount in mountRows" :key="mount.key" class="mount-line">
+                  <span class="path-text">{{ mount.source }}</span>
+                  <span class="arrow">→</span>
+                  <span class="muted">{{ mount.destination }}</span>
+                  <span class="mode">{{ mount.mode }}</span>
+                </div>
+                <span v-if="!mountRows.length" class="empty-value">N/A</span>
+              </div>
+            </div>
+            <div class="info-row">
+              <div class="row-label">网络</div>
+              <div class="row-value list-value">
+                <div v-for="network in networkRows" :key="network.name" class="network-line">
+                  <strong>{{ network.name }}</strong>
+                  <span class="muted">{{ network.ip }}</span>
+                  <span class="secondary">Gateway: {{ network.gateway }}</span>
+                </div>
+                <span v-if="!networkRows.length" class="empty-value">N/A</span>
+              </div>
+            </div>
+            <div class="info-row">
+              <div class="row-label">重启策略</div>
+              <div class="row-value strong">{{ restartPolicyText }}</div>
             </div>
           </div>
         </dp-container-section-card>
@@ -95,11 +144,13 @@
 
       <section class="section-block">
         <h2 class="section-title">容器日志</h2>
-        <div class="logs-terminal">
-          <p v-for="(line, idx) in logLines" :key="`${idx}-${line.text}`" :class="line.levelClass">
-            {{ line.text }}
-          </p>
-        </div>
+        <dp-container-section-card class="logs-card">
+          <div class="logs-terminal">
+            <p v-for="(line, idx) in logLines" :key="`${idx}-${line.text}`" :class="line.levelClass">
+              {{ line.text }}
+            </p>
+          </div>
+        </dp-container-section-card>
       </section>
     </template>
   </div>
@@ -109,7 +160,6 @@
 import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import DpButton from '@/components/dp-button.vue'
-import DpStatusBadge from '@/components/dp-status-badge.vue'
 import DpContainerHeaderActions from '@/components/container/dp-container-header-actions.vue'
 import DpContainerSectionCard from '@/components/container/dp-container-section-card.vue'
 import { ContainerDetailState } from '@/composables/ContainerDetail'
@@ -124,81 +174,31 @@ const containerId = computed(() => {
   if (queryId != null && String(queryId).trim() !== '') return String(queryId)
   return ''
 })
-const { state, isRunning, displayName, start, stop, restart, remove } = ContainerDetailState(() => containerId.value)
 
-const shortId = computed(() => {
-  const id = state.detail?.id || containerId.value
-  return String(id || '').slice(0, 12) || 'N/A'
-})
-
-const uptimeText = computed(() => {
-  const startedAt = state.detail?.state?.started_at
-  if (!startedAt || !isRunning.value) return 'N/A'
-  const started = new Date(startedAt).getTime()
-  if (!Number.isFinite(started) || started <= 0) return 'N/A'
-  const diffMinutes = Math.max(0, Math.floor((Date.now() - started) / 60000))
-  const hours = Math.floor(diffMinutes / 60)
-  const minutes = diffMinutes % 60
-  if (hours <= 0) return `${minutes} 分钟`
-  return `${hours} 小时 ${minutes} 分钟`
-})
-
-const memoryLimitText = computed(() => {
-  const bytes = Number(state.detail?.host_config?.memory || 0)
-  if (!bytes) return '不限'
-  if (bytes < 1024 * 1024 * 1024) return `${Math.round(bytes / (1024 * 1024))}MB`
-  return `${(bytes / (1024 * 1024 * 1024)).toFixed(1)}GB`
-})
-
-const networkText = computed(() => {
-  const networks = state.detail?.network_settings?.networks || {}
-  const names = Object.keys(networks)
-  if (!names.length) return 'N/A'
-  return names.join(', ')
-})
-
-const infoRows = computed(() => {
-  const detail = state.detail || {}
-  const labels = detail?.config?.labels || {}
-  return [
-    { key: 'id', label: '容器 ID', value: detail.id || 'N/A' },
-    { key: 'name', label: '容器名称', value: displayName.value },
-    { key: 'image', label: '镜像', value: detail.image || detail.config?.image || 'N/A' },
-    { key: 'status', label: '状态', value: detail.state?.status || 'N/A' },
-    { key: 'created', label: '创建时间', value: detail.created || 'N/A' },
-    { key: 'restartCount', label: '重启次数', value: String(detail.restart_count ?? 0) },
-    { key: 'network', label: '网络模式', value: detail.host_config?.network_mode || 'N/A' },
-    { key: 'platform', label: '平台', value: detail.platform || 'N/A' },
-    { key: 'entrypoint', label: '入口命令', value: (detail.config?.entrypoint || []).join(' ') || 'N/A' },
-    { key: 'cmd', label: '启动命令', value: (detail.config?.cmd || []).join(' ') || 'N/A' },
-    { key: 'workdir', label: '工作目录', value: detail.config?.working_dir || 'N/A' },
-    { key: 'labels', label: '标签', value: Object.keys(labels).length ? JSON.stringify(labels) : 'N/A' }
-  ]
-})
-
-const logLines = computed(() => {
-  const detail = state.detail || {}
-  const lines = [
-    `[info] container=${displayName.value} status=${detail.state?.status || 'unknown'}`,
-    `[info] image=${detail.image || detail.config?.image || 'N/A'}`,
-    `[info] command=${(detail.config?.cmd || []).join(' ') || 'N/A'}`,
-    `[info] started_at=${detail.state?.started_at || 'N/A'}`,
-    `[info] network=${networkText.value}`,
-    '[warn] 该页面尚未接入实时日志 API，当前为容器元数据摘要',
-    `[info] mounts=${Array.isArray(detail.mounts) ? detail.mounts.length : 0}`
-  ]
-  return lines.map((text) => ({ text, levelClass: text.startsWith('[warn]') ? 'log-warn' : 'log-info' }))
-})
+const {
+  state,
+  isRunning,
+  displayName,
+  shortId,
+  uptimeText,
+  imageText,
+  commandText,
+  cpuText,
+  memoryText,
+  portRows,
+  envRows,
+  mountRows,
+  networkRows,
+  networkSummary,
+  restartPolicyText,
+  logLines,
+  start,
+  stop,
+  restart
+} = ContainerDetailState(() => containerId.value)
 
 const goBack = () => {
   router.push('/dashboard/containers')
-}
-
-const handleRemove = async () => {
-  const ok = await remove()
-  if (ok) {
-    router.push('/dashboard/containers')
-  }
 }
 </script>
 
@@ -226,6 +226,7 @@ const handleRemove = async () => {
 }
 
 .detail-title {
+  margin: 0;
   font-family: var(--font-display);
   font-size: 40px;
   line-height: 1;
@@ -235,6 +236,7 @@ const handleRemove = async () => {
 }
 
 .detail-subtitle {
+  margin: 0;
   font-family: var(--font-mono);
   font-size: 11px;
   color: var(--text-secondary);
@@ -242,28 +244,26 @@ const handleRemove = async () => {
 
 .detail-actions {
   justify-content: flex-end;
-  gap: 20px;
+  gap: 12px;
+}
+
+.detail-actions :deep(.button) {
+  font-family: var(--font-mono);
 }
 
 .detail-actions :deep(.btn-back.button-outlined) {
-  min-width: 116px;
-  padding: 0 18px;
+  padding: 0 14px;
   background: var(--bg-card);
 }
 
-.detail-actions :deep(.btn-stop.button-text) {
-  color: var(--text-primary);
-  padding: 0 2px;
+.detail-actions :deep(.btn-back.button-outlined:hover:not([data-disabled="true"])) {
+  background: var(--bg-card-header);
 }
 
+.detail-actions :deep(.btn-stop.button-filled.button-danger),
+.detail-actions :deep(.btn-start.button-filled.button-primary),
 .detail-actions :deep(.btn-restart.button-filled.button-primary) {
-  min-width: 76px;
-  padding: 0 20px;
-}
-
-.detail-actions :deep(.btn-delete.button-filled.button-danger) {
-  min-width: 76px;
-  padding: 0 20px;
+  padding: 0 18px;
 }
 
 .placeholder {
@@ -286,18 +286,41 @@ const handleRemove = async () => {
   display: flex;
   flex-direction: column;
   gap: 4px;
+  min-width: 0;
 }
 
-.item-label {
+.item-label,
+.row-label {
+  font-family: var(--font-mono);
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 1px;
   color: var(--text-secondary);
 }
 
-.item-value {
+.item-value,
+.status-value {
+  min-width: 0;
+  overflow-wrap: anywhere;
   color: var(--text-primary);
+  font-family: var(--font-mono);
   font-size: 14px;
+}
+
+.status-value {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.status-value.stopped .status-dot {
+  background: var(--color-danger);
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  background: var(--color-success);
 }
 
 .section-block {
@@ -307,60 +330,135 @@ const handleRemove = async () => {
 }
 
 .section-title {
+  margin: 0;
   font-family: var(--font-display);
   font-size: 18px;
+  line-height: 1.2;
   font-weight: 700;
   color: var(--text-primary);
 }
 
-.info-grid-card {
+.info-grid-card,
+.logs-card {
   padding: 0;
 }
 
 .info-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  display: flex;
+  flex-direction: column;
 }
 
 .info-row {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  display: grid;
+  grid-template-columns: 240px minmax(0, 1fr);
+  gap: 0;
   padding: 20px;
   border-bottom: var(--border);
 }
 
-.info-row:nth-last-child(-n + 2) {
+.info-row:last-child {
   border-bottom: none;
 }
 
-.row-label {
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--text-secondary);
-  letter-spacing: 1px;
+.row-value {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 14px;
 }
 
-.row-value {
-  font-size: 13px;
+.strong,
+.kv-line strong,
+.network-line strong {
+  font-weight: 700;
   color: var(--text-primary);
-  overflow-wrap: anywhere;
+}
+
+.muted,
+.kv-line span {
+  color: var(--text-muted);
+}
+
+.secondary,
+.arrow,
+.empty-value {
+  color: var(--text-secondary);
+}
+
+.list-value {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.kv-line,
+.mount-line,
+.network-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.mount-line,
+.network-line {
+  flex-wrap: wrap;
+}
+
+.path-text {
+  color: var(--text-primary);
+}
+
+.mode {
+  color: var(--color-info);
+  font-size: 11px;
+}
+
+.ports-table {
+  display: flex;
+  flex-direction: column;
+  background: var(--button-default);
+  width: 100%;
+}
+
+.ports-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  min-height: 36px;
+  align-items: center;
+  padding: 0 12px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.ports-head {
+  min-height: 32px;
+  color: var(--text-secondary);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
 }
 
 .logs-terminal {
   background: var(--bg-card);
   padding: 16px;
-  min-height: 280px;
+  height: 280px;
   display: flex;
   flex-direction: column;
   gap: 4px;
-  border: var(--border);
+  overflow: auto;
 }
 
 .logs-terminal p {
+  margin: 0;
   font-family: var(--font-mono);
   font-size: 11px;
   line-height: 1.5;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
 }
 
 .log-info {
@@ -368,7 +466,7 @@ const handleRemove = async () => {
 }
 
 .log-warn {
-  color: var(--color-warning);
+  color: var(--accent);
 }
 
 @media (max-width: 1200px) {
@@ -387,16 +485,9 @@ const handleRemove = async () => {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .info-grid {
+  .info-row {
     grid-template-columns: 1fr;
-  }
-
-  .info-row:nth-last-child(-n + 2) {
-    border-bottom: var(--border);
-  }
-
-  .info-row:last-child {
-    border-bottom: none;
+    gap: 10px;
   }
 }
 </style>

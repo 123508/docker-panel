@@ -67,6 +67,7 @@ func RegisterContainerRoutes(rg *gin.RouterGroup, h *ContainerHandler) {
 		containers.POST("/:id/unpause", h.Unpause)
 		containers.POST("/:id/rename", h.Rename)
 		containers.GET("/:id/logs", h.Logs)
+		containers.GET("/:id/logs/ws", h.LogsWS)
 		containers.POST("/:id/exec", h.Exec)
 		containers.GET("/:id/terminal", h.Terminal)
 		containers.GET("/:id/top", h.Top)

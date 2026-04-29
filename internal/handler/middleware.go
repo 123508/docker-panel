@@ -42,20 +42,25 @@ func LoggerMiddleware() gin.HandlerFunc {
 func AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
-		if authHeader == "" {
-			c.JSON(http.StatusUnauthorized, service.Error(service.ErrCodeUnauthorized, "missing authorization header"))
-			c.Abort()
-			return
+		var tokenString string
+		if authHeader != "" {
+			parts := strings.SplitN(authHeader, " ", 2)
+			if len(parts) != 2 || parts[0] != "Bearer" {
+				c.JSON(http.StatusUnauthorized, service.Error(service.ErrCodeUnauthorized, "invalid authorization format"))
+				c.Abort()
+				return
+			}
+			tokenString = parts[1]
+		} else {
+			// WebSocket 等场景无法方便设置 Authorization 头，允许 query token 兜底
+			tokenString = c.Query("token")
+			if tokenString == "" {
+				c.JSON(http.StatusUnauthorized, service.Error(service.ErrCodeUnauthorized, "missing authorization header"))
+				c.Abort()
+				return
+			}
 		}
 
-		parts := strings.SplitN(authHeader, " ", 2)
-		if len(parts) != 2 || parts[0] != "Bearer" {
-			c.JSON(http.StatusUnauthorized, service.Error(service.ErrCodeUnauthorized, "invalid authorization format"))
-			c.Abort()
-			return
-		}
-
-		tokenString := parts[1]
 		claims, err := utils.ParseToken(tokenString)
 		if err != nil {
 			c.JSON(http.StatusUnauthorized, service.Error(service.ErrCodeUnauthorized, "invalid token"))
