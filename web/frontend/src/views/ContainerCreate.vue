@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <dp-page-header title="创建容器" gap="32px">
     <template #actions>
       <dp-container-header-actions class="create-actions">
@@ -30,9 +30,7 @@
         </dp-container-form-field>
 
         <dp-container-form-field label="镜像" required>
-          <select v-model="state.form.image">
-            <option v-for="img in state.imageOptions" :key="img" :value="img">{{ img }}</option>
-          </select>
+          <dp-select v-model="state.form.image" :options="state.imageOptions" />
         </dp-container-form-field>
 
         <dp-container-form-field label="端口映射">
@@ -70,7 +68,21 @@
           </div>
           <div class="row-list">
             <div v-for="(row, idx) in state.form.volumes" :key="`volume-${idx}`" class="inline-row">
-              <input v-model.trim="row.source" placeholder="主机路径或卷名称" />
+              <div class="source-field">
+                <dp-select
+                  v-model="row.sourceMode"
+                  class="source-mode"
+                  :options="sourceModeOptions"
+                  width="112px"
+                />
+                <dp-select
+                  v-if="row.sourceMode === 'volume'"
+                  v-model="row.source"
+                  class="source-value"
+                  :options="state.volumeOptions.length ? state.volumeOptions : [{ label: '暂无可用卷', value: '' }]"
+                />
+                <input v-else v-model.trim="row.source" class="source-value" placeholder="主机路径或卷名称" />
+              </div>
               <input v-model.trim="row.target" placeholder="容器路径" />
               <button class="remove-btn" type="button" @click="removeVolumeRow(idx)">×</button>
             </div>
@@ -78,9 +90,7 @@
         </dp-container-form-field>
 
         <dp-container-form-field label="网络">
-          <select v-model="state.form.networkMode">
-            <option v-for="net in state.networkOptions" :key="net" :value="net">{{ net }}</option>
-          </select>
+          <dp-select v-model="state.form.networkMode" :options="state.networkOptions" />
         </dp-container-form-field>
 
         <dp-container-form-field label="重启策略">
@@ -109,6 +119,7 @@ import DpButton from '@/components/dp-button.vue'
 import DpContainerHeaderActions from '@/components/container/dp-container-header-actions.vue'
 import DpContainerSectionCard from '@/components/container/dp-container-section-card.vue'
 import DpContainerFormField from '@/components/container/dp-container-form-field.vue'
+import DpSelect from '@/components/dp-select.vue'
 import { ContainerCreateState } from '@/composables/ContainerCreate'
 
 const restartOptions = ['no', 'always', 'on-failure', 'unless-stopped'] as const
@@ -125,6 +136,11 @@ const {
   addVolumeRow,
   removeVolumeRow
 } = ContainerCreateState()
+
+const sourceModeOptions = [
+  { label: '选择', value: 'volume' },
+  { label: '自定义', value: 'custom' }
+]
 
 const goBack = () => {
   router.push('/dashboard/containers')
@@ -213,6 +229,25 @@ textarea {
   gap: 10px;
 }
 
+.source-field {
+  display: grid;
+  grid-template-columns: 112px 1fr;
+  gap: 10px;
+}
+
+.source-mode {
+  width: 112px;
+}
+
+.source-mode :deep(.dp-select-native) {
+  text-align: center;
+  font-size: 12px;
+}
+
+.source-value {
+  width: 100%;
+}
+
 .remove-btn {
   height: 40px;
   border: var(--border);
@@ -240,23 +275,17 @@ textarea {
 }
 
 .restart-btn.active {
-  background: var(--accent-soft);
+  background: var(--create-accent-soft);
   color: var(--accent);
   font-weight: 700;
 }
 
-.create-card {
-  --create-input-bg: #141415;
-  --accent-soft: #facc1520;
-}
-
-:global(html.light) .create-card {
-  --create-input-bg: #e8f1ff;
-  --accent-soft: rgba(14, 165, 233, 0.15);
-}
-
 @media (max-width: 1024px) {
   .inline-row {
+    grid-template-columns: 1fr;
+  }
+
+  .source-field {
     grid-template-columns: 1fr;
   }
 

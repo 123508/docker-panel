@@ -3,6 +3,7 @@ import { ElMessage } from 'element-plus'
 import {
   createContainerLogsWebSocket,
   getContainerDetailPage,
+  removeContainerById,
   restartContainerById,
   startContainerById,
   stopContainerById
@@ -247,6 +248,22 @@ export function ContainerDetailState(containerIdRef: () => string) {
     }
   }
 
+  const remove = async (): Promise<boolean> => {
+    const id = containerIdRef()
+    if (!id) return false
+    try {
+      state.actionLoading = true
+      await removeContainerById(id)
+      ElMessage.success('容器已删除')
+      return true
+    } catch (e: any) {
+      ElMessage.error(e.message || '删除容器失败')
+      return false
+    } finally {
+      state.actionLoading = false
+    }
+  }
+
   watch(
     () => containerIdRef(),
     (newId, oldId) => {
@@ -284,6 +301,7 @@ export function ContainerDetailState(containerIdRef: () => string) {
     loadData,
     start,
     stop,
-    restart
+    restart,
+    remove
   }
 }

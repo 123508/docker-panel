@@ -3,7 +3,8 @@ import { ElMessage } from 'element-plus'
 import {
   createNewContainer,
   getCreateContainerImageOptions,
-  getCreateContainerNetworkOptions
+  getCreateContainerNetworkOptions,
+  getCreateContainerVolumeOptions
 } from '@/services/modules/container-create'
 import type { ContainerCreateRequest, MountRequest } from '@/services/modules/container'
 
@@ -20,6 +21,7 @@ interface EnvRow {
 }
 
 interface VolumeRow {
+  sourceMode: 'volume' | 'custom'
   source: string
   target: string
 }
@@ -41,6 +43,7 @@ export function ContainerCreateState() {
     creating: false,
     imageOptions: [] as string[],
     networkOptions: [] as string[],
+    volumeOptions: [] as string[],
     form: {
       name: '',
       image: '',
@@ -49,7 +52,7 @@ export function ContainerCreateState() {
       restartPolicy: 'unless-stopped' as RestartPolicyName,
       ports: [{ containerPort: '', hostPort: '' }] as PortRow[],
       envs: [{ key: '', value: '' }] as EnvRow[],
-      volumes: [{ source: '', target: '' }] as VolumeRow[]
+      volumes: [{ sourceMode: 'volume', source: '', target: '' }] as VolumeRow[]
     }
   })
 
@@ -78,7 +81,7 @@ export function ContainerCreateState() {
   }
 
   const addVolumeRow = () => {
-    state.form.volumes.push({ source: '', target: '' })
+    state.form.volumes.push({ sourceMode: 'volume', source: '', target: '' })
   }
 
   const removeVolumeRow = (index: number) => {
@@ -91,9 +94,10 @@ export function ContainerCreateState() {
   const loadOptions = async () => {
     try {
       state.loading = true
-      const [images, networks] = await Promise.all([
+      const [images, networks, volumes] = await Promise.all([
         getCreateContainerImageOptions(),
-        getCreateContainerNetworkOptions()
+        getCreateContainerNetworkOptions(),
+        getCreateContainerVolumeOptions()
       ])
 
       state.imageOptions = images
@@ -104,6 +108,14 @@ export function ContainerCreateState() {
         .filter(Boolean)
 
       state.networkOptions = networks.map((n: any) => n.name).filter(Boolean)
+      state.volumeOptions = volumes.map((v: any) => v.name).filter(Boolean)
+      if (state.volumeOptions.length > 0) {
+        state.form.volumes.forEach((row) => {
+          if (row.sourceMode === 'volume' && !row.source) {
+            row.source = state.volumeOptions[0]
+          }
+        })
+      }
 
       if (!state.form.image && state.imageOptions.length > 0) {
         state.form.image = state.imageOptions[0]

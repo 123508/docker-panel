@@ -2,7 +2,8 @@ import {
   getContainerInspect,
   startContainer,
   stopContainer,
-  restartContainer
+  restartContainer,
+  removeContainer
 } from './container'
 import { http } from '@/services/api'
 import { token } from '@/store/auth'
@@ -62,4 +63,8 @@ export async function stopContainerById(id: string): Promise<any> {
 
 export async function restartContainerById(id: string): Promise<any> {
   return await restartContainer(id)
+}
+
+export async function removeContainerById(id: string): Promise<any> {
+  return await removeContainer(id, { force: true })
 }

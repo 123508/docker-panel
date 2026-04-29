@@ -11,7 +11,7 @@
     <dp-stat-bar :items="state.stats" bordered />
 
     <dp-data-table :bordered="true" :columns="columns">
-      <div v-for="c in pagedContainers" :key="c.fullId" class="table-row row-clickable" @click="goDetail(c.fullId)">
+      <div v-for="c in pagedContainers" :key="c.fullId" class="table-row">
         <div class="td" style="width: 60px; display: flex; justify-content: center">
           <div class="row-icon"></div>
         </div>
@@ -30,14 +30,14 @@
         <span class="td td-muted-sm" style="width: 140px">{{ c.port }}</span>
         <span class="td td-muted-sm" style="width: 140px">{{ c.created }}</span>
         <div class="td td-actions" style="flex: 1">
-          <dp-button text="详情" size="small" type="info" variant="text" @click.stop="goDetail(c.fullId)" />
+          <dp-button text="详情" size="small" type="info" variant="text" @click="goDetail(c.fullId)" />
           <template v-if="c.running">
-            <dp-button text="停止" size="small" type="danger" variant="text" @click.stop="stopContainer(c.fullId)" />
-            <dp-button text="重启" size="small" type="info" variant="text" @click.stop="restartContainer(c.fullId)" />
+            <dp-button text="停止" size="small" type="danger" variant="text" @click="stopContainer(c.fullId)" />
+            <dp-button text="重启" size="small" type="info" variant="text" @click="restartContainer(c.fullId)" />
           </template>
           <template v-else>
-            <dp-button text="启动" size="small" type="primary" variant="text" @click.stop="startContainer(c.fullId)" />
-            <dp-button text="移除" size="small" type="danger" variant="text" @click.stop="removeContainer(c.fullId)" />
+            <dp-button text="启动" size="small" type="primary" variant="text" @click="startContainer(c.fullId)" />
+            <dp-button text="移除" size="small" type="danger" variant="text" @click="removeContainer(c.fullId)" />
           </template>
         </div>
       </div>
@@ -107,10 +107,6 @@ const columns = [
   align-items: center;
   padding: 16px 20px;
   transition: background 0.15s;
-}
-
-.row-clickable {
-  cursor: pointer;
 }
 
 .table-row:hover {

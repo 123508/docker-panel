@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="detail-page">
     <div class="detail-header">
       <div class="title-wrap">
@@ -33,12 +33,22 @@
           @click="start"
         />
         <dp-button
+          v-if="isRunning"
           text="重启"
           type="primary"
           size="medium"
           class="btn-restart"
           :disabled="state.actionLoading"
           @click="restart"
+        />
+        <dp-button
+          v-else
+          text="删除"
+          type="danger"
+          size="medium"
+          class="btn-delete"
+          :disabled="state.actionLoading"
+          @click="handleRemove"
         />
       </dp-container-header-actions>
     </div>
@@ -154,14 +164,38 @@
       </section>
     </template>
   </div>
+  <dp-mini-show v-model="showDeleteConfirm">
+    <div class="delete-confirm">
+      <h3 class="delete-title">删除确认</h3>
+      <p class="delete-desc">确认删除该容器？删除后将无法恢复。</p>
+      <div class="delete-actions">
+        <dp-button
+          text="取消"
+          size="medium"
+          variant="outlined"
+          :disabled="state.actionLoading"
+          @click="showDeleteConfirm = false"
+        />
+        <dp-button
+          text="删除"
+          type="danger"
+          size="medium"
+          :disabled="state.actionLoading"
+          :loading="state.actionLoading"
+          @click="confirmRemove"
+        />
+      </div>
+    </div>
+  </dp-mini-show>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import DpButton from '@/components/dp-button.vue'
 import DpContainerHeaderActions from '@/components/container/dp-container-header-actions.vue'
 import DpContainerSectionCard from '@/components/container/dp-container-section-card.vue'
+import DpMiniShow from '@/components/dp-mini-show.vue'
 import { ContainerDetailState } from '@/composables/ContainerDetail'
 
 const route = useRoute()
@@ -194,11 +228,25 @@ const {
   logLines,
   start,
   stop,
-  restart
+  restart,
+  remove
 } = ContainerDetailState(() => containerId.value)
+const showDeleteConfirm = ref(false)
 
 const goBack = () => {
   router.push('/dashboard/containers')
+}
+
+const handleRemove = async () => {
+  showDeleteConfirm.value = true
+}
+
+const confirmRemove = async () => {
+  showDeleteConfirm.value = false
+  const ok = await remove()
+  if (ok) {
+    router.replace('/dashboard/containers')
+  }
 }
 </script>
 
@@ -262,7 +310,8 @@ const goBack = () => {
 
 .detail-actions :deep(.btn-stop.button-filled.button-danger),
 .detail-actions :deep(.btn-start.button-filled.button-primary),
-.detail-actions :deep(.btn-restart.button-filled.button-primary) {
+.detail-actions :deep(.btn-restart.button-filled.button-primary),
+.detail-actions :deep(.btn-delete.button-filled.button-danger) {
   padding: 0 18px;
 }
 
@@ -467,6 +516,33 @@ const goBack = () => {
 
 .log-warn {
   color: var(--accent);
+}
+
+.delete-confirm {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.delete-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 18px;
+  color: var(--text-primary);
+}
+
+.delete-desc {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.delete-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 4px;
 }
 
 @media (max-width: 1200px) {

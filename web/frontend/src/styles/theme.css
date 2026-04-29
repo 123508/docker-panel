@@ -72,6 +72,22 @@
 
     /* ── Nav ── */
     --nav-active-bg: transparent;
+
+    /* Dropdown */
+    --select-bg: #0F0F10;
+    --select-hover-bg: #141415;
+    --select-arrow: #A1A1AA;
+    --select-option-bg: #141415;
+    --select-option-text: #FAFAFA;
+
+    /* Container Create */
+    --create-input-bg: #141415;
+    --create-accent-soft: #facc1520;
+
+    /* Mini modal */
+    --mini-bg: #141415;
+    --mini-overlay-bg: rgba(0, 0, 0, 0.55);
+    --mini-shadow: rgba(0, 0, 0, 0.45);
 }
 
 /* ── Light Theme ── */
@@ -136,4 +152,20 @@ html.light {
 
     /* Nav */
     --nav-active-bg: rgba(14, 165, 233, 0.08);
+
+    /* Dropdown */
+    --select-bg: #F0F7FF;
+    --select-hover-bg: #E8F1FF;
+    --select-arrow: #64748B;
+    --select-option-bg: #E8F1FF;
+    --select-option-text: #1E293B;
+
+    /* Container Create */
+    --create-input-bg: #E8F1FF;
+    --create-accent-soft: #0ea5e915;
+
+    /* Mini modal */
+    --mini-bg: #F0F7FF;
+    --mini-overlay-bg: rgba(15, 23, 42, 0.2);
+    --mini-shadow: rgba(15, 23, 42, 0.18);
 }
