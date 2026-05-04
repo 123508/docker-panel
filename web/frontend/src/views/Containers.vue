@@ -11,25 +11,30 @@
     <dp-stat-bar :items="state.stats" bordered />
 
     <dp-data-table :bordered="true" :columns="columns">
-      <div v-for="c in pagedContainers" :key="c.fullId" class="table-row">
+      <div
+        v-for="c in pagedContainers"
+        :key="c.fullId"
+        class="table-row"
+        @click="goDetail(c.fullId)"
+      >
         <div class="td" style="width: 60px; display: flex; justify-content: center">
           <div class="row-icon"></div>
         </div>
         <div class="td" style="width: 220px">
           <div class="name-col">
-            <span class="name-text">{{ c.name }}</span>
-            <span class="name-id">{{ c.id }}</span>
+            <span class="name-text" :title="c.name">{{ c.name }}</span>
+            <span class="name-id" :title="c.id">{{ c.id }}</span>
           </div>
         </div>
-        <span class="td td-muted" style="width: 180px">{{ c.image }}</span>
+        <span class="td td-muted td-ellipsis" style="width: 180px" :title="c.image">{{ c.image }}</span>
         <div class="td" style="width: 120px">
           <dp-status-badge :status="c.running ? 'running' : 'stopped'">
             {{ c.running ? '运行中' : '已停止' }}
           </dp-status-badge>
         </div>
-        <span class="td td-muted-sm" style="width: 140px">{{ c.port }}</span>
-        <span class="td td-muted-sm" style="width: 140px">{{ c.created }}</span>
-        <div class="td td-actions" style="flex: 1">
+        <span class="td td-muted-sm td-ellipsis" style="width: 140px" :title="c.port">{{ c.port }}</span>
+        <span class="td td-muted-sm td-ellipsis" style="width: 140px" :title="c.created">{{ c.created }}</span>
+        <div class="td td-actions" style="flex: 1" @click.stop>
           <dp-button text="详情" size="small" type="info" variant="text" @click="goDetail(c.fullId)" />
           <template v-if="c.running">
             <dp-button text="停止" size="small" type="danger" variant="text" @click="stopContainer(c.fullId)" />
@@ -49,6 +54,8 @@
       :page-size="state.pageSize"
       @change="state.page = $event"
     />
+
+    <dp-action-dialog :state="dialog" />
   </dp-page-header>
 </template>
 
@@ -62,10 +69,11 @@ import DpButton from '@/components/dp-button.vue'
 import DpSearchInput from '@/components/dp-search-input.vue'
 import DpPagination from '@/components/dp-pagination.vue'
 import DpContainerHeaderActions from '@/components/container/dp-container-header-actions.vue'
+import DpActionDialog from '@/components/dp-action-dialog.vue'
 import { ContainerState } from '@/composables/Containers'
 
 const router = useRouter()
-const { state, pagedContainers, loadData, startContainer, stopContainer, restartContainer, removeContainer } = ContainerState()
+const { state, dialog, pagedContainers, loadData, startContainer, stopContainer, restartContainer, removeContainer } = ContainerState()
 
 const goCreate = () => {
   router.push('/dashboard/containers/create')
@@ -106,6 +114,7 @@ const columns = [
   display: flex;
   align-items: center;
   padding: 16px 20px;
+  cursor: pointer;
   transition: background 0.15s;
 }
 
@@ -132,16 +141,34 @@ const columns = [
   display: flex;
   flex-direction: column;
   gap: 4px;
+  min-width: 0;
 }
 
 .name-text {
   color: var(--text-primary);
   font-size: 14px;
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .name-id {
   color: var(--text-dim);
   font-size: 11px;
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 内容超长时截断显示省略号，鼠标悬停可见完整文本 */
+.td-ellipsis {
+  display: inline-block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: middle;
 }
 
 .td-muted {

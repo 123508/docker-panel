@@ -10,10 +10,10 @@
 
     <dp-data-table :bordered="false" header-bg row-gap fixed-row-height :columns="columns">
       <div v-for="v in pagedVolumes" :key="v.name" class="table-row">
-        <span class="td col-name">{{ v.name }}</span>
-        <span class="td col-driver td-muted">{{ v.driver }}</span>
-        <span class="td col-mount td-dim">{{ v.mountpoint }}</span>
-        <span class="td col-size">{{ v.size }}</span>
+        <span class="td col-name td-ellipsis" :title="v.name">{{ v.name }}</span>
+        <span class="td col-driver td-muted td-ellipsis" :title="v.driver">{{ v.driver }}</span>
+        <span class="td col-mount td-dim td-ellipsis" :title="v.mountpoint">{{ v.mountpoint }}</span>
+        <span class="td col-size td-ellipsis" :title="v.size">{{ v.size }}</span>
         <div class="td col-containers">
           <dp-count-badge :count="v.containers" />
         </div>
@@ -30,6 +30,8 @@
       :page-size="state.pageSize"
       @change="state.page = $event"
     />
+
+    <dp-action-dialog :state="dialog" />
   </dp-page-header>
 </template>
 
@@ -40,9 +42,10 @@ import DpDataTable from '@/components/dp-data-table.vue'
 import DpCountBadge from '@/components/dp-count-badge.vue'
 import DpButton from '@/components/dp-button.vue'
 import DpPagination from '@/components/dp-pagination.vue'
+import DpActionDialog from '@/components/dp-action-dialog.vue'
 import { VolumeState } from '@/composables/Volumes'
 
-const { state, pagedVolumes, createVolume, inspectVolume, removeVolume } = VolumeState()
+const { state, dialog, pagedVolumes, createVolume, inspectVolume, removeVolume } = VolumeState()
 
 const columns = [
   { key: 'name', label: '名称', width: 140 },
@@ -83,6 +86,15 @@ const columns = [
 .col-mount { width: 320px; }
 .col-size { width: 80px; }
 .col-containers { width: 100px; }
+
+/* 内容超长时截断显示省略号，鼠标悬停可见完整文本 */
+.td-ellipsis {
+  display: inline-block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: middle;
+}
 
 .td-muted {
   color: var(--text-muted);

@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <dp-page-header title="镜像" gap="24px">
     <template #actions>
       <div class="header-actions">
@@ -15,11 +15,11 @@
         <div class="td" style="width: 40px; display: flex; align-items: center">
           <div class="row-icon" :style="{ background: img.color }"></div>
         </div>
-        <span class="td col-repo">{{ img.repo }}</span>
-        <span class="td col-tag td-muted">{{ img.tag }}</span>
-        <span class="td col-id td-dim">{{ img.id }}</span>
-        <span class="td col-size">{{ img.size }}</span>
-        <span class="td col-created td-muted-sm">{{ img.created }}</span>
+        <span class="td col-repo td-ellipsis" :title="img.repo">{{ img.repo }}</span>
+        <span class="td col-tag td-muted td-ellipsis" :title="img.tag">{{ img.tag }}</span>
+        <span class="td col-id td-dim td-ellipsis" :title="img.id">{{ img.id }}</span>
+        <span class="td col-size td-ellipsis" :title="img.size">{{ img.size }}</span>
+        <span class="td col-created td-muted-sm td-ellipsis" :title="img.created">{{ img.created }}</span>
         <div class="td td-actions" style="flex: 1">
           <dp-button text="查看" size="small" variant="text" type="info" @click="inspectImage(img.fullId)" />
           <dp-button text="运行" size="small" variant="text" type="primary" @click="runImage(img.fullId, `${img.repo}:${img.tag}`)" />
@@ -35,26 +35,7 @@
       @change="state.page = $event"
     />
 
-    <dp-dialog
-      v-model="state.runDialogVisible"
-      :title="state.runDialogTitle"
-      :content="state.runDialogContent"
-      :okText="state.runDialogOkText"
-      :cancelText="state.runDialogCancelText"
-      :closeOnOverlayClick="!state.runDialogIsRunning"
-      :showCancel="!state.runDialogIsRunning"
-      :loading="state.runDialogIsRunning"
-      @ok="state.runDialogVisible = false"
-      @cancel="state.runDialogVisible = false"
-    >
-      <div v-if="state.runDialogIsRunning" class="running-status">
-        <svg class="spinner" viewBox="0 0 50 50">
-          <circle class="path" cx="25" cy="25" r="20" fill="none" stroke-width="5"></circle>
-        </svg>
-        <p>{{ state.runDialogContent }}</p>
-      </div>
-      <p v-else class="custom-dialog-content-text">{{ state.runDialogContent }}</p>
-    </dp-dialog>
+    <dp-action-dialog :state="dialog" />
   </dp-page-header>
 </template>
 
@@ -65,10 +46,10 @@ import DpDataTable from '@/components/dp-data-table.vue'
 import DpButton from '@/components/dp-button.vue'
 import DpSearchInput from '@/components/dp-search-input.vue'
 import DpPagination from '@/components/dp-pagination.vue'
-import DpDialog from '@/components/dp-dialog.vue'
+import DpActionDialog from '@/components/dp-action-dialog.vue'
 import { ImageState } from '@/composables/Images'
 
-const { state, pagedImages, searchImages, pullImage, inspectImage, runImage, removeImage } = ImageState()
+const { state, dialog, pagedImages, searchImages, pullImage, inspectImage, runImage, removeImage } = ImageState()
 
 const columns = [
   { key: 'icon', width: 40 },
@@ -124,6 +105,15 @@ const columns = [
 .col-size { width: 80px; }
 .col-created { width: 80px; }
 
+/* 内容超长时截断显示省略号，鼠标悬停可见完整文本 */
+.td-ellipsis {
+  display: inline-block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
 .row-icon {
   width: 32px;
   height: 32px;
@@ -148,57 +138,5 @@ const columns = [
   display: flex;
   align-items: center;
   gap: 16px;
-}
-
-.custom-dialog-content-text {
-  margin: 0;
-  white-space: pre-wrap;
-  word-wrap: break-word;
-  word-break: break-all;
-  color: var(--text-primary);
-}
-
-.running-status {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 16px;
-  padding: 24px 0;
-  color: var(--text-primary);
-}
-
-.spinner {
-  animation: rotate 2s linear infinite;
-  z-index: 2;
-  width: 40px;
-  height: 40px;
-}
-
-.spinner .path {
-  stroke: var(--btn-primary-bg, #1890FF);
-  stroke-linecap: round;
-  animation: dash 1.5s ease-in-out infinite;
-}
-
-@keyframes rotate {
-  100% {
-    transform: rotate(360deg);
-  }
-}
-
-@keyframes dash {
-  0% {
-    stroke-dasharray: 1, 150;
-    stroke-dashoffset: 0;
-  }
-  50% {
-    stroke-dasharray: 90, 150;
-    stroke-dashoffset: -35;
-  }
-  100% {
-    stroke-dasharray: 90, 150;
-    stroke-dashoffset: -124;
-  }
 }
 </style>

@@ -218,6 +218,48 @@ func (h *ContainerHandler) Logs(c *gin.Context) {
 	}
 }
 
+// LogsWS WebSocket /api/v1/containers/:id/logs/ws
+func (h *ContainerHandler) LogsWS(c *gin.Context) {
+	var opts service2.ContainerLogsOptions
+	if err := c.ShouldBindQuery(&opts); err != nil {
+		return
+	}
+	if !opts.ShowStdout && !opts.ShowStderr {
+		opts.ShowStdout = true
+		opts.ShowStderr = true
+	}
+	// WebSocket 日志默认持续跟随输出
+	if !opts.Follow {
+		opts.Follow = true
+	}
+
+	ws, err := wsUpgrader.Upgrade(c.Writer, c.Request, nil)
+	if err != nil {
+		return
+	}
+	defer func() { _ = ws.Close() }()
+
+	rc, err := h.svc.ContainerLogs(c.Request.Context(), c.Param("id"), opts)
+	if err != nil {
+		_ = ws.WriteMessage(websocket.TextMessage, []byte("error: "+err.Error()))
+		return
+	}
+	defer func() { _ = rc.Close() }()
+
+	buf := make([]byte, 4096)
+	for {
+		n, readErr := rc.Read(buf)
+		if n > 0 {
+			if err := ws.WriteMessage(websocket.BinaryMessage, buf[:n]); err != nil {
+				break
+			}
+		}
+		if readErr != nil {
+			break
+		}
+	}
+}
+
 // Exec POST /api/v1/containers/:id/exec
 func (h *ContainerHandler) Exec(c *gin.Context) {
 	var req service2.ContainerExecRequest

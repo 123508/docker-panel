@@ -5,6 +5,7 @@ import (
 	"docker-panel/internal/docker"
 	"fmt"
 	"io"
+	"strconv"
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
@@ -88,15 +89,11 @@ type ContainerConfig struct {
 
 // NetworkSettings 网络设置
 type NetworkSettings struct {
-	Bridge               string                      `json:"bridge"`
-	SandboxID            string                      `json:"sandbox_id"`
-	HairpinMode          bool                        `json:"hairpin_mode"`
-	LinkLocalIPv6Address string                      `json:"link_local_ipv6_address"`
-	Ports                map[string][]PortBinding    `json:"ports"`
-	SandboxKey           string                      `json:"sandbox_key"`
-	IPAddress            string                      `json:"ip_address"`
-	MacAddress           string                      `json:"mac_address"`
-	Networks             map[string]EndpointSettings `json:"networks"`
+	Bridge     string                      `json:"bridge"`
+	SandboxID  string                      `json:"sandbox_id"`
+	Ports      map[string][]PortBinding    `json:"ports"`
+	SandboxKey string                      `json:"sandbox_key"`
+	Networks   map[string]EndpointSettings `json:"networks"`
 }
 
 // EndpointSettings 端点设置
@@ -377,21 +374,63 @@ func (s *ContainerService) ContainerInspect(ctx context.Context, containerID str
 
 	if info.Config != nil {
 		detail.Config = ContainerConfig{
-			Hostname:   info.Config.Hostname,
-			Domainname: info.Config.Domainname,
-			User:       info.Config.User,
-			Tty:        info.Config.Tty,
-			OpenStdin:  info.Config.OpenStdin,
-			Env:        info.Config.Env,
-			Image:      info.Config.Image,
-			WorkingDir: info.Config.WorkingDir,
-			Labels:     info.Config.Labels,
+			Hostname:     info.Config.Hostname,
+			Domainname:   info.Config.Domainname,
+			User:         info.Config.User,
+			AttachStdin:  info.Config.AttachStdin,
+			AttachStdout: info.Config.AttachStdout,
+			AttachStderr: info.Config.AttachStderr,
+			Tty:          info.Config.Tty,
+			OpenStdin:    info.Config.OpenStdin,
+			StdinOnce:    info.Config.StdinOnce,
+			Env:          info.Config.Env,
+			Image:        info.Config.Image,
+			Volumes:      map[string]struct{}(info.Config.Volumes),
+			WorkingDir:   info.Config.WorkingDir,
+			Labels:       info.Config.Labels,
+			ExposedPorts: map[string]struct{}{},
+		}
+		for p := range info.Config.ExposedPorts {
+			detail.Config.ExposedPorts[string(p)] = struct{}{}
 		}
 		if info.Config.Cmd != nil {
 			detail.Config.Cmd = []string(info.Config.Cmd)
 		}
 		if info.Config.Entrypoint != nil {
 			detail.Config.Entrypoint = []string(info.Config.Entrypoint)
+		}
+	}
+
+	if info.HostConfig != nil {
+		detail.HostConfig = HostConfig{
+			Binds:           info.HostConfig.Binds,
+			NetworkMode:     string(info.HostConfig.NetworkMode),
+			PortBindings:    mapPortMap(info.HostConfig.PortBindings),
+			RestartPolicy:   RestartPolicy{Name: string(info.HostConfig.RestartPolicy.Name), MaximumRetryCount: info.HostConfig.RestartPolicy.MaximumRetryCount},
+			AutoRemove:      info.HostConfig.AutoRemove,
+			VolumeDriver:    info.HostConfig.VolumeDriver,
+			VolumesFrom:     info.HostConfig.VolumesFrom,
+			CapAdd:          []string(info.HostConfig.CapAdd),
+			CapDrop:         []string(info.HostConfig.CapDrop),
+			Dns:             info.HostConfig.DNS,
+			ExtraHosts:      info.HostConfig.ExtraHosts,
+			Privileged:      info.HostConfig.Privileged,
+			PublishAllPorts: info.HostConfig.PublishAllPorts,
+			ReadonlyRootfs:  info.HostConfig.ReadonlyRootfs,
+			Memory:          info.HostConfig.Memory,
+			MemorySwap:      info.HostConfig.MemorySwap,
+			NanoCPUs:        info.HostConfig.NanoCPUs,
+			CPUShares:       info.HostConfig.CPUShares,
+		}
+	}
+
+	if info.NetworkSettings != nil {
+		detail.NetworkSettings = NetworkSettings{
+			Bridge:     info.NetworkSettings.Bridge,
+			SandboxID:  info.NetworkSettings.SandboxID,
+			Ports:      mapPortMap(info.NetworkSettings.Ports),
+			SandboxKey: info.NetworkSettings.SandboxKey,
+			Networks:   mapEndpointSettings(info.NetworkSettings.Networks),
 		}
 	}
 
@@ -408,6 +447,50 @@ func (s *ContainerService) ContainerInspect(ctx context.Context, containerID str
 	}
 
 	return detail, nil
+}
+
+func mapPortMap(ports nat.PortMap) map[string][]PortBinding {
+	if len(ports) == 0 {
+		return nil
+	}
+	result := make(map[string][]PortBinding, len(ports))
+	for port, bindings := range ports {
+		key := string(port)
+		if len(bindings) == 0 {
+			result[key] = []PortBinding{{PrivatePort: uint16(port.Int()), Type: port.Proto()}}
+			continue
+		}
+		for _, binding := range bindings {
+			publicPort, _ := strconv.ParseUint(binding.HostPort, 10, 16)
+			result[key] = append(result[key], PortBinding{
+				IP:          binding.HostIP,
+				PrivatePort: uint16(port.Int()),
+				PublicPort:  uint16(publicPort),
+				Type:        port.Proto(),
+			})
+		}
+	}
+	return result
+}
+
+func mapEndpointSettings(networks map[string]*network.EndpointSettings) map[string]EndpointSettings {
+	if len(networks) == 0 {
+		return nil
+	}
+	result := make(map[string]EndpointSettings, len(networks))
+	for name, endpoint := range networks {
+		if endpoint == nil {
+			continue
+		}
+		result[name] = EndpointSettings{
+			NetworkID:  endpoint.NetworkID,
+			EndpointID: endpoint.EndpointID,
+			Gateway:    endpoint.Gateway,
+			IPAddress:  endpoint.IPAddress,
+			MacAddress: endpoint.MacAddress,
+		}
+	}
+	return result
 }
 
 // ContainerCreate 创建容器

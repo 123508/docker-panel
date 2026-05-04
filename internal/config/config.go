@@ -1,6 +1,8 @@
 package config
 
 import (
+	"crypto/rand"
+	"encoding/hex"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -53,26 +55,59 @@ func InitConfig() error {
 	return nil
 }
 
+func SetAdminPassword(password string) error {
+	viper.Set("user.admin_password", password)
+	if err := viper.WriteConfig(); err != nil {
+		return fmt.Errorf("failed to write config: %w", err)
+	}
+
+	if AppConfig != nil {
+		AppConfig.User.AdminPassword = password
+	}
+
+	return nil
+}
+
 func createDefaultConfig(configFile string) error {
 	configPath := filepath.Dir(configFile)
 	if err := os.MkdirAll(configPath, 0755); err != nil {
 		return err
 	}
 
-	defaultConfig := `[user]
+	adminPassword, err := generateRandomPassword()
+	if err != nil {
+		return err
+	}
+
+	defaultConfig := fmt.Sprintf(`[user]
 					  admin_username = "admin"
-					  admin_password = "admin123"
+					  admin_password = "%s"
 
 					  [server]
 					  bind_ip = "0.0.0.0"
 					  bind_port = "8080"
 					  debug = false
-					  `
+					  `, adminPassword)
 
 	return os.WriteFile(configFile, []byte(defaultConfig), 0644)
 }
 
+func generateRandomPassword() (string, error) {
+	bytes := make([]byte, 8)
+	if _, err := rand.Read(bytes); err != nil {
+		return "", fmt.Errorf("failed to generate random password: %w", err)
+	}
+
+	return hex.EncodeToString(bytes), nil
+}
+
 func getConfigPath() string {
+	if cwd, err := os.Getwd(); err == nil {
+		if fileExists(filepath.Join(cwd, "config.toml")) {
+			return cwd
+		}
+	}
+
 	if exePath, err := os.Executable(); err == nil {
 		return filepath.Dir(exePath)
 	}

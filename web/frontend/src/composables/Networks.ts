@@ -6,6 +6,7 @@ import {
   removeNetwork as apiRemoveNetwork
 } from '@/services/modules/network'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { useActionDialog } from '@/composables/useActionDialog'
 
 const BUILTIN_NETWORKS = ['bridge', 'host', 'none']
 
@@ -22,6 +23,8 @@ export function NetworkState() {
 
     networks: [] as any[]
   })
+
+  const { dialog, runWithDialog } = useActionDialog()
 
   const loadData = async () => {
     try {
@@ -84,21 +87,32 @@ export function NetworkState() {
   })
 
   const createNetwork = async () => {
+    let value: string
     try {
-      const { value } = await ElMessageBox.prompt('请输入网络名称', '创建网络', {
+      const result = await ElMessageBox.prompt('请输入网络名称', '创建网络', {
         confirmButtonText: '创建',
         cancelButtonText: '取消',
         inputPattern: /\S+/,
         inputErrorMessage: '网络名称不能为空'
       })
-      await apiCreateNetwork({ name: value.trim() })
-      ElMessage.success('网络创建成功')
-      await loadData()
-    } catch (e: any) {
-      if (e !== 'cancel' && e !== 'close') {
-        ElMessage.error(e.message || '创建网络失败')
-      }
+      value = result.value
+    } catch {
+      return
     }
+
+    const name = value.trim()
+    await runWithDialog(
+      {
+        title: '创建网络',
+        pendingText: `正在创建网络 ${name}，请稍候...`,
+        successText: `✅ 网络创建成功: ${name}`,
+        failureText: (e) => `❌ 创建网络失败: \n${e?.message || '未知错误'}`
+      },
+      async () => {
+        await apiCreateNetwork({ name })
+        await loadData()
+      }
+    )
   }
 
   const inspectNetwork = async (id: string) => {
@@ -119,14 +133,23 @@ export function NetworkState() {
         cancelButtonText: '取消',
         type: 'warning'
       })
-      await apiRemoveNetwork(id)
-      ElMessage.success('网络删除成功')
-      await loadData()
-    } catch (e: any) {
-      if (e !== 'cancel' && e !== 'close') {
-        ElMessage.error(e.message || '删除网络失败')
-      }
+    } catch {
+      return
     }
+
+    const shortId = id.substring(0, 12)
+    await runWithDialog(
+      {
+        title: '移除网络',
+        pendingText: `正在移除网络 ${shortId}，请稍候...`,
+        successText: `✅ 网络已移除: ${shortId}`,
+        failureText: (e) => `❌ 移除网络失败: \n${e?.message || '未知错误'}`
+      },
+      async () => {
+        await apiRemoveNetwork(id)
+        await loadData()
+      }
+    )
   }
 
   const pagedNetworks = computed(() => {
@@ -136,6 +159,7 @@ export function NetworkState() {
 
   return {
     state,
+    dialog,
     pagedNetworks,
     createNetwork,
     inspectNetwork,
