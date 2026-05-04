@@ -89,15 +89,11 @@ type ContainerConfig struct {
 
 // NetworkSettings 网络设置
 type NetworkSettings struct {
-	Bridge               string                      `json:"bridge"`
-	SandboxID            string                      `json:"sandbox_id"`
-	HairpinMode          bool                        `json:"hairpin_mode"`
-	LinkLocalIPv6Address string                      `json:"link_local_ipv6_address"`
-	Ports                map[string][]PortBinding    `json:"ports"`
-	SandboxKey           string                      `json:"sandbox_key"`
-	IPAddress            string                      `json:"ip_address"`
-	MacAddress           string                      `json:"mac_address"`
-	Networks             map[string]EndpointSettings `json:"networks"`
+	Bridge     string                      `json:"bridge"`
+	SandboxID  string                      `json:"sandbox_id"`
+	Ports      map[string][]PortBinding    `json:"ports"`
+	SandboxKey string                      `json:"sandbox_key"`
+	Networks   map[string]EndpointSettings `json:"networks"`
 }
 
 // EndpointSettings 端点设置
@@ -430,15 +426,11 @@ func (s *ContainerService) ContainerInspect(ctx context.Context, containerID str
 
 	if info.NetworkSettings != nil {
 		detail.NetworkSettings = NetworkSettings{
-			Bridge:               info.NetworkSettings.Bridge,
-			SandboxID:            info.NetworkSettings.SandboxID,
-			HairpinMode:          info.NetworkSettings.HairpinMode,
-			LinkLocalIPv6Address: info.NetworkSettings.LinkLocalIPv6Address,
-			Ports:                mapPortMap(info.NetworkSettings.Ports),
-			SandboxKey:           info.NetworkSettings.SandboxKey,
-			IPAddress:            info.NetworkSettings.IPAddress,
-			MacAddress:           info.NetworkSettings.MacAddress,
-			Networks:             mapEndpointSettings(info.NetworkSettings.Networks),
+			Bridge:     info.NetworkSettings.Bridge,
+			SandboxID:  info.NetworkSettings.SandboxID,
+			Ports:      mapPortMap(info.NetworkSettings.Ports),
+			SandboxKey: info.NetworkSettings.SandboxKey,
+			Networks:   mapEndpointSettings(info.NetworkSettings.Networks),
 		}
 	}
 

@@ -94,16 +94,8 @@ export interface ContainerConfig {
 export interface NetworkSettings {
     bridge: string;
     sandbox_id: string;
-    hairpin_mode: boolean;
-    link_local_ipv6_address: string;
-    link_local_ipv6_prefix_len: number;
     ports: Record<string, PortBinding[]>;
     sandbox_key: string;
-    ip_address: string;
-    ip_prefix_len: number;
-    ipv6_gateway: string;
-    gateway: string;
-    mac_address: string;
     networks: Record<string, EndpointSettings>;
 }
 
