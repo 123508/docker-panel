@@ -11,7 +11,12 @@
     <dp-stat-bar :items="state.stats" bordered />
 
     <dp-data-table :bordered="true" :columns="columns">
-      <div v-for="c in pagedContainers" :key="c.fullId" class="table-row">
+      <div
+        v-for="c in pagedContainers"
+        :key="c.fullId"
+        class="table-row"
+        @click="goDetail(c.fullId)"
+      >
         <div class="td" style="width: 60px; display: flex; justify-content: center">
           <div class="row-icon"></div>
         </div>
@@ -29,7 +34,7 @@
         </div>
         <span class="td td-muted-sm td-ellipsis" style="width: 140px" :title="c.port">{{ c.port }}</span>
         <span class="td td-muted-sm td-ellipsis" style="width: 140px" :title="c.created">{{ c.created }}</span>
-        <div class="td td-actions" style="flex: 1">
+        <div class="td td-actions" style="flex: 1" @click.stop>
           <dp-button text="详情" size="small" type="info" variant="text" @click="goDetail(c.fullId)" />
           <template v-if="c.running">
             <dp-button text="停止" size="small" type="danger" variant="text" @click="stopContainer(c.fullId)" />
@@ -109,6 +114,7 @@ const columns = [
   display: flex;
   align-items: center;
   padding: 16px 20px;
+  cursor: pointer;
   transition: background 0.15s;
 }
 
