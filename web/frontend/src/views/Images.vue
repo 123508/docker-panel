@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <dp-page-header title="镜像" gap="24px">
     <template #actions>
       <div class="header-actions">
@@ -35,26 +35,7 @@
       @change="state.page = $event"
     />
 
-    <dp-dialog
-      v-model="state.runDialogVisible"
-      :title="state.runDialogTitle"
-      :content="state.runDialogContent"
-      :okText="state.runDialogOkText"
-      :cancelText="state.runDialogCancelText"
-      :closeOnOverlayClick="!state.runDialogIsRunning"
-      :showCancel="!state.runDialogIsRunning"
-      :loading="state.runDialogIsRunning"
-      @ok="state.runDialogVisible = false"
-      @cancel="state.runDialogVisible = false"
-    >
-      <div v-if="state.runDialogIsRunning" class="running-status">
-        <svg class="spinner" viewBox="0 0 50 50">
-          <circle class="path" cx="25" cy="25" r="20" fill="none" stroke-width="5"></circle>
-        </svg>
-        <p>{{ state.runDialogContent }}</p>
-      </div>
-      <p v-else class="custom-dialog-content-text">{{ state.runDialogContent }}</p>
-    </dp-dialog>
+    <dp-action-dialog :state="dialog" />
   </dp-page-header>
 </template>
 
@@ -65,10 +46,10 @@ import DpDataTable from '@/components/dp-data-table.vue'
 import DpButton from '@/components/dp-button.vue'
 import DpSearchInput from '@/components/dp-search-input.vue'
 import DpPagination from '@/components/dp-pagination.vue'
-import DpDialog from '@/components/dp-dialog.vue'
+import DpActionDialog from '@/components/dp-action-dialog.vue'
 import { ImageState } from '@/composables/Images'
 
-const { state, pagedImages, searchImages, pullImage, inspectImage, runImage, removeImage } = ImageState()
+const { state, dialog, pagedImages, searchImages, pullImage, inspectImage, runImage, removeImage } = ImageState()
 
 const columns = [
   { key: 'icon', width: 40 },
@@ -157,57 +138,5 @@ const columns = [
   display: flex;
   align-items: center;
   gap: 16px;
-}
-
-.custom-dialog-content-text {
-  margin: 0;
-  white-space: pre-wrap;
-  word-wrap: break-word;
-  word-break: break-all;
-  color: var(--text-primary);
-}
-
-.running-status {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 16px;
-  padding: 24px 0;
-  color: var(--text-primary);
-}
-
-.spinner {
-  animation: rotate 2s linear infinite;
-  z-index: 2;
-  width: 40px;
-  height: 40px;
-}
-
-.spinner .path {
-  stroke: var(--btn-primary-bg, #1890FF);
-  stroke-linecap: round;
-  animation: dash 1.5s ease-in-out infinite;
-}
-
-@keyframes rotate {
-  100% {
-    transform: rotate(360deg);
-  }
-}
-
-@keyframes dash {
-  0% {
-    stroke-dasharray: 1, 150;
-    stroke-dashoffset: 0;
-  }
-  50% {
-    stroke-dasharray: 90, 150;
-    stroke-dashoffset: -35;
-  }
-  100% {
-    stroke-dasharray: 90, 150;
-    stroke-dashoffset: -124;
-  }
 }
 </style>

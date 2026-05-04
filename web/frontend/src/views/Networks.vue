@@ -38,6 +38,8 @@
       :page-size="state.pageSize"
       @change="state.page = $event"
     />
+
+    <dp-action-dialog :state="dialog" />
   </dp-page-header>
 </template>
 
@@ -48,9 +50,10 @@ import DpDataTable from '@/components/dp-data-table.vue'
 import DpCountBadge from '@/components/dp-count-badge.vue'
 import DpButton from '@/components/dp-button.vue'
 import DpPagination from '@/components/dp-pagination.vue'
+import DpActionDialog from '@/components/dp-action-dialog.vue'
 import { NetworkState } from '@/composables/Networks'
 
-const { state, pagedNetworks, createNetwork, inspectNetwork, removeNetwork } = NetworkState()
+const { state, dialog, pagedNetworks, createNetwork, inspectNetwork, removeNetwork } = NetworkState()
 
 const columns = [
   { key: 'name', label: '名称', width: 130 },

@@ -7,6 +7,7 @@ import {
   removeVolume as apiRemoveVolume
 } from '@/services/modules/volume'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { useActionDialog } from '@/composables/useActionDialog'
 
 function formatBytes(bytes: number): string {
   if (!Number.isFinite(bytes) || bytes <= 0) return '0 B'
@@ -40,6 +41,8 @@ export function VolumeState() {
 
     volumes: [] as any[]
   })
+
+  const { dialog, runWithDialog } = useActionDialog()
 
   const loadData = async () => {
     try {
@@ -112,21 +115,32 @@ export function VolumeState() {
   })
 
   const createVolume = async () => {
+    let value: string
     try {
-      const { value } = await ElMessageBox.prompt('请输入卷名称', '创建卷', {
+      const result = await ElMessageBox.prompt('请输入卷名称', '创建卷', {
         confirmButtonText: '创建',
         cancelButtonText: '取消',
         inputPattern: /\S+/,
         inputErrorMessage: '卷名称不能为空'
       })
-      await apiCreateVolume({ name: value.trim() })
-      ElMessage.success('卷创建成功')
-      await loadData()
-    } catch (e: any) {
-      if (e !== 'cancel' && e !== 'close') {
-        ElMessage.error(e.message || '创建卷失败')
-      }
+      value = result.value
+    } catch {
+      return
     }
+
+    const name = value.trim()
+    await runWithDialog(
+      {
+        title: '创建卷',
+        pendingText: `正在创建卷 ${name}，请稍候...`,
+        successText: `✅ 卷创建成功: ${name}`,
+        failureText: (e) => `❌ 创建卷失败: \n${e?.message || '未知错误'}`
+      },
+      async () => {
+        await apiCreateVolume({ name })
+        await loadData()
+      }
+    )
   }
 
   const inspectVolume = async (name: string) => {
@@ -147,14 +161,22 @@ export function VolumeState() {
         cancelButtonText: '取消',
         type: 'warning'
       })
-      await apiRemoveVolume(name, { force: true })
-      ElMessage.success('卷删除成功')
-      await loadData()
-    } catch (e: any) {
-      if (e !== 'cancel' && e !== 'close') {
-        ElMessage.error(e.message || '删除卷失败')
-      }
+    } catch {
+      return
     }
+
+    await runWithDialog(
+      {
+        title: '移除卷',
+        pendingText: `正在移除卷 ${name}，请稍候...`,
+        successText: `✅ 卷已移除: ${name}`,
+        failureText: (e) => `❌ 移除卷失败: \n${e?.message || '未知错误'}`
+      },
+      async () => {
+        await apiRemoveVolume(name, { force: true })
+        await loadData()
+      }
+    )
   }
 
   const pagedVolumes = computed(() => {
@@ -164,6 +186,7 @@ export function VolumeState() {
 
   return {
     state,
+    dialog,
     pagedVolumes,
     createVolume,
     inspectVolume,

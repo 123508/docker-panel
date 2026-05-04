@@ -49,6 +49,8 @@
       :page-size="state.pageSize"
       @change="state.page = $event"
     />
+
+    <dp-action-dialog :state="dialog" />
   </dp-page-header>
 </template>
 
@@ -62,10 +64,11 @@ import DpButton from '@/components/dp-button.vue'
 import DpSearchInput from '@/components/dp-search-input.vue'
 import DpPagination from '@/components/dp-pagination.vue'
 import DpContainerHeaderActions from '@/components/container/dp-container-header-actions.vue'
+import DpActionDialog from '@/components/dp-action-dialog.vue'
 import { ContainerState } from '@/composables/Containers'
 
 const router = useRouter()
-const { state, pagedContainers, loadData, startContainer, stopContainer, restartContainer, removeContainer } = ContainerState()
+const { state, dialog, pagedContainers, loadData, startContainer, stopContainer, restartContainer, removeContainer } = ContainerState()
 
 const goCreate = () => {
   router.push('/dashboard/containers/create')
