@@ -10,10 +10,10 @@
 
     <dp-data-table :bordered="false" header-bg row-gap fixed-row-height :columns="columns">
       <div v-for="v in pagedVolumes" :key="v.name" class="table-row">
-        <span class="td col-name">{{ v.name }}</span>
-        <span class="td col-driver td-muted">{{ v.driver }}</span>
-        <span class="td col-mount td-dim">{{ v.mountpoint }}</span>
-        <span class="td col-size">{{ v.size }}</span>
+        <span class="td col-name td-ellipsis" :title="v.name">{{ v.name }}</span>
+        <span class="td col-driver td-muted td-ellipsis" :title="v.driver">{{ v.driver }}</span>
+        <span class="td col-mount td-dim td-ellipsis" :title="v.mountpoint">{{ v.mountpoint }}</span>
+        <span class="td col-size td-ellipsis" :title="v.size">{{ v.size }}</span>
         <div class="td col-containers">
           <dp-count-badge :count="v.containers" />
         </div>
@@ -83,6 +83,15 @@ const columns = [
 .col-mount { width: 320px; }
 .col-size { width: 80px; }
 .col-containers { width: 100px; }
+
+/* 内容超长时截断显示省略号，鼠标悬停可见完整文本 */
+.td-ellipsis {
+  display: inline-block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: middle;
+}
 
 .td-muted {
   color: var(--text-muted);

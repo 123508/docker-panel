@@ -15,11 +15,11 @@
         <div class="td" style="width: 40px; display: flex; align-items: center">
           <div class="row-icon" :style="{ background: img.color }"></div>
         </div>
-        <span class="td col-repo">{{ img.repo }}</span>
-        <span class="td col-tag td-muted">{{ img.tag }}</span>
-        <span class="td col-id td-dim">{{ img.id }}</span>
-        <span class="td col-size">{{ img.size }}</span>
-        <span class="td col-created td-muted-sm">{{ img.created }}</span>
+        <span class="td col-repo td-ellipsis" :title="img.repo">{{ img.repo }}</span>
+        <span class="td col-tag td-muted td-ellipsis" :title="img.tag">{{ img.tag }}</span>
+        <span class="td col-id td-dim td-ellipsis" :title="img.id">{{ img.id }}</span>
+        <span class="td col-size td-ellipsis" :title="img.size">{{ img.size }}</span>
+        <span class="td col-created td-muted-sm td-ellipsis" :title="img.created">{{ img.created }}</span>
         <div class="td td-actions" style="flex: 1">
           <dp-button text="查看" size="small" variant="text" type="info" @click="inspectImage(img.fullId)" />
           <dp-button text="运行" size="small" variant="text" type="primary" @click="runImage(img.fullId, `${img.repo}:${img.tag}`)" />
@@ -123,6 +123,15 @@ const columns = [
 .col-id { width: 120px; }
 .col-size { width: 80px; }
 .col-created { width: 80px; }
+
+/* 内容超长时截断显示省略号，鼠标悬停可见完整文本 */
+.td-ellipsis {
+  display: inline-block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: middle;
+}
 
 .row-icon {
   width: 32px;

@@ -10,11 +10,11 @@
 
     <dp-data-table :bordered="false" header-bg row-gap fixed-row-height :columns="columns">
       <div v-for="n in pagedNetworks" :key="n.name" class="table-row">
-        <span class="td col-name">{{ n.name }}</span>
-        <span class="td col-driver td-muted">{{ n.driver }}</span>
-        <span class="td col-scope td-muted">{{ n.scope }}</span>
-        <span class="td col-subnet td-dim">{{ n.subnet }}</span>
-        <span class="td col-gateway td-dim">{{ n.gateway }}</span>
+        <span class="td col-name td-ellipsis" :title="n.name">{{ n.name }}</span>
+        <span class="td col-driver td-muted td-ellipsis" :title="n.driver">{{ n.driver }}</span>
+        <span class="td col-scope td-muted td-ellipsis" :title="n.scope">{{ n.scope }}</span>
+        <span class="td col-subnet td-dim td-ellipsis" :title="n.subnet">{{ n.subnet }}</span>
+        <span class="td col-gateway td-dim td-ellipsis" :title="n.gateway">{{ n.gateway }}</span>
         <div class="td col-containers">
           <dp-count-badge :count="n.containers" />
         </div>
@@ -93,6 +93,15 @@ const columns = [
 .col-subnet { width: 140px; }
 .col-gateway { width: 120px; }
 .col-containers { width: 100px; }
+
+/* 内容超长时截断显示省略号，鼠标悬停可见完整文本 */
+.td-ellipsis {
+  display: inline-block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: middle;
+}
 
 .td-muted {
   color: var(--text-muted);
