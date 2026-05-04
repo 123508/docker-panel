@@ -38,17 +38,17 @@
           <div class="td td-name" style="width: 280px">
             <div class="container-icon"></div>
             <div class="name-col">
-              <span class="name-text">{{ c.name }}</span>
-              <span class="name-id">{{ c.id }}</span>
+              <span class="name-text" :title="c.name">{{ c.name }}</span>
+              <span class="name-id" :title="c.id">{{ c.id }}</span>
             </div>
           </div>
-          <span class="td td-image" style="width: 200px">{{ c.image }}</span>
+          <span class="td td-image td-ellipsis" style="width: 200px" :title="c.image">{{ c.image }}</span>
           <div class="td" style="width: 120px">
             <dp-status-badge :status="c.running ? 'running' : 'stopped'">
               {{ c.status }}
             </dp-status-badge>
           </div>
-          <span class="td td-port" style="width: 150px">{{ c.port }}</span>
+          <span class="td td-port td-ellipsis" style="width: 150px" :title="c.port">{{ c.port }}</span>
           <div class="td td-actions" style="flex: 1">
             <template v-if="c.running">
               <dp-button text="停止" size="small" type="danger" variant="text" @click="stopContainer(c.fullId)" />
@@ -213,16 +213,35 @@ const { state, loadData, startContainer, stopContainer, restartContainer, remove
   display: flex;
   flex-direction: column;
   gap: 2px;
+  min-width: 0;
+  flex: 1;
 }
 
 .name-text {
   color: var(--text-primary);
   font-size: 14px;
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .name-id {
   color: var(--text-dim);
   font-size: 11px;
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 内容超长时截断显示省略号，鼠标悬停可见完整文本 */
+.td-ellipsis {
+  display: inline-block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: middle;
 }
 
 .td-image {

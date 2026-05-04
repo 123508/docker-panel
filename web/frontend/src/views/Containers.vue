@@ -17,18 +17,18 @@
         </div>
         <div class="td" style="width: 220px">
           <div class="name-col">
-            <span class="name-text">{{ c.name }}</span>
-            <span class="name-id">{{ c.id }}</span>
+            <span class="name-text" :title="c.name">{{ c.name }}</span>
+            <span class="name-id" :title="c.id">{{ c.id }}</span>
           </div>
         </div>
-        <span class="td td-muted" style="width: 180px">{{ c.image }}</span>
+        <span class="td td-muted td-ellipsis" style="width: 180px" :title="c.image">{{ c.image }}</span>
         <div class="td" style="width: 120px">
           <dp-status-badge :status="c.running ? 'running' : 'stopped'">
             {{ c.running ? '运行中' : '已停止' }}
           </dp-status-badge>
         </div>
-        <span class="td td-muted-sm" style="width: 140px">{{ c.port }}</span>
-        <span class="td td-muted-sm" style="width: 140px">{{ c.created }}</span>
+        <span class="td td-muted-sm td-ellipsis" style="width: 140px" :title="c.port">{{ c.port }}</span>
+        <span class="td td-muted-sm td-ellipsis" style="width: 140px" :title="c.created">{{ c.created }}</span>
         <div class="td td-actions" style="flex: 1">
           <dp-button text="详情" size="small" type="info" variant="text" @click="goDetail(c.fullId)" />
           <template v-if="c.running">
@@ -132,16 +132,34 @@ const columns = [
   display: flex;
   flex-direction: column;
   gap: 4px;
+  min-width: 0;
 }
 
 .name-text {
   color: var(--text-primary);
   font-size: 14px;
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .name-id {
   color: var(--text-dim);
   font-size: 11px;
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 内容超长时截断显示省略号，鼠标悬停可见完整文本 */
+.td-ellipsis {
+  display: inline-block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: middle;
 }
 
 .td-muted {
