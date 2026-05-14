@@ -3,7 +3,6 @@ import {
   getVolumeList,
   getVolumeInspect,
   getVolumeContainers,
-  createVolume as apiCreateVolume,
   removeVolume as apiRemoveVolume
 } from '@/services/modules/volume'
 import { ElMessage, ElMessageBox } from 'element-plus'
@@ -114,46 +113,6 @@ export function VolumeState() {
     loadData()
   })
 
-  const createVolume = async () => {
-    let value: string
-    try {
-      const result = await ElMessageBox.prompt('请输入卷名称', '创建卷', {
-        confirmButtonText: '创建',
-        cancelButtonText: '取消',
-        inputPattern: /\S+/,
-        inputErrorMessage: '卷名称不能为空'
-      })
-      value = result.value
-    } catch {
-      return
-    }
-
-    const name = value.trim()
-    await runWithDialog(
-      {
-        title: '创建卷',
-        pendingText: `正在创建卷 ${name}，请稍候...`,
-        successText: `✅ 卷创建成功: ${name}`,
-        failureText: (e) => `❌ 创建卷失败: \n${e?.message || '未知错误'}`
-      },
-      async () => {
-        await apiCreateVolume({ name })
-        await loadData()
-      }
-    )
-  }
-
-  const inspectVolume = async (name: string) => {
-    try {
-      const detail = await getVolumeInspect(name)
-      await ElMessageBox.alert(JSON.stringify(detail, null, 2), '卷详情', {
-        confirmButtonText: '关闭'
-      })
-    } catch (e: any) {
-      ElMessage.error(e.message || '获取卷详情失败')
-    }
-  }
-
   const removeVolume = async (name: string) => {
     try {
       await ElMessageBox.confirm('确认删除该卷？', '删除确认', {
@@ -188,8 +147,6 @@ export function VolumeState() {
     state,
     dialog,
     pagedVolumes,
-    createVolume,
-    inspectVolume,
     removeVolume
   }
 }

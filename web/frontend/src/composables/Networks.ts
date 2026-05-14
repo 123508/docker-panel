@@ -2,7 +2,6 @@ import { reactive, computed, onMounted } from 'vue'
 import {
   getNetworkList,
   getNetworkInspect,
-  createNetwork as apiCreateNetwork,
   removeNetwork as apiRemoveNetwork
 } from '@/services/modules/network'
 import { ElMessage, ElMessageBox } from 'element-plus'
@@ -86,46 +85,6 @@ export function NetworkState() {
     loadData()
   })
 
-  const createNetwork = async () => {
-    let value: string
-    try {
-      const result = await ElMessageBox.prompt('请输入网络名称', '创建网络', {
-        confirmButtonText: '创建',
-        cancelButtonText: '取消',
-        inputPattern: /\S+/,
-        inputErrorMessage: '网络名称不能为空'
-      })
-      value = result.value
-    } catch {
-      return
-    }
-
-    const name = value.trim()
-    await runWithDialog(
-      {
-        title: '创建网络',
-        pendingText: `正在创建网络 ${name}，请稍候...`,
-        successText: `✅ 网络创建成功: ${name}`,
-        failureText: (e) => `❌ 创建网络失败: \n${e?.message || '未知错误'}`
-      },
-      async () => {
-        await apiCreateNetwork({ name })
-        await loadData()
-      }
-    )
-  }
-
-  const inspectNetwork = async (id: string) => {
-    try {
-      const detail = await getNetworkInspect(id)
-      await ElMessageBox.alert(JSON.stringify(detail, null, 2), '网络详情', {
-        confirmButtonText: '关闭'
-      })
-    } catch (e: any) {
-      ElMessage.error(e.message || '获取网络详情失败')
-    }
-  }
-
   const removeNetwork = async (id: string) => {
     try {
       await ElMessageBox.confirm('确认删除该网络？', '删除确认', {
@@ -161,8 +120,6 @@ export function NetworkState() {
     state,
     dialog,
     pagedNetworks,
-    createNetwork,
-    inspectNetwork,
     removeNetwork
   }
 }

@@ -43,9 +43,15 @@ import DpCountBadge from '@/components/dp-count-badge.vue'
 import DpButton from '@/components/dp-button.vue'
 import DpPagination from '@/components/dp-pagination.vue'
 import DpActionDialog from '@/components/dp-action-dialog.vue'
+import { useRouter } from 'vue-router'
 import { VolumeState } from '@/composables/Volumes'
 
-const { state, dialog, pagedVolumes, createVolume, inspectVolume, removeVolume } = VolumeState()
+const router = useRouter()
+
+const { state, dialog, pagedVolumes, removeVolume } = VolumeState()
+
+const createVolume = () => router.push('/dashboard/volumes/create')
+const inspectVolume = (name: string) => router.push(`/dashboard/volumes/${name}`)
 
 const columns = [
   { key: 'name', label: '名称', width: 140 },

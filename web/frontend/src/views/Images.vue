@@ -47,9 +47,14 @@ import DpButton from '@/components/dp-button.vue'
 import DpSearchInput from '@/components/dp-search-input.vue'
 import DpPagination from '@/components/dp-pagination.vue'
 import DpActionDialog from '@/components/dp-action-dialog.vue'
+import { useRouter } from 'vue-router'
 import { ImageState } from '@/composables/Images'
 
-const { state, dialog, pagedImages, searchImages, pullImage, inspectImage, runImage, removeImage } = ImageState()
+const router = useRouter()
+const { state, dialog, pagedImages, searchImages, runImage, removeImage } = ImageState()
+
+const inspectImage = (id: string) => router.push(`/dashboard/images/${id}`)
+const pullImage = () => router.push('/dashboard/images/pull')
 
 const columns = [
   { key: 'icon', width: 40 },

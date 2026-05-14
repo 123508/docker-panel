@@ -9,7 +9,13 @@ import ContainerDetail from '@/views/ContainerDetail.vue'
 import ContainerCreate from '@/views/ContainerCreate.vue'
 import Images from '@/views/Images.vue'
 import Volumes from '@/views/Volumes.vue'
+import VolumeCreate from '@/views/VolumeCreate.vue'
+import VolumeDetail from '@/views/VolumeDetail.vue'
 import Networks from '@/views/Networks.vue'
+import NetworkCreate from '@/views/NetworkCreate.vue'
+import NetworkDetail from '@/views/NetworkDetail.vue'
+import ImageDetail from '@/views/ImageDetail.vue'
+import ImagePull from '@/views/ImagePull.vue'
 import Compose from '@/views/Compose.vue'
 import Login from '@/views/Login.vue'
 
@@ -48,12 +54,36 @@ const routes = [
                 component: Images
             },
             {
+                path: 'images/pull',
+                component: ImagePull
+            },
+            {
                 path: 'volumes',
                 component: Volumes
             },
             {
+                path: 'volumes/create',
+                component: VolumeCreate
+            },
+            {
+                path: 'volumes/:name',
+                component: VolumeDetail
+            },
+            {
                 path: 'networks',
                 component: Networks
+            },
+            {
+                path: 'networks/create',
+                component: NetworkCreate
+            },
+            {
+                path: 'networks/:id',
+                component: NetworkDetail
+            },
+            {
+                path: 'images/:id',
+                component: ImageDetail
             },
             {
                 path: 'compose',
