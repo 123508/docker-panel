@@ -17,6 +17,8 @@ import NetworkDetail from '@/views/NetworkDetail.vue'
 import ImageDetail from '@/views/ImageDetail.vue'
 import ImagePull from '@/views/ImagePull.vue'
 import Compose from '@/views/Compose.vue'
+import ComposeCreate from '@/views/ComposeCreate.vue'
+import ComposeContent from '@/views/ComposeContent.vue'
 import Login from '@/views/Login.vue'
 
 const routes = [
@@ -84,6 +86,14 @@ const routes = [
             {
                 path: 'images/:id',
                 component: ImageDetail
+            },
+            {
+                path: 'compose/create',
+                component: ComposeCreate
+            },
+            {
+                path: 'compose/:name',
+                component: ComposeContent
             },
             {
                 path: 'compose',

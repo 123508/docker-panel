@@ -1,7 +1,7 @@
 <template>
   <dp-page-header title="编排" gap="24px">
     <template #actions>
-      <dp-button text="+ 新建编排" size="medium" type="primary" class="create-btn" @click="uploadNew" />
+      <dp-button text="+ 新建编排" size="medium" type="primary" class="create-btn" @click="goCreate" />
     </template>
 
     <div class="compose-stats">
@@ -70,11 +70,16 @@
 </template>
 
 <script setup lang="ts">
+import { useRouter } from 'vue-router'
 import DpPageHeader from '@/components/dp-page-header.vue'
 import DpButton from '@/components/dp-button.vue'
 import { ComposeProjectState } from '@/composables/ComposeProjects'
 
-const { state, uploadNew, startProject, stopProject, removeProject, viewProject } = ComposeProjectState()
+const router = useRouter()
+const { state, startProject, stopProject, removeProject } = ComposeProjectState()
+
+const goCreate = () => router.push('/dashboard/compose/create')
+const viewProject = (name: string) => router.push(`/dashboard/compose/${name}`)
 
 const statusText = (s: string) => {
   const map: Record<string, string> = { running: '运行中', stopped: '已停止', exited: '已退出', unknown: '未知' }
