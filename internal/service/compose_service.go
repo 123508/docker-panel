@@ -357,8 +357,10 @@ func (s *ComposeService) Down(ctx context.Context, name string, req *ComposeDown
 			}
 		}
 
-		s.runCompose(ctx, name, args...)
-		os.RemoveAll(dir)
+		if _, err := s.runCompose(ctx, name, args...); err != nil {
+			return err
+		}
+		_ = os.RemoveAll(dir)
 	}
 
 	records, err := s.loadRegistry()
