@@ -51,9 +51,15 @@ import DpCountBadge from '@/components/dp-count-badge.vue'
 import DpButton from '@/components/dp-button.vue'
 import DpPagination from '@/components/dp-pagination.vue'
 import DpActionDialog from '@/components/dp-action-dialog.vue'
+import { useRouter } from 'vue-router'
 import { NetworkState } from '@/composables/Networks'
 
-const { state, dialog, pagedNetworks, createNetwork, inspectNetwork, removeNetwork } = NetworkState()
+const router = useRouter()
+
+const { state, dialog, pagedNetworks, removeNetwork } = NetworkState()
+
+const createNetwork = () => router.push('/dashboard/networks/create')
+const inspectNetwork = (id: string) => router.push(`/dashboard/networks/${encodeURIComponent(id)}`)
 
 const columns = [
   { key: 'name', label: '名称', width: 130 },

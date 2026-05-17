@@ -1,5 +1,5 @@
 import { reactive, computed, onMounted } from 'vue'
-import { getImageList, getImageInspect, pullImage as apiPullImage, removeImage as apiRemoveImage } from '@/services/modules/image'
+import { getImageList, pullImage as apiPullImage, removeImage as apiRemoveImage } from '@/services/modules/image'
 import { createContainer, startContainer } from '@/services/modules/container'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useActionDialog } from '@/composables/useActionDialog'
@@ -118,17 +118,6 @@ export function ImageState() {
     )
   }
 
-  const inspectImage = async (id: string) => {
-    try {
-      const detail = await getImageInspect(id)
-      await ElMessageBox.alert(JSON.stringify(detail, null, 2), '镜像详情', {
-        confirmButtonText: '关闭'
-      })
-    } catch (e: any) {
-      ElMessage.error(e.message || '获取镜像详情失败')
-    }
-  }
-
   const runImage = async (imageRef: string, imageName?: string) => {
     const display = imageName || imageRef
     await runWithDialog(
@@ -178,8 +167,9 @@ export function ImageState() {
     filteredImages,
     searchImages,
     pullImage,
-    inspectImage,
     runImage,
     removeImage
   }
 }
+
+export type ImageState = ReturnType<typeof ImageState>

@@ -88,6 +88,7 @@ func main() {
 		ImageSvc:     service.NewImageService(dockerClient),
 		VolumeSvc:    service.NewVolumeService(dockerClient),
 		NetworkSvc:   service.NewNetworkService(dockerClient),
+		ComposeSvc:   service.NewComposeService(),
 		UserSvc:      userSvc,
 		Recent:       recent,
 	}

@@ -14,6 +14,7 @@ type Dependencies struct {
 	ImageSvc     *service.ImageService
 	VolumeSvc    *service.VolumeService
 	NetworkSvc   *service.NetworkService
+	ComposeSvc   *service.ComposeService
 	UserSvc      service.UserService
 	Recent       *service.RecentContainers // 最近操作容器 LRU，用于仪表盘活跃容器
 }
@@ -30,6 +31,7 @@ func NewRouter(deps Dependencies) *gin.Engine {
 	imageH := NewImageHandler(deps.ImageSvc)
 	volumeH := NewVolumeHandler(deps.VolumeSvc)
 	networkH := NewNetworkHandler(deps.NetworkSvc)
+	composeH := NewComposeHandler(deps.ComposeSvc)
 	userH := NewUserHandler(deps.UserSvc)
 
 	apiGroup := r.Group("/api")
@@ -45,6 +47,7 @@ func NewRouter(deps Dependencies) *gin.Engine {
 		RegisterImageRoutes(v1, imageH)
 		RegisterVolumeRoutes(v1, volumeH)
 		RegisterNetworkRoutes(v1, networkH)
+		RegisterComposeRoutes(v1, composeH)
 	}
 
 	return r
@@ -114,6 +117,22 @@ func RegisterNetworkRoutes(rg *gin.RouterGroup, h *NetworkHandler) {
 		networks.DELETE("/:id", h.Remove)
 		networks.POST("/:id/connect", h.Connect)
 		networks.POST("/:id/disconnect", h.Disconnect)
+	}
+}
+
+// RegisterComposeRoutes 注册 compose 路由
+func RegisterComposeRoutes(rg *gin.RouterGroup, h *ComposeHandler) {
+	compose := rg.Group("/compose/projects")
+	{
+		compose.GET("", h.List)
+		compose.POST("", h.Upload)
+		compose.GET("/:name/ps", h.PS)
+		compose.GET("/:name/logs", h.Logs)
+		compose.POST("/:name/up", h.Up)
+		compose.POST("/:name/stop", h.Stop)
+		compose.POST("/:name/restart", h.Restart)
+		compose.POST("/:name/scale", h.Scale)
+		compose.DELETE("/:name", h.Down)
 	}
 }
 
