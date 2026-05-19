@@ -5,6 +5,7 @@ import (
 	"docker-panel/internal/docker"
 	"fmt"
 
+	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/api/types/volume"
 )
@@ -89,6 +90,26 @@ func (s *VolumeService) VolumeCreate(ctx context.Context, req VolumeCreateReques
 		return nil, fmt.Errorf("docker create volume: %w", err)
 	}
 	return &v, nil
+}
+
+// VolumeContainers 查询使用该数据卷的容器列表
+func (s *VolumeService) VolumeContainers(ctx context.Context, volumeName string) ([]string, error) {
+	args := filters.NewArgs(filters.Arg("volume", volumeName))
+	list, err := s.docker.ContainerList(ctx, container.ListOptions{Filters: args})
+	if err != nil {
+		return nil, fmt.Errorf("list containers by volume: %w", err)
+	}
+	names := make([]string, 0, len(list))
+	for _, c := range list {
+		if len(c.Names) > 0 {
+			name := c.Names[0]
+			if len(name) > 0 && name[0] == '/' {
+				name = name[1:]
+			}
+			names = append(names, name)
+		}
+	}
+	return names, nil
 }
 
 // VolumeRemove 删除数据卷

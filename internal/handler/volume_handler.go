@@ -6,6 +6,12 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// VolumeContainersResponse 卷关联容器响应
+type VolumeContainersResponse struct {
+	VolumeName string   `json:"volume_name"`
+	Containers []string `json:"containers"`
+}
+
 // VolumeHandler 数据卷 HTTP 处理器
 type VolumeHandler struct {
 	svc *service2.VolumeService
@@ -49,6 +55,19 @@ func (h *VolumeHandler) Create(c *gin.Context) {
 		return
 	}
 	respondJSON(c, service2.Success(v))
+}
+
+// Containers GET /api/v1/volumes/:name/containers
+func (h *VolumeHandler) Containers(c *gin.Context) {
+	names, err := h.svc.VolumeContainers(c.Request.Context(), c.Param("name"))
+	if err != nil {
+		respondJSON(c, service2.Error(service2.ErrCodeDockerAPI, err.Error()))
+		return
+	}
+	respondJSON(c, service2.Success(VolumeContainersResponse{
+		VolumeName: c.Param("name"),
+		Containers: names,
+	}))
 }
 
 // Remove DELETE /api/v1/volumes/:name

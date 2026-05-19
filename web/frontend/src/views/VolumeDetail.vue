@@ -114,7 +114,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import DpButton from '@/components/dp-button.vue'
 import { VolumeDetailState } from '@/composables/VolumeDetail'
@@ -127,7 +127,9 @@ const volumeNameParam = computed(() => {
   return n ? String(n) : ''
 })
 
-const { state, volumeName, driver, mountpoint, createdAt, scope, size, refCount, containers, labelsList, optionsList, handleRemove } = VolumeDetailState(() => volumeNameParam.value)
+const { state, volumeName, driver, mountpoint, createdAt, scope, size, refCount, containers, labelsList, optionsList, loadData, handleRemove } = VolumeDetailState(() => volumeNameParam.value)
+
+onMounted(() => loadData())
 
 const goBack = () => router.push('/dashboard/volumes')
 

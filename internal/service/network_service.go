@@ -12,16 +12,28 @@ import (
 
 // NetworkListItem 网络列表项
 type NetworkListItem struct {
-	ID         string            `json:"id"`
-	Name       string            `json:"name"`
-	Driver     string            `json:"driver"`
-	Scope      string            `json:"scope"`
-	IPAM       NetworkIPAM       `json:"ipam"`
-	Internal   bool              `json:"internal"`
-	Attachable bool              `json:"attachable"`
-	Ingress    bool              `json:"ingress"`
-	Labels     map[string]string `json:"labels"`
-	Created    string            `json:"created"`
+	ID         string                              `json:"id"`
+	Name       string                              `json:"name"`
+	Driver     string                              `json:"driver"`
+	Scope      string                              `json:"scope"`
+	IPAM       NetworkIPAM                         `json:"ipam"`
+	Internal   bool                                `json:"internal"`
+	Attachable bool                                `json:"attachable"`
+	Ingress    bool                                `json:"ingress"`
+	Labels     map[string]string                   `json:"labels"`
+	Created    string                              `json:"created"`
+	EnableIPv6 bool                                `json:"enable_ipv6"`
+	Options    map[string]string                   `json:"options"`
+	Containers map[string]NetworkEndpointResource   `json:"containers"`
+}
+
+// NetworkEndpointResource 网络连接的容器端点
+type NetworkEndpointResource struct {
+	Name        string `json:"name"`
+	EndpointID  string `json:"endpoint_id"`
+	MacAddress  string `json:"mac_address"`
+	IPv4Address string `json:"ipv4_address"`
+	IPv6Address string `json:"ipv6_address"`
 }
 
 // NetworkIPAM IPAM配置
@@ -120,6 +132,8 @@ func (s *NetworkService) NetworkInspect(ctx context.Context, networkID string) (
 		Ingress:    n.Ingress,
 		Labels:     n.Labels,
 		Created:    n.Created.String(),
+		EnableIPv6: n.EnableIPv6,
+		Options:    n.Options,
 		IPAM: NetworkIPAM{
 			Driver: n.IPAM.Driver,
 		},
@@ -129,6 +143,18 @@ func (s *NetworkService) NetworkInspect(ctx context.Context, networkID string) (
 			Subnet:  cfg.Subnet,
 			Gateway: cfg.Gateway,
 		})
+	}
+	if n.Containers != nil {
+		item.Containers = make(map[string]NetworkEndpointResource, len(n.Containers))
+		for id, ep := range n.Containers {
+			item.Containers[id] = NetworkEndpointResource{
+				Name:        ep.Name,
+				EndpointID:  ep.EndpointID,
+				MacAddress:  ep.MacAddress,
+				IPv4Address: ep.IPv4Address,
+				IPv6Address: ep.IPv6Address,
+			}
+		}
 	}
 	return item, nil
 }
