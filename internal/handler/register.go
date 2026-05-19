@@ -102,6 +102,7 @@ func RegisterVolumeRoutes(rg *gin.RouterGroup, h *VolumeHandler) {
 	{
 		volumes.GET("", h.List)
 		volumes.POST("", h.Create)
+		volumes.GET("/:name/containers", h.Containers)
 		volumes.GET("/:name", h.Inspect)
 		volumes.DELETE("/:name", h.Remove)
 	}
