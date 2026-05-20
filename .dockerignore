@@ -1,0 +1,10 @@
+.git
+.gitignore
+.dockerignore
+*.md
+design/
+docker-panel.db
+config.toml
+compose_projects/
+web/frontend/node_modules/
+web/frontend/dist/
