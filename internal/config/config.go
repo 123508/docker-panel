@@ -13,6 +13,7 @@ import (
 type Config struct {
 	User   UserConfig   `mapstructure:"user"`
 	Server ServerConfig `mapstructure:"server"`
+	JWT    JWTConfig    `mapstructure:"jwt"`
 }
 
 type UserConfig struct {
@@ -24,6 +25,10 @@ type ServerConfig struct {
 	BindIP   string `mapstructure:"bind_ip"`
 	BindPort string `mapstructure:"bind_port"`
 	Debug    bool   `mapstructure:"debug"`
+}
+
+type JWTConfig struct {
+	Secret string `mapstructure:"secret"`
 }
 
 var AppConfig *Config
@@ -79,15 +84,23 @@ func createDefaultConfig(configFile string) error {
 		return err
 	}
 
-	defaultConfig := fmt.Sprintf(`[user]
-					  admin_username = "admin"
-					  admin_password = "%s"
+	jwtSecret, err := generateJWTSecret()
+	if err != nil {
+		return err
+	}
 
-					  [server]
-					  bind_ip = "0.0.0.0"
-					  bind_port = "8080"
-					  debug = false
-					  `, adminPassword)
+	defaultConfig := fmt.Sprintf(`[user]
+admin_username = "admin"
+admin_password = "%s"
+
+[server]
+bind_ip = "0.0.0.0"
+bind_port = "8080"
+debug = false
+
+[jwt]
+secret = "%s"
+`, adminPassword, jwtSecret)
 
 	return os.WriteFile(configFile, []byte(defaultConfig), 0644)
 }
@@ -96,6 +109,15 @@ func generateRandomPassword() (string, error) {
 	bytes := make([]byte, 8)
 	if _, err := rand.Read(bytes); err != nil {
 		return "", fmt.Errorf("failed to generate random password: %w", err)
+	}
+
+	return hex.EncodeToString(bytes), nil
+}
+
+func generateJWTSecret() (string, error) {
+	bytes := make([]byte, 32)
+	if _, err := rand.Read(bytes); err != nil {
+		return "", fmt.Errorf("failed to generate JWT secret: %w", err)
 	}
 
 	return hex.EncodeToString(bytes), nil

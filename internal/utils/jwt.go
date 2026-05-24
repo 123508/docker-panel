@@ -4,10 +4,14 @@ import (
 	"errors"
 	"time"
 
+	"docker-panel/internal/config"
+
 	"github.com/golang-jwt/jwt/v5"
 )
 
-var jwtSecret = []byte("your_secret_key_here")
+func getJWTSecret() []byte {
+	return []byte(config.AppConfig.JWT.Secret)
+}
 
 type Claims struct {
 	UserID uint `json:"user_id"`
@@ -25,12 +29,12 @@ func GenerateToken(userID uint) (string, error) {
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString(jwtSecret)
+	return token.SignedString(getJWTSecret())
 }
 
 func ParseToken(tokenString string) (*Claims, error) {
-	token, err := jwt.ParseWithClaims(tokenString, &Claims{}, func(token *jwt.Token) (interface{}, error) {
-		return jwtSecret, nil
+	token, err := jwt.ParseWithClaims(tokenString, &Claims{}, func(token *jwt.Token) (any, error) {
+		return getJWTSecret(), nil
 	})
 
 	if err != nil {
