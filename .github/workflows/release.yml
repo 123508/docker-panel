@@ -1,0 +1,85 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: web/frontend/package-lock.json
+
+      - name: Build frontend
+        working-directory: web/frontend
+        run: |
+          npm ci
+          npm run build
+
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version: '1.25'
+          cache: false
+
+      - name: Download Go modules
+        run: go mod tidy && go mod download
+
+      - name: Build binaries
+        run: |
+          mkdir -p dist
+
+          # Linux amd64
+          GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o dist/docker-panel-linux-amd64 .
+
+          # Linux arm64
+          GOOS=linux GOARCH=arm64 go build -ldflags="-s -w" -o dist/docker-panel-linux-arm64 .
+
+          # macOS amd64
+          GOOS=darwin GOARCH=amd64 go build -ldflags="-s -w" -o dist/docker-panel-darwin-amd64 .
+
+          # macOS arm64
+          GOOS=darwin GOARCH=arm64 go build -ldflags="-s -w" -o dist/docker-panel-darwin-arm64 .
+
+          # Windows amd64
+          GOOS=windows GOARCH=amd64 go build -ldflags="-s -w" -o dist/docker-panel-windows-amd64.exe .
+
+      - name: Create archives
+        run: |
+          cd dist
+
+          tar czf docker-panel-linux-amd64.tar.gz docker-panel-linux-amd64
+          tar czf docker-panel-linux-arm64.tar.gz docker-panel-linux-arm64
+          tar czf docker-panel-darwin-amd64.tar.gz docker-panel-darwin-amd64
+          tar czf docker-panel-darwin-arm64.tar.gz docker-panel-darwin-arm64
+          zip docker-panel-windows-amd64.zip docker-panel-windows-amd64.exe
+
+      - name: Generate checksums
+        working-directory: dist
+        run: sha256sum docker-panel-* > checksums.txt
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Release ${{ github.ref_name }}
+          body_path: .github/release-template.md
+          fail_on_unmatched_files: true
+          files: |
+            dist/docker-panel-linux-amd64.tar.gz
+            dist/docker-panel-linux-arm64.tar.gz
+            dist/docker-panel-darwin-amd64.tar.gz
+            dist/docker-panel-darwin-arm64.tar.gz
+            dist/docker-panel-windows-amd64.zip
+            dist/checksums.txt
