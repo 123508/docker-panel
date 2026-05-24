@@ -41,7 +41,12 @@ web/dist/
 .codex
 .claude
 AGENTS.md
+CLAUDE.md
+
+# database
+*.db
 
 # another file
 *.docx
 *.pdf
+compose_projects

@@ -1,7 +1,7 @@
-<template>
+﻿<template>
   <dp-page-header title="系统概览">
     <template #actions>
-      <button class="refresh-btn">
+      <button class="refresh-btn" @click="loadData" :disabled="state.loading || state.actionLoading">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <polyline points="23 4 23 10 17 10" />
           <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
@@ -22,12 +22,10 @@
     <div class="section">
       <div class="section-header">
         <h2 class="section-title">活跃容器</h2>
-        <router-link to="/containers" class="view-all">查看全部 →</router-link>
+        <router-link to="/dashboard/containers" class="view-all">查看全部 →</router-link>
       </div>
 
-      <dp-data-table :bordered="true"
-                     :flex="false"
-                     height="54vh">
+      <dp-data-table :bordered="true" :flex="false" height="54vh">
         <template #head>
           <span class="th" style="width: 280px">名称</span>
           <span class="th" style="width: 200px">镜像</span>
@@ -36,42 +34,34 @@
           <span class="th" style="flex: 1">操作</span>
         </template>
 
-        <div v-for="c in pagedContainers" :key="c.name" class="table-row">
+        <div v-for="c in state.recentContainers" :key="c.fullId" class="table-row">
           <div class="td td-name" style="width: 280px">
             <div class="container-icon"></div>
             <div class="name-col">
-              <span class="name-text">{{ c.name }}</span>
-              <span class="name-id">{{ c.id }}</span>
+              <span class="name-text" :title="c.name">{{ c.name }}</span>
+              <span class="name-id" :title="c.id">{{ c.id }}</span>
             </div>
           </div>
-          <span class="td td-image" style="width: 200px">{{ c.image }}</span>
+          <span class="td td-image td-ellipsis" style="width: 200px" :title="c.image">{{ c.image }}</span>
           <div class="td" style="width: 120px">
-            <dp-status-badge :status="c.status === '运行中' ? 'running' : 'stopped'">
+            <dp-status-badge :status="c.running ? 'running' : 'stopped'">
               {{ c.status }}
             </dp-status-badge>
           </div>
-          <span class="td td-port" style="width: 150px">{{ c.port }}</span>
+          <span class="td td-port td-ellipsis" style="width: 150px" :title="c.port">{{ c.port }}</span>
           <div class="td td-actions" style="flex: 1">
             <template v-if="c.running">
-              <dp-button text="停止" size="small" type="danger" variant="text"/>
-              <dp-button text="重启" size="small" type="info" variant="text"/>
-              <dp-button text="日志" size="small" variant="text"/>
+              <dp-button text="停止" size="small" type="danger" variant="text" @click="stopContainer(c.fullId)" />
+              <dp-button text="重启" size="small" type="info" variant="text" @click="restartContainer(c.fullId)" />
             </template>
             <template v-else>
-              <dp-button text="启动" size="small" type="primary" variant="text"/>
-              <dp-button text="移除" size="small" type="danger" variant="text"/>
-              <dp-button text="日志" size="small" variant="text"/>
+              <dp-button text="启动" size="small" type="primary" variant="text" @click="startContainer(c.fullId)" />
+              <dp-button text="移除" size="small" type="danger" variant="text" @click="removeContainer(c.fullId)" />
             </template>
           </div>
         </div>
       </dp-data-table>
 
-      <dp-pagination
-          :page="state.page"
-          :total="state.containers.length"
-          :page-size="state.pageSize"
-          @change="state.page = $event"
-      />
     </div>
   </dp-page-header>
 </template>
@@ -80,12 +70,10 @@
 import DpPageHeader from '@/components/dp-page-header.vue'
 import DpDataTable from '@/components/dp-data-table.vue'
 import DpStatusBadge from '@/components/dp-status-badge.vue'
-import DpButton from "@/components/dp-button.vue";
-import DpPagination from "@/components/dp-pagination.vue";
-import {DashboardState} from '@/composables/Dashboard';
-const { state,pagedContainers } = DashboardState();
+import DpButton from '@/components/dp-button.vue'
+import { DashboardState } from '@/composables/Dashboard'
 
-
+const { state, loadData, startContainer, stopContainer, restartContainer, removeContainer } = DashboardState()
 </script>
 
 <style scoped>
@@ -225,16 +213,35 @@ const { state,pagedContainers } = DashboardState();
   display: flex;
   flex-direction: column;
   gap: 2px;
+  min-width: 0;
+  flex: 1;
 }
 
 .name-text {
   color: var(--text-primary);
   font-size: 14px;
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .name-id {
   color: var(--text-dim);
   font-size: 11px;
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 内容超长时截断显示省略号，鼠标悬停可见完整文本 */
+.td-ellipsis {
+  display: inline-block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: middle;
 }
 
 .td-image {
@@ -250,5 +257,4 @@ const { state,pagedContainers } = DashboardState();
   display: flex;
   gap: 12px;
 }
-
 </style>

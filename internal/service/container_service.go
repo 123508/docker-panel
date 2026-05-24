@@ -5,6 +5,7 @@ import (
 	"docker-panel/internal/docker"
 	"fmt"
 	"io"
+	"strconv"
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
@@ -88,15 +89,11 @@ type ContainerConfig struct {
 
 // NetworkSettings 网络设置
 type NetworkSettings struct {
-	Bridge               string                      `json:"bridge"`
-	SandboxID            string                      `json:"sandbox_id"`
-	HairpinMode          bool                        `json:"hairpin_mode"`
-	LinkLocalIPv6Address string                      `json:"link_local_ipv6_address"`
-	Ports                map[string][]PortBinding    `json:"ports"`
-	SandboxKey           string                      `json:"sandbox_key"`
-	IPAddress            string                      `json:"ip_address"`
-	MacAddress           string                      `json:"mac_address"`
-	Networks             map[string]EndpointSettings `json:"networks"`
+	Bridge     string                      `json:"bridge"`
+	SandboxID  string                      `json:"sandbox_id"`
+	Ports      map[string][]PortBinding    `json:"ports"`
+	SandboxKey string                      `json:"sandbox_key"`
+	Networks   map[string]EndpointSettings `json:"networks"`
 }
 
 // EndpointSettings 端点设置
@@ -377,21 +374,63 @@ func (s *ContainerService) ContainerInspect(ctx context.Context, containerID str
 
 	if info.Config != nil {
 		detail.Config = ContainerConfig{
-			Hostname:   info.Config.Hostname,
-			Domainname: info.Config.Domainname,
-			User:       info.Config.User,
-			Tty:        info.Config.Tty,
-			OpenStdin:  info.Config.OpenStdin,
-			Env:        info.Config.Env,
-			Image:      info.Config.Image,
-			WorkingDir: info.Config.WorkingDir,
-			Labels:     info.Config.Labels,
+			Hostname:     info.Config.Hostname,
+			Domainname:   info.Config.Domainname,
+			User:         info.Config.User,
+			AttachStdin:  info.Config.AttachStdin,
+			AttachStdout: info.Config.AttachStdout,
+			AttachStderr: info.Config.AttachStderr,
+			Tty:          info.Config.Tty,
+			OpenStdin:    info.Config.OpenStdin,
+			StdinOnce:    info.Config.StdinOnce,
+			Env:          info.Config.Env,
+			Image:        info.Config.Image,
+			Volumes:      map[string]struct{}(info.Config.Volumes),
+			WorkingDir:   info.Config.WorkingDir,
+			Labels:       info.Config.Labels,
+			ExposedPorts: map[string]struct{}{},
+		}
+		for p := range info.Config.ExposedPorts {
+			detail.Config.ExposedPorts[string(p)] = struct{}{}
 		}
 		if info.Config.Cmd != nil {
 			detail.Config.Cmd = []string(info.Config.Cmd)
 		}
 		if info.Config.Entrypoint != nil {
 			detail.Config.Entrypoint = []string(info.Config.Entrypoint)
+		}
+	}
+
+	if info.HostConfig != nil {
+		detail.HostConfig = HostConfig{
+			Binds:           info.HostConfig.Binds,
+			NetworkMode:     string(info.HostConfig.NetworkMode),
+			PortBindings:    mapPortMap(info.HostConfig.PortBindings),
+			RestartPolicy:   RestartPolicy{Name: string(info.HostConfig.RestartPolicy.Name), MaximumRetryCount: info.HostConfig.RestartPolicy.MaximumRetryCount},
+			AutoRemove:      info.HostConfig.AutoRemove,
+			VolumeDriver:    info.HostConfig.VolumeDriver,
+			VolumesFrom:     info.HostConfig.VolumesFrom,
+			CapAdd:          []string(info.HostConfig.CapAdd),
+			CapDrop:         []string(info.HostConfig.CapDrop),
+			Dns:             info.HostConfig.DNS,
+			ExtraHosts:      info.HostConfig.ExtraHosts,
+			Privileged:      info.HostConfig.Privileged,
+			PublishAllPorts: info.HostConfig.PublishAllPorts,
+			ReadonlyRootfs:  info.HostConfig.ReadonlyRootfs,
+			Memory:          info.HostConfig.Memory,
+			MemorySwap:      info.HostConfig.MemorySwap,
+			NanoCPUs:        info.HostConfig.NanoCPUs,
+			CPUShares:       info.HostConfig.CPUShares,
+		}
+	}
+
+	if info.NetworkSettings != nil {
+		detail.NetworkSettings = NetworkSettings{
+			Bridge:     info.NetworkSettings.Bridge,
+			SandboxID:  info.NetworkSettings.SandboxID,
+			Ports:      mapPortMap(info.NetworkSettings.Ports),
+			SandboxKey: info.NetworkSettings.SandboxKey,
+			Networks:   mapEndpointSettings(info.NetworkSettings.Networks),
 		}
 	}
 
@@ -408,6 +447,50 @@ func (s *ContainerService) ContainerInspect(ctx context.Context, containerID str
 	}
 
 	return detail, nil
+}
+
+func mapPortMap(ports nat.PortMap) map[string][]PortBinding {
+	if len(ports) == 0 {
+		return nil
+	}
+	result := make(map[string][]PortBinding, len(ports))
+	for port, bindings := range ports {
+		key := string(port)
+		if len(bindings) == 0 {
+			result[key] = []PortBinding{{PrivatePort: uint16(port.Int()), Type: port.Proto()}}
+			continue
+		}
+		for _, binding := range bindings {
+			publicPort, _ := strconv.ParseUint(binding.HostPort, 10, 16)
+			result[key] = append(result[key], PortBinding{
+				IP:          binding.HostIP,
+				PrivatePort: uint16(port.Int()),
+				PublicPort:  uint16(publicPort),
+				Type:        port.Proto(),
+			})
+		}
+	}
+	return result
+}
+
+func mapEndpointSettings(networks map[string]*network.EndpointSettings) map[string]EndpointSettings {
+	if len(networks) == 0 {
+		return nil
+	}
+	result := make(map[string]EndpointSettings, len(networks))
+	for name, endpoint := range networks {
+		if endpoint == nil {
+			continue
+		}
+		result[name] = EndpointSettings{
+			NetworkID:  endpoint.NetworkID,
+			EndpointID: endpoint.EndpointID,
+			Gateway:    endpoint.Gateway,
+			IPAddress:  endpoint.IPAddress,
+			MacAddress: endpoint.MacAddress,
+		}
+	}
+	return result
 }
 
 // ContainerCreate 创建容器
@@ -636,4 +719,29 @@ func (s *ContainerService) ContainerTop(ctx context.Context, containerID string,
 // ContainerExport 导出容器
 func (s *ContainerService) ContainerExport(ctx context.Context, containerID string) (io.ReadCloser, error) {
 	return s.docker.ContainerExport(ctx, containerID)
+}
+
+// GetContainersByIDs 根据容器 ID 列表查询容器简要信息。
+// 先获取全量容器列表，再按传入的 ID 顺序筛选，保留请求的先后次序。
+func (s *ContainerService) GetContainersByIDs(ctx context.Context, ids []string) ([]ContainerListItem, error) {
+	// 获取全部容器
+	all, err := s.ContainerList(ctx, ContainerListRequest{All: true})
+	if err != nil {
+		return nil, err
+	}
+
+	// 构建 ID 到容器信息的映射
+	ordered := make(map[string]ContainerListItem, len(all))
+	for _, item := range all {
+		ordered[item.ID] = item
+	}
+
+	// 按传入的 ID 顺序返回结果，保持 LRU 中的先后次序
+	result := make([]ContainerListItem, 0, len(ids))
+	for _, id := range ids {
+		if item, ok := ordered[id]; ok {
+			result = append(result, item)
+		}
+	}
+	return result, nil
 }

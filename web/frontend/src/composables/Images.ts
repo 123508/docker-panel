@@ -1,6 +1,8 @@
 import { reactive, computed, onMounted } from 'vue'
-import { getImageList, removeImage as apiRemoveImage } from '@/services/modules/image'
-import { ElMessage } from 'element-plus'
+import { getImageList, pullImage as apiPullImage, removeImage as apiRemoveImage } from '@/services/modules/image'
+import { createContainer, startContainer } from '@/services/modules/container'
+import { ElMessage, ElMessageBox } from 'element-plus'
+import { useActionDialog } from '@/composables/useActionDialog'
 
 export function ImageState() {
   const state = reactive({
@@ -17,6 +19,8 @@ export function ImageState() {
 
     images: [] as any[]
   })
+
+  const { dialog, runWithDialog } = useActionDialog()
 
   const loadData = async () => {
     try {
@@ -65,13 +69,82 @@ export function ImageState() {
   })
 
   const removeImage = async (id: string) => {
+    const shortId = id.replace('sha256:', '').substring(0, 12)
+    await runWithDialog(
+      {
+        title: '移除镜像',
+        pendingText: `正在移除镜像 ${shortId}，请稍候...`,
+        successText: `✅ 镜像已移除: ${shortId}`,
+        failureText: (e) => `❌ 移除镜像失败: \n${e?.message || '未知错误'}`
+      },
+      async () => {
+        await apiRemoveImage(id, { force: true })
+        await loadData()
+      }
+    )
+  }
+
+  const searchImages = async () => {
+    await loadData()
+  }
+
+  const pullImage = async () => {
+    let value: string
     try {
-      await apiRemoveImage(id, { force: true })
-      ElMessage.success('镜像已删除')
-      await loadData()
-    } catch(e: any) {
-      ElMessage.error(e.message || '删除镜像失败')
+      const result = await ElMessageBox.prompt('请输入镜像名（如 nginx:latest）', '拉取镜像', {
+        confirmButtonText: '拉取',
+        cancelButtonText: '取消',
+        inputPattern: /\S+/,
+        inputErrorMessage: '镜像名不能为空'
+      })
+      value = result.value
+    } catch (e: any) {
+      // 用户取消
+      return
     }
+
+    const image = value.trim()
+    await runWithDialog(
+      {
+        title: '拉取镜像',
+        pendingText: `正在拉取镜像 ${image}，请稍候...`,
+        successText: `✅ 镜像拉取成功: ${image}`,
+        failureText: (e) => `❌ 拉取镜像失败: \n${e?.message || '未知错误'}`
+      },
+      async () => {
+        await apiPullImage({ image })
+        await loadData()
+      }
+    )
+  }
+
+  const runImage = async (imageRef: string, imageName?: string) => {
+    const display = imageName || imageRef
+    await runWithDialog(
+      {
+        title: '运行镜像',
+        pendingText: `正在启动镜像 ${display}，请稍候...`,
+        failureText: (e) => `❌ 运行镜像失败: \n${e?.message || '未知错误'}`
+      },
+      async () => {
+        const suffix = Date.now().toString(36).slice(-6)
+        const cleanName = (imageName || 'image').replace(/[^a-zA-Z0-9_.-]/g, '-').toLowerCase()
+        const name = `run-${cleanName}-${suffix}`.slice(0, 63)
+        const created = await createContainer({
+          name,
+          image: imageName || imageRef,
+          host_config: {},
+          networking_config: {}
+        })
+        const containerId = created?.id || created?.container_id
+        if (!containerId) {
+          throw new Error('创建容器后未返回容器 ID')
+        }
+        await startContainer(containerId)
+        // 成功文案需要拿到 containerId 才能拼出来，这里直接覆盖
+        dialog.content = `✅ 成功启动容器: \n名称: ${name}\nID: ${containerId}`
+      }
+    )
   }
 
   const filteredImages = computed(() => {
@@ -89,8 +162,14 @@ export function ImageState() {
 
   return {
     state,
+    dialog,
     pagedImages,
     filteredImages,
+    searchImages,
+    pullImage,
+    runImage,
     removeImage
   }
 }
+
+export type ImageState = ReturnType<typeof ImageState>

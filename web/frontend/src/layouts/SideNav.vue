@@ -40,12 +40,12 @@ import DpIcon from "@/components/dp-icon.vue";
 const themeMap = ['system', 'light', 'dark'] as const
 
 const menus = [
-  { name: '仪表盘', path: '/', number: '01' },
-  { name: '容器', path: '/containers', number: '02' },
-  { name: '镜像', path: '/images', number: '03' },
-  { name: '卷', path: '/volumes', number: '04' },
-  { name: '网络', path: '/networks', number: '05' },
-  { name: '编排', path: '/compose', number: '06' }
+  { name: '仪表盘', path: '/dashboard', number: '01' },
+  { name: '容器', path: '/dashboard/containers', number: '02' },
+  { name: '镜像', path: '/dashboard/images', number: '03' },
+  { name: '卷', path: '/dashboard/volumes', number: '04' },
+  { name: '网络', path: '/dashboard/networks', number: '05' },
+  { name: '编排', path: '/dashboard/compose', number: '06' }
 ]
 
 const themeButtons = [

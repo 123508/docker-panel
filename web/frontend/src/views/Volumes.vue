@@ -1,35 +1,37 @@
-<template>
+﻿<template>
   <dp-page-header title="卷" gap="24px">
     <template #actions>
       <div class="header-actions">
-        <dp-button text="+ 创建" size="large" type="primary" class="btn" />
+        <dp-button text="+ 创建" size="large" type="primary" class="btn" @click="createVolume" />
       </div>
     </template>
 
     <dp-stat-bar :items="state.stats" />
 
     <dp-data-table :bordered="false" header-bg row-gap fixed-row-height :columns="columns">
-
       <div v-for="v in pagedVolumes" :key="v.name" class="table-row">
-        <span class="td col-name">{{ v.name }}</span>
-        <span class="td col-driver td-muted">{{ v.driver }}</span>
-        <span class="td col-mount td-dim">{{ v.mountpoint }}</span>
-        <span class="td col-size">{{ v.size }}</span>
+        <span class="td col-name td-ellipsis" :title="v.name">{{ v.name }}</span>
+        <span class="td col-driver td-muted td-ellipsis" :title="v.driver">{{ v.driver }}</span>
+        <span class="td col-mount td-dim td-ellipsis" :title="v.mountpoint">{{ v.mountpoint }}</span>
+        <span class="td col-size td-ellipsis" :title="v.size">{{ v.size }}</span>
         <div class="td col-containers">
           <dp-count-badge :count="v.containers" />
         </div>
         <div class="td td-actions" style="flex: 1">
-          <dp-button text="查看" size="small" variant="text" type="info"/>
-          <dp-button text="移除" size="small" variant="text" type="danger"/>
+          <dp-button text="查看" size="small" variant="text" type="info" @click="inspectVolume(v.name)" />
+          <dp-button text="移除" size="small" variant="text" type="danger" @click="removeVolume(v.name)" />
         </div>
       </div>
     </dp-data-table>
+
     <dp-pagination
-        :page="state.page"
-        :total="state.volumes.length"
-        :page-size="state.pageSize"
-        @change="state.page = $event"
+      :page="state.page"
+      :total="state.volumes.length"
+      :page-size="state.pageSize"
+      @change="state.page = $event"
     />
+
+    <dp-action-dialog :state="dialog" />
   </dp-page-header>
 </template>
 
@@ -38,11 +40,18 @@ import DpPageHeader from '@/components/dp-page-header.vue'
 import DpStatBar from '@/components/dp-stat-bar.vue'
 import DpDataTable from '@/components/dp-data-table.vue'
 import DpCountBadge from '@/components/dp-count-badge.vue'
-import DpButton from "@/components/dp-button.vue";
-import DpPagination from "@/components/dp-pagination.vue";
-import {computed, reactive} from "vue";
-import {VolumeState} from '@/composables/Volumes';
-const {state, pagedVolumes} = VolumeState();
+import DpButton from '@/components/dp-button.vue'
+import DpPagination from '@/components/dp-pagination.vue'
+import DpActionDialog from '@/components/dp-action-dialog.vue'
+import { useRouter } from 'vue-router'
+import { VolumeState } from '@/composables/Volumes'
+
+const router = useRouter()
+
+const { state, dialog, pagedVolumes, removeVolume } = VolumeState()
+
+const createVolume = () => router.push('/dashboard/volumes/create')
+const inspectVolume = (name: string) => router.push(`/dashboard/volumes/${name}`)
 
 const columns = [
   { key: 'name', label: '名称', width: 140 },
@@ -52,12 +61,10 @@ const columns = [
   { key: 'containers', label: '容器', width: 100 },
   { key: 'actions', label: '操作', flex: 1 }
 ]
-
 </script>
 
 <style scoped>
-
-.btn{
+.btn {
   width: 140px;
   display: flex;
   align-items: center;
@@ -86,6 +93,15 @@ const columns = [
 .col-size { width: 80px; }
 .col-containers { width: 100px; }
 
+/* 内容超长时截断显示省略号，鼠标悬停可见完整文本 */
+.td-ellipsis {
+  display: inline-block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
 .td-muted {
   color: var(--text-muted);
 }
@@ -100,5 +116,4 @@ const columns = [
   align-items: center;
   gap: 16px;
 }
-
 </style>

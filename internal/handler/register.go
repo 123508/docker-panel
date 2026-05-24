@@ -14,6 +14,9 @@ type Dependencies struct {
 	ImageSvc     *service.ImageService
 	VolumeSvc    *service.VolumeService
 	NetworkSvc   *service.NetworkService
+	ComposeSvc   *service.ComposeService
+	UserSvc      service.UserService
+	Recent       *service.RecentContainers // 最近操作容器 LRU，用于仪表盘活跃容器
 }
 
 // NewRouter 创建并配置 gin.Engine，注册所有中间件和 HTTP 路由
@@ -24,22 +27,27 @@ func NewRouter(deps Dependencies) *gin.Engine {
 	r.Use(LoggerMiddleware())
 	r.Use(CORSMiddleware())
 
-	containerH := NewContainerHandler(deps.ContainerSvc)
+	containerH := NewContainerHandler(deps.ContainerSvc, deps.Recent)
 	imageH := NewImageHandler(deps.ImageSvc)
 	volumeH := NewVolumeHandler(deps.VolumeSvc)
 	networkH := NewNetworkHandler(deps.NetworkSvc)
+	composeH := NewComposeHandler(deps.ComposeSvc)
+	userH := NewUserHandler(deps.UserSvc)
 
 	apiGroup := r.Group("/api")
 	{
 		apiGroup.GET("/health", healthHandler)
+		apiGroup.POST("/login", userH.Login)
 	}
 
 	v1 := apiGroup.Group("/v1")
+	v1.Use(AuthMiddleware())
 	{
 		RegisterContainerRoutes(v1, containerH)
 		RegisterImageRoutes(v1, imageH)
 		RegisterVolumeRoutes(v1, volumeH)
 		RegisterNetworkRoutes(v1, networkH)
+		RegisterComposeRoutes(v1, composeH)
 	}
 
 	return r
@@ -51,6 +59,7 @@ func RegisterContainerRoutes(rg *gin.RouterGroup, h *ContainerHandler) {
 	{
 		containers.GET("", h.List)
 		containers.POST("", h.Create)
+		containers.GET("/recent", h.RecentContainers) // 必须在 /:id 之前注册，避免被通配符匹配
 		containers.GET("/:id", h.Inspect)
 		containers.DELETE("/:id", h.Remove)
 		containers.POST("/:id/start", h.Start)
@@ -61,6 +70,7 @@ func RegisterContainerRoutes(rg *gin.RouterGroup, h *ContainerHandler) {
 		containers.POST("/:id/unpause", h.Unpause)
 		containers.POST("/:id/rename", h.Rename)
 		containers.GET("/:id/logs", h.Logs)
+		containers.GET("/:id/logs/ws", h.LogsWS)
 		containers.POST("/:id/exec", h.Exec)
 		containers.GET("/:id/terminal", h.Terminal)
 		containers.GET("/:id/top", h.Top)
@@ -92,6 +102,7 @@ func RegisterVolumeRoutes(rg *gin.RouterGroup, h *VolumeHandler) {
 	{
 		volumes.GET("", h.List)
 		volumes.POST("", h.Create)
+		volumes.GET("/:name/containers", h.Containers)
 		volumes.GET("/:name", h.Inspect)
 		volumes.DELETE("/:name", h.Remove)
 	}
@@ -107,6 +118,22 @@ func RegisterNetworkRoutes(rg *gin.RouterGroup, h *NetworkHandler) {
 		networks.DELETE("/:id", h.Remove)
 		networks.POST("/:id/connect", h.Connect)
 		networks.POST("/:id/disconnect", h.Disconnect)
+	}
+}
+
+// RegisterComposeRoutes 注册 compose 路由
+func RegisterComposeRoutes(rg *gin.RouterGroup, h *ComposeHandler) {
+	compose := rg.Group("/compose/projects")
+	{
+		compose.GET("", h.List)
+		compose.POST("", h.Upload)
+		compose.GET("/:name/ps", h.PS)
+		compose.GET("/:name/logs", h.Logs)
+		compose.POST("/:name/up", h.Up)
+		compose.POST("/:name/stop", h.Stop)
+		compose.POST("/:name/restart", h.Restart)
+		compose.POST("/:name/scale", h.Scale)
+		compose.DELETE("/:name", h.Down)
 	}
 }
 

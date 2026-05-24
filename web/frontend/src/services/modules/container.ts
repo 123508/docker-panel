@@ -94,16 +94,8 @@ export interface ContainerConfig {
 export interface NetworkSettings {
     bridge: string;
     sandbox_id: string;
-    hairpin_mode: boolean;
-    link_local_ipv6_address: string;
-    link_local_ipv6_prefix_len: number;
     ports: Record<string, PortBinding[]>;
     sandbox_key: string;
-    ip_address: string;
-    ip_prefix_len: number;
-    ipv6_gateway: string;
-    gateway: string;
-    mac_address: string;
     networks: Record<string, EndpointSettings>;
 }
 
@@ -299,6 +291,13 @@ export interface ContainerExecRequest {
 // 3.3.1 容器列表
 export async function getContainerList(params?: ContainerListRequest): Promise<any> {
     const res = await call("GET", "/api/v1/containers", params).unwrap()
+    return res
+}
+
+// 获取最近操作过的容器列表（LRU）
+// 后端在每次容器操作（启动/停止/重启/删除/exec 等）成功后将容器 ID 记录到 LRU 中
+export async function getRecentContainers(): Promise<any> {
+    const res = await call("GET", "/api/v1/containers/recent", null).unwrap()
     return res
 }
 

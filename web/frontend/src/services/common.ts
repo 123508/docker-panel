@@ -38,7 +38,7 @@ export function call<T>(
     const promise = (async () => {
         try {
             const reqConfig: any = { method, url: endpoint }
-            if (method.toUpperCase() === 'GET') {
+            if (method.toUpperCase() === 'GET' || method.toUpperCase() === 'DELETE') {
                 reqConfig.params = data
             } else {
                 reqConfig.data = data
