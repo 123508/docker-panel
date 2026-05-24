@@ -61,58 +61,168 @@ docker-panel/
 - **认证**: JWT（登录后 Bearer Token）
 - **配置**: Viper (TOML 格式)
 - **部署**: 单个可执行文件（`//go:embed` 内嵌前端静态资源）
-- **CI**: GitHub Actions（前端构建 → 测试 → 编译 → Lint）
 
 ## 功能特性
 
-### 容器管理
-- 容器列表查看（全部/运行中），状态、端口、挂载点一目了然
-- 容器创建（支持端口映射、卷挂载、环境变量、资源限制等完整配置）
-- 容器详情查看（配置、网络、挂载、进程列表等完整信息）
-- 容器生命周期管理：启动 / 停止 / 强制停止 / 重启 / 暂停 / 恢复
-- 容器删除（支持强制删除 + 删除关联卷）
-- 容器重命名
-- 实时日志查看（支持 WebSocket 流式输出）
-- Web 终端（WebSocket 交互式 Shell）
-- 容器内执行命令（exec）
-- 容器导出
-- 最近操作容器（仪表盘 LRU 缓存）
+### 功能特性
 
-### 镜像管理
-- 镜像列表查看
-- 镜像详情（配置、层级、历史等信息）
-- 拉取镜像（支持指定标签）
-- 删除镜像
-- 标记镜像（tag）
-- 推送镜像到仓库
-- 镜像导出 / 导入 / 加载
+**容器管理**
+- 容器列表查看，状态、端口、挂载点信息展示
+- 容器创建
+- 容器详情查看
+- 容器生命周期管理
+- 容器删除
+- 实时日志查看
 
-### 数据卷管理
-- 卷列表
-- 创建卷
-- 查看卷详情
-- 删除卷
+**镜像管理**
+- 镜像列表与详情
+- 拉取 / 删除 镜像
+- 运行镜像
 
-### 网络管理
-- 网络列表
-- 创建网络
-- 网络详情
-- 删除网络
-- 容器接入/断开网络
+**数据卷管理**
+- 卷列表、创建、详情查看、删除
 
-### Docker Compose
-- Compose 项目列表
-- 上传 Compose 文件
-- 查看项目状态 (`ps`)、日志
-- 启动 / 停止 / 重启 / 弹性伸缩 (`scale`)
-- 删除项目 (`down`，自动清理容器和目录)
+**网络管理**
+- 网络列表、创建、详情查看、删除
+- 容器接入 / 断开网络
 
-### 用户认证
+**Docker Compose**
+- Compose 项目列表与上传
+- 项目状态查看、日志、启动 / 停止
+- 删除项目
+
+**用户认证**
 - JWT 登录认证
 - 首次运行自动创建管理员账号
 - 前端路由守卫（未登录自动跳转登录页）
 
+**仪表盘**
+- 系统概览
+- 活跃容器
+
 ## 快速开始
+
+### 方式一：二进制文件运行
+
+从 [GitHub Releases](https://github.com/123508/docker-panel/releases) 页面下载对应平台的压缩包，解压后直接运行。
+
+**Linux x86_64：**
+
+```bash
+curl -LO https://github.com/123508/docker-panel/releases/latest/download/docker-panel-linux-amd64.tar.gz
+tar -xzf docker-panel-linux-amd64.tar.gz
+./docker-panel
+```
+
+**Linux ARM64：**
+
+```bash
+curl -LO https://github.com/123508/docker-panel/releases/latest/download/docker-panel-linux-arm64.tar.gz
+tar -xzf docker-panel-linux-arm64.tar.gz
+./docker-panel
+```
+
+**macOS（Intel）：**
+
+```bash
+curl -LO https://github.com/123508/docker-panel/releases/latest/download/docker-panel-darwin-amd64.tar.gz
+tar -xzf docker-panel-darwin-amd64.tar.gz
+./docker-panel
+```
+
+**macOS（Apple Silicon）：**
+
+```bash
+curl -LO https://github.com/123508/docker-panel/releases/latest/download/docker-panel-darwin-arm64.tar.gz
+tar -xzf docker-panel-darwin-arm64.tar.gz
+./docker-panel
+```
+
+**Windows：**
+
+下载 `docker-panel-windows-amd64.zip`，解压后运行 `docker-panel-windows-amd64.exe`。
+
+### 方式二：Docker 运行
+
+**Linux / macOS：**
+
+```bash
+docker run -d \
+  --name docker-panel \
+  -p 8080:8080 \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  -v docker-panel-data:/app \
+  docker-panel:1.0.0
+```
+
+**Windows PowerShell：**
+
+```powershell
+docker run -d `
+  --name docker-panel `
+  -p 8080:8080 `
+  -v /var/run/docker.sock:/var/run/docker.sock `
+  -v docker-panel-data:/app `
+  docker-panel:1.0.0
+```
+
+**Windows CMD：**
+
+```cmd
+docker run -d ^
+  --name docker-panel ^
+  -p 8080:8080 ^
+  -v /var/run/docker.sock:/var/run/docker.sock ^
+  -v docker-panel-data:/app ^
+  docker-panel:1.0.0
+```
+
+### 参数说明
+
+- `/var/run/docker.sock` — 挂载宿主机 Docker Unix socket，使容器内可访问宿主机 Docker 守护进程
+- `docker-panel-data:/app` — 命名卷持久化 SQLite 数据库，容器删除后数据不丢失
+- `-p 8080:8080` — 端口映射，左侧宿主机端口可按需修改（如 `-p 8081:8080`）
+
+### 访问应用
+
+首次运行时，程序会自动生成 `config.toml` 配置文件和 `docker-panel.db` 数据库，并创建管理员账号。
+
+```
+http://localhost:8080
+```
+
+默认管理员账号：
+- 用户名: `admin`
+- 密码：首次运行自动随机生成，保存在 `config.toml` 的 `admin_password` 字段中
+
+## 配置文件
+
+程序首次运行时会在当前目录自动生成 `config.toml`（密码随机生成）：
+
+```toml
+[user]
+admin_username = "admin"
+admin_password = "your_password"    # 首次运行自动随机生成
+
+[server]
+bind_ip = "0.0.0.0"
+bind_port = "8080"
+debug = false
+
+[jwt]
+secret = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"    # 首次运行自动随机生成
+```
+
+### 配置说明
+
+- `user.admin_username` — 管理员账号
+- `user.admin_password` — 管理员密码（首次运行自动随机生成；如需重置，直接修改此字段后重启即可）
+- `server.bind_ip` — 服务器绑定 IP
+- `server.bind_port` — 服务器端口
+- `server.debug` — 调试模式开关
+- `jwt.secret` — JWT 签名密钥（首次运行自动随机生成 64 位十六进制字符串）
+
+## 开发指南
 
 ### 1. 安装依赖
 
@@ -155,40 +265,7 @@ go run main.go
 go run main.go -mode debug
 ```
 
-### 3. 访问应用
-
-首次运行时，程序会自动生成 `config.toml` 配置文件和 `docker-panel.db` 数据库，并创建管理员账号。
-
-```
-http://localhost:8080
-```
-
-默认管理员账号：
-- 用户名: `admin`
-- 密码: `admin123`
-
-## 配置文件
-
-程序首次运行时会在当前目录自动生成 `config.toml`：
-
-```toml
-[user]
-admin_username = "admin"
-admin_password = "admin123"
-
-[server]
-bind_ip = "0.0.0.0"
-bind_port = "8080"
-```
-
-### 配置说明
-
-- `user.admin_username` — 管理员账号
-- `user.admin_password` — 管理员密码
-- `server.bind_ip` — 服务器绑定 IP
-- `server.bind_port` — 服务器端口
-
-## 构建发布版本
+### 3. 构建发布版本
 
 ```bash
 # 1. 构建前端
@@ -204,6 +281,12 @@ go build -o docker-panel
 ```
 
 构建后的单文件已包含所有前端资源，可直接分发部署。
+
+### 4. Docker 镜像构建
+
+```bash
+docker build -t docker-panel:1.0.0 .
+```
 
 ## API 概览
 
