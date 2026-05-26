@@ -144,6 +144,14 @@ tar -xzf docker-panel-darwin-arm64.tar.gz
 
 ### 方式二：Docker 运行
 
+拉取镜像
+
+```bash
+docker pull li123508/docker-panel:1.0.0
+```
+
+运行
+
 **Linux / macOS：**
 
 ```bash
@@ -152,7 +160,7 @@ docker run -d \
   -p 8080:8080 \
   -v /var/run/docker.sock:/var/run/docker.sock \
   -v docker-panel-data:/app \
-  docker-panel:1.0.0
+  li123508/docker-panel:1.0.0
 ```
 
 **Windows PowerShell：**
@@ -163,7 +171,7 @@ docker run -d `
   -p 8080:8080 `
   -v /var/run/docker.sock:/var/run/docker.sock `
   -v docker-panel-data:/app `
-  docker-panel:1.0.0
+  li123508/docker-panel:1.0.0
 ```
 
 **Windows CMD：**
@@ -174,7 +182,7 @@ docker run -d ^
   -p 8080:8080 ^
   -v /var/run/docker.sock:/var/run/docker.sock ^
   -v docker-panel-data:/app ^
-  docker-panel:1.0.0
+  li123508/docker-panel:1.0.0
 ```
 
 ### 参数说明
