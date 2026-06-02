@@ -1,5 +1,7 @@
 # Docker 可视化面板
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 Docker 容器管理的可视化 Web 面板，提供对容器、镜像、数据卷、网络和 Docker Compose 的完整管理能力。
 
 ## 项目结构
