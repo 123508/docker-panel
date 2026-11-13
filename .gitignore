@@ -38,7 +38,7 @@ web/dist/
 
 # Agent files
 .opencode
-.codex
+.codex*
 .claude
 AGENTS.md
 CLAUDE.md

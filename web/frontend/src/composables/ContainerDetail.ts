@@ -1,7 +1,9 @@
+import { confirmAction } from '@/composables/confirmAction'
 import { computed, onBeforeUnmount, reactive, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import {
   createContainerLogsWebSocket,
+  DockerLogDecoder,
   getContainerDetailPage,
   removeContainerById,
   restartContainerById,
@@ -127,7 +129,7 @@ export function ContainerDetailState(containerIdRef: () => string) {
   })
 
   const logLines = computed(() => {
-    const rawLines = String(state.logs || '')
+    const rawLines = String(state.logs || '').replace(/\x1b\[[0-?]*[ -/]*[@-~]/g, '')
       .split(/\r?\n/)
       .map((line) => line.trim())
       .filter(Boolean)
@@ -161,14 +163,15 @@ export function ContainerDetailState(containerIdRef: () => string) {
     closeLogsWS()
     shouldReconnectLogs = true
 
-    const ws = createContainerLogsWebSocket(id, { tail: '100', timestamps: true })
+    const decoder = new DockerLogDecoder(!!state.detail?.config?.tty)
+    const ws = createContainerLogsWebSocket(id, { tail: '0', timestamps: true })
     logsWS = ws
 
     ws.onmessage = (event) => {
-      const text = typeof event.data === 'string' ? event.data : ''
+      const text = event.data instanceof ArrayBuffer ? decoder.push(event.data) : (typeof event.data === 'string' ? event.data : '')
       if (!text) return
 
-      state.logs = `${state.logs}${state.logs.endsWith('\n') || state.logs === '' ? '' : '\n'}${text}`
+      state.logs += text
       const lines = state.logs.split(/\r?\n/)
       if (lines.length > 1200) {
         state.logs = lines.slice(-1000).join('\n')
@@ -221,6 +224,7 @@ export function ContainerDetailState(containerIdRef: () => string) {
   const stop = async () => {
     const id = containerIdRef()
     if (!id) return
+    if (!await confirmAction('停止', `容器 ${displayName.value}`, '容器中的服务将暂时不可用。')) return
     try {
       state.actionLoading = true
       await stopContainerById(id)
@@ -236,6 +240,7 @@ export function ContainerDetailState(containerIdRef: () => string) {
   const restart = async () => {
     const id = containerIdRef()
     if (!id) return
+    if (!await confirmAction('重启', `容器 ${displayName.value}`, '容器中的服务会短暂中断。')) return
     try {
       state.actionLoading = true
       await restartContainerById(id)

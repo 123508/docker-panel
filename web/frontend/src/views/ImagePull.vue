@@ -33,6 +33,10 @@
       <p class="empty-text">输入镜像名称开始搜索</p>
       <p class="empty-sub">支持搜索 Docker Hub 官方镜像，如 nginx、redis、postgres</p>
     </div>
+    <div v-else-if="state.searchError" class="empty-state">
+      <p class="empty-text">镜像搜索失败</p>
+      <p class="empty-sub">{{ state.searchError }}，请稍后重试</p>
+    </div>
     <div v-else-if="state.results.length === 0" class="empty-state">
       <p class="empty-text">未找到匹配的镜像</p>
       <p class="empty-sub">请尝试其他关键词</p>

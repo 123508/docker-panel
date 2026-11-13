@@ -12,24 +12,24 @@
 
     <div class="login-card">
       <div class="header">
-        <h1 class="title">Docker Panel</h1>
-        <p class="subtitle">登录以管理您的容器</p>
+        <div class="login-mark">▦</div><div class="login-kicker">CONTAINER WORKSPACE</div><h1 class="title">欢迎回来</h1>
+        <p class="subtitle">登录 Docker Panel，继续管理你的工作空间</p>
       </div>
 
       <div class="form">
         <div class="form-group">
           <label class="label">用户名</label>
           <div class="input-wrapper">
-            <input type="text" class="input" placeholder="请输入用户名" v-model="username" @keyup.enter="handleLogin" />
+            <input type="text" autocomplete="username" class="input" placeholder="请输入用户名" v-model="username" @keyup.enter="handleLogin" />
           </div>
         </div>
 
         <div class="form-group">
           <label class="label">密码</label>
           <div class="input-wrapper">
-            <input :type="showPassword ? 'text' : 'password'" class="input" placeholder="请输入密码" v-model="password" @keyup.enter="handleLogin" />
-            <button class="eye-btn" @click="showPassword = !showPassword" type="button">
-              <dp-icon :name="showPassword ? 'eye' : 'eye-off'" size="18"/>
+            <input :type="showPassword ? 'text' : 'password'" autocomplete="current-password" class="input" placeholder="请输入密码" v-model="password" @keyup.enter="handleLogin" />
+            <button class="eye-btn" :aria-label="showPassword ? '隐藏密码' : '显示密码'" @click="showPassword = !showPassword" type="button">
+              {{ showPassword ? '隐藏' : '显示' }}
             </button>
           </div>
         </div>
@@ -259,4 +259,16 @@ const handleLogin = async () => {
   margin-top: -10px;
   margin-bottom: -10px;
 }
+</style>
+
+<style scoped>
+.login-container { min-height: 100vh; height: auto; padding: 72px 20px; background: radial-gradient(ellipse at 20% 10%, var(--login-glow-one), transparent 42%), radial-gradient(ellipse at 85% 85%, var(--login-glow-two), transparent 36%), var(--bg-body); }
+.login-card { width: min(440px, 100%); padding: 44px; border-radius: 20px; background: var(--bg-card); box-shadow: 0 24px 70px #05172b24; }
+.login-mark { width: 48px; height: 48px; display: grid; place-items: center; border-radius: 14px; background: var(--brand-gradient); box-shadow: 0 8px 20px var(--brand-shadow); color: var(--brand-icon-text); font-size: 30px; margin-bottom: 12px; }
+.login-kicker { font: 700 10px var(--font-mono); letter-spacing: 1.4px; color: var(--accent); }
+.title { font-family: var(--font-display), sans-serif; font-size: 27px; }
+.subtitle { font-family: var(--font-display), sans-serif; font-size: 13px; }
+.input-wrapper { height: 46px; border-radius: 9px; background: var(--bg-body); }
+.btn { height: 46px; border-radius: 9px; }
+@media (max-width: 480px) { .login-card { padding: 30px 24px; } }
 </style>

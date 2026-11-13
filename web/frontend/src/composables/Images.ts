@@ -1,3 +1,4 @@
+import { confirmAction } from '@/composables/confirmAction'
 import { reactive, computed, onMounted } from 'vue'
 import { getImageList, pullImage as apiPullImage, removeImage as apiRemoveImage } from '@/services/modules/image'
 import { createContainer, startContainer } from '@/services/modules/container'
@@ -47,7 +48,6 @@ export function ImageState() {
             size: (img.size / 1024 / 1024).toFixed(2) + ' MB',
             rawSize: img.size,
             created: new Date(img.created * 1000).toLocaleString(),
-            color: '#3B82F6',
             dangling: repo === '<none>' && tag === '<none>'
           }
         })
@@ -59,9 +59,11 @@ export function ImageState() {
       }
     } catch (e: any) {
       ElMessage.error(e.message || '获取镜像列表失败')
+      return false
     } finally {
       state.loading = false
     }
+    return true
   }
 
   onMounted(() => {
@@ -70,6 +72,7 @@ export function ImageState() {
 
   const removeImage = async (id: string) => {
     const shortId = id.replace('sha256:', '').substring(0, 12)
+    if (!await confirmAction('移除', `镜像 ${shortId}`, '镜像将被删除，正在使用该镜像的资源可能受到影响。')) return
     await runWithDialog(
       {
         title: '移除镜像',
@@ -85,7 +88,7 @@ export function ImageState() {
   }
 
   const searchImages = async () => {
-    await loadData()
+    if (await loadData()) ElMessage.success('镜像列表已更新')
   }
 
   const pullImage = async () => {
@@ -120,10 +123,13 @@ export function ImageState() {
 
   const runImage = async (imageRef: string, imageName?: string) => {
     const display = imageName || imageRef
+    let startedName = ''
+    let startedId = ''
     await runWithDialog(
       {
         title: '运行镜像',
         pendingText: `正在启动镜像 ${display}，请稍候...`,
+        successText: () => `✅ 成功启动容器:\n名称: ${startedName}\nID: ${startedId}`,
         failureText: (e) => `❌ 运行镜像失败: \n${e?.message || '未知错误'}`
       },
       async () => {
@@ -141,8 +147,8 @@ export function ImageState() {
           throw new Error('创建容器后未返回容器 ID')
         }
         await startContainer(containerId)
-        // 成功文案需要拿到 containerId 才能拼出来，这里直接覆盖
-        dialog.content = `✅ 成功启动容器: \n名称: ${name}\nID: ${containerId}`
+        startedName = name
+        startedId = containerId
       }
     )
   }

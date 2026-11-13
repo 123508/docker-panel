@@ -10,13 +10,14 @@
     />
 
     <!-- 清空 -->
-    <span
+    <button
+        type="button" aria-label="清空搜索"
         v-if="clearable && modelValue"
         class="clear"
         @click="onClear"
     >
       ✕
-    </span>
+    </button>
   </div>
 </template>
 
@@ -70,6 +71,8 @@ function onClear() {
 
   padding: 10px 14px;
   width: 240px;
+  max-width: 100%;
+  border-radius: 9px;
 
   gap: 8px;
 }

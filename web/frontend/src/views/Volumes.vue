@@ -10,14 +10,14 @@
 
     <dp-data-table :bordered="false" header-bg row-gap fixed-row-height :columns="columns">
       <div v-for="v in pagedVolumes" :key="v.name" class="table-row">
-        <span class="td col-name td-ellipsis" :title="v.name">{{ v.name }}</span>
-        <span class="td col-driver td-muted td-ellipsis" :title="v.driver">{{ v.driver }}</span>
-        <span class="td col-mount td-dim td-ellipsis" :title="v.mountpoint">{{ v.mountpoint }}</span>
-        <span class="td col-size td-ellipsis" :title="v.size">{{ v.size }}</span>
-        <div class="td col-containers">
+        <span class="td col-name td-ellipsis" data-label="名称" :title="v.name">{{ v.name }}</span>
+        <span class="td col-driver td-muted td-ellipsis" data-label="驱动" :title="v.driver">{{ v.driver }}</span>
+        <span class="td col-mount td-dim td-ellipsis" data-label="挂载点" :title="v.mountpoint">{{ v.mountpoint }}</span>
+        <span class="td col-size td-ellipsis" data-label="大小" :title="v.size">{{ v.size }}</span>
+        <div class="td col-containers" data-label="容器">
           <dp-count-badge :count="v.containers" />
         </div>
-        <div class="td td-actions" style="flex: 1">
+        <div class="td td-actions" data-label="操作" style="flex: 1">
           <dp-button text="查看" size="small" variant="text" type="info" @click="inspectVolume(v.name)" />
           <dp-button text="移除" size="small" variant="text" type="danger" @click="removeVolume(v.name)" />
         </div>

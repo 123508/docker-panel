@@ -10,7 +10,7 @@ html, body {
   height: 100%;
   background: var(--bg-body);
   color: var(--text-primary);
-  font-family: var(--font-mono);
+  font-family: var(--font-display), "Microsoft YaHei", sans-serif;
   font-size: 14px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
@@ -64,3 +64,32 @@ table {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--text-secondary);
 }
+
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+/* 统一详情和创建页面的卡片、控件与布局 */
+.content .detail-title, .content .create-title { font-size: 30px; line-height: 1.2; overflow-wrap: anywhere; }
+.content .status-card, .content .info-grid-card, .content .table-card,
+.content .form-card, .content .code-block, .content .placeholder { border-radius: 14px; overflow: hidden; }
+.content .status-dot { border-radius: 50%; }
+.content .field-input, .content .field-textarea, .content .form-content input,
+.content .form-content select, .content .restart-btn, .content .remove-btn { border-radius: 8px; }
+.content .field-input:focus, .content .field-textarea:focus, .content .form-content input:focus,
+.content .form-content select:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+.content .detail-header, .content .create-header { flex-wrap: wrap; }
+.content .title-wrap { min-width: 0; }
+@media (max-width: 700px) {
+  .content .detail-page, .content .create-page { height: auto; min-height: 100vh; overflow: visible; padding: 24px 18px; gap: 24px; }
+  .content .detail-title, .content .create-title { font-size: 26px; }
+  .content .detail-header, .content .create-header { align-items: flex-start; }
+  .content .status-card { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .content .info-row { grid-template-columns: minmax(0, 1fr); gap: 8px; }
+  .content .form-card { padding: 20px; }
+  .content .row-group { flex-wrap: wrap; }
+  .content .row-group .field-input { min-width: 0; }
+  .content .header-actions { flex-wrap: wrap; }
+}
+
+.service-detail-dialog .el-message-box__message p { white-space: pre-line; }
+
+html:not(.light) .el-button--primary { --el-button-text-color: var(--accent-text); --el-button-hover-text-color: var(--accent-text); --el-button-active-text-color: var(--accent-text); }

@@ -1,3 +1,4 @@
+import { confirmAction } from '@/composables/confirmAction'
 import { reactive, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import {
@@ -105,9 +106,11 @@ export function DashboardState() {
       ]
     } catch (e: any) {
       ElMessage.error(e.message || '获取 Dashboard 数据失败')
+      return false
     } finally {
       state.loading = false
     }
+    return true
   }
 
   onMounted(() => {
@@ -128,6 +131,7 @@ export function DashboardState() {
   }
 
   const stopContainer = async (id: string) => {
+    if (!await confirmAction('停止', `容器 ${id.substring(0, 12)}`, '容器中的服务将暂时不可用。')) return
     try {
       state.actionLoading = true
       await apiStopContainer(id)
@@ -141,6 +145,7 @@ export function DashboardState() {
   }
 
   const restartContainer = async (id: string) => {
+    if (!await confirmAction('重启', `容器 ${id.substring(0, 12)}`, '容器中的服务会短暂中断。')) return
     try {
       state.actionLoading = true
       await apiRestartContainer(id)
@@ -154,6 +159,7 @@ export function DashboardState() {
   }
 
   const removeContainer = async (id: string) => {
+    if (!await confirmAction('移除', `容器 ${id.substring(0, 12)}`, '容器将被删除，此操作无法撤销。')) return
     try {
       state.actionLoading = true
       await apiRemoveContainer(id, { force: true })

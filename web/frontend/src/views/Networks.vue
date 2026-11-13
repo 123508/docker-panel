@@ -10,15 +10,15 @@
 
     <dp-data-table :bordered="false" header-bg row-gap fixed-row-height :columns="columns">
       <div v-for="n in pagedNetworks" :key="n.name" class="table-row">
-        <span class="td col-name td-ellipsis" :title="n.name">{{ n.name }}</span>
-        <span class="td col-driver td-muted td-ellipsis" :title="n.driver">{{ n.driver }}</span>
-        <span class="td col-scope td-muted td-ellipsis" :title="n.scope">{{ n.scope }}</span>
-        <span class="td col-subnet td-dim td-ellipsis" :title="n.subnet">{{ n.subnet }}</span>
-        <span class="td col-gateway td-dim td-ellipsis" :title="n.gateway">{{ n.gateway }}</span>
-        <div class="td col-containers">
+        <span class="td col-name td-ellipsis" data-label="名称" :title="n.name">{{ n.name }}</span>
+        <span class="td col-driver td-muted td-ellipsis" data-label="驱动" :title="n.driver">{{ n.driver }}</span>
+        <span class="td col-scope td-muted td-ellipsis" data-label="范围" :title="n.scope">{{ n.scope }}</span>
+        <span class="td col-subnet td-dim td-ellipsis" data-label="子网" :title="n.subnet">{{ n.subnet }}</span>
+        <span class="td col-gateway td-dim td-ellipsis" data-label="网关" :title="n.gateway">{{ n.gateway }}</span>
+        <div class="td col-containers" data-label="容器">
           <dp-count-badge :count="n.containers" />
         </div>
-        <div class="td td-actions" style="flex: 1">
+        <div class="td td-actions" data-label="操作" style="flex: 1">
           <dp-button text="查看" size="small" variant="text" type="info" @click="inspectNetwork(n.id)" />
           <dp-button
             text="移除"

@@ -1,4 +1,5 @@
 import { call } from "../common"
+import { http } from "../api"
 
 /* ==================== 数据结构定义 ==================== */
 
@@ -119,8 +120,24 @@ export async function getImageInspect(id: string): Promise<any> {
 
 // 4.2.3 拉取镜像（流式）
 export async function pullImage(data: ImagePullRequest): Promise<any> {
-    const res = await call("POST", "/api/v1/images/pull", data).unwrap()
-    return res
+    const response = await http.post('/api/v1/images/pull', data, {
+        responseType: 'text',
+        transformResponse: [(value) => value]
+    })
+    const lines = String(response.data || '').split(/\r?\n/).filter(line => line.trim())
+    for (const line of lines) {
+        let event: any
+        try {
+            event = JSON.parse(line)
+        } catch {
+            throw new Error('镜像拉取返回了无法解析的结果')
+        }
+        if (event.error || event.errorDetail?.message || (typeof event.code === 'number' && event.code !== 0)) {
+            throw new Error(event.errorDetail?.message || event.error || event.message || '镜像拉取失败')
+        }
+    }
+    if (!lines.length) throw new Error('镜像拉取未返回结果')
+    return response.data
 }
 
 // 4.2.4 删除镜像

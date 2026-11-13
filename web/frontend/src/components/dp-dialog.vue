@@ -111,9 +111,9 @@ const handleOk = () => {
   --text-secondary: #A0A0A0;
   --btn-default-bg: #2A2A2A;
   --btn-default-text: #E0E0E0;
-  --btn-primary-bg: #facc15; /* 截图暗色主题的黄色按钮 */
-  --btn-primary-text: #010000;
-  --btn-primary-hover: #fce72d;
+  --btn-primary-bg: var(--accent);
+  --btn-primary-text: var(--accent-text);
+  --btn-primary-hover: var(--accent-hover);
   --btn-default-hover: #3a3a3a;
 }
 

@@ -1,8 +1,9 @@
 <template>
   <div class="table-wrap"
-       :class="{ 'bordered': bordered, 'flex': flex }"
+       :class="{ 'bordered': bordered, 'flex': flex, 'has-columns': columns.length }"
        :style="{
-          height: typeof height === 'number' ? height + 'px' : height
+          height: typeof height === 'number' ? height + 'px' : height,
+          '--column-layout': columnLayout
        }">
     <div class="table-head"
          :class="{
@@ -14,10 +15,6 @@
         v-for="col in columns"
         :key="col.key"
         class="th"
-        :style="{
-        width: col.width ? col.width + 'px' : undefined,
-        flex: col.flex
-      }"
     >
       {{ col.label }}
     </span>
@@ -34,6 +31,8 @@
 
 <script setup lang="ts">
 
+  import { computed } from 'vue'
+
   defineOptions({
     name:'dp-data-table'
   })
@@ -45,7 +44,7 @@
     flex?: number
   }
 
-  withDefaults(defineProps<{
+  const props = withDefaults(defineProps<{
     headerBg?: boolean
     rowGap?: boolean
     fixedRowHeight?: boolean
@@ -58,12 +57,17 @@
     flex: true,
     columns: () => []
   })
+
+  const columnLayout = computed(() => props.columns.map((col) =>
+    col.key === 'icon' ? `${col.width || 40}px` : `minmax(0, ${col.width || 120}fr)`
+  ).join(' '))
 </script>
 
 <style scoped>
 .table-wrap {
   background: var(--bg-card);
-  overflow: hidden;
+  overflow: auto;
+  border-radius: 14px;
 
   display: flex;
   flex-direction: column;
@@ -81,7 +85,8 @@
   display: flex;
   align-items: center;
   padding: 0 20px;
-  height: 44px;
+  min-width: 0;
+  height: 52px;
   border-bottom: var(--border);
   flex-shrink: 0;
   position: sticky;
@@ -100,8 +105,20 @@
 
 .table-body {
   flex: 1;
-  overflow-y: auto;
+  min-width: 0;
+  overflow: visible;
   min-height: 0;
+}
+
+.has-columns .table-head,
+.has-columns .table-body :deep(.table-row) {
+  display: grid;
+  grid-template-columns: var(--column-layout);
+}
+.has-columns .table-head > .th,
+.has-columns .table-body :deep(.table-row > .td) {
+  width: auto !important;
+  min-width: 0;
 }
 
 /* Row Styles */
@@ -135,5 +152,25 @@
   font-weight: 700;
   letter-spacing: 1px;
   color: var(--text-secondary);
+}
+</style>
+
+<style scoped>
+@media (max-width: 1000px) {
+  .table-wrap { height: auto !important; min-height: 160px; overflow: visible; }
+  .table-wrap.flex { flex: initial; }
+  .has-columns .table-head { display: none; }
+  .table-body { min-width: 0; overflow: visible; }
+  .has-columns .table-body :deep(.table-row), .table-body.fixed-row-height :deep(.table-row) {
+    height: auto; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; padding: 20px;
+  }
+  .table-body :deep(.table-row:not(:last-child)) { border-bottom: var(--border); }
+  .table-body :deep(.table-row > .td) { width: auto !important; min-width: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 5px; overflow: visible; white-space: normal; overflow-wrap: anywhere; }
+  .table-body :deep(.table-row > .td::before) { content: attr(data-label); color: var(--text-secondary); font-size: 10px; font-weight: 700; letter-spacing: .4px; }
+  .table-body :deep(.table-row > [data-table-icon]) { display: none !important; }
+  .table-body :deep(.table-row > .td-actions) { grid-column: 1 / -1; display: flex; flex-direction: row; align-items: center; flex-wrap: wrap; gap: 18px; padding-top: 2px; }
+  .table-body :deep(.table-row > .td-actions::before) { display: none; }
+  .table-body :deep(.name-col) { width: 100%; }
+  .table-body :deep(.name-text), .table-body :deep(.name-id) { max-width: 100%; white-space: normal; overflow-wrap: anywhere; }
 }
 </style>

@@ -76,9 +76,10 @@ const isDisabled = computed(() => {
 .button {
   border: none;
   cursor: pointer;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
-  letter-spacing: 1px;
+  letter-spacing: 0.2px;
+  border-radius: 8px;
   transition: background-color 0.2s ease;
 }
 

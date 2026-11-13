@@ -17,24 +17,24 @@
         class="table-row"
         @click="goDetail(c.fullId)"
       >
-        <div class="td" style="width: 60px; display: flex; justify-content: center">
+        <div class="td" data-table-icon style="width: 60px; display: flex; justify-content: center">
           <div class="row-icon"></div>
         </div>
-        <div class="td" style="width: 220px">
+        <div class="td" data-label="名称" style="width: 220px">
           <div class="name-col">
             <span class="name-text" :title="c.name">{{ c.name }}</span>
             <span class="name-id" :title="c.id">{{ c.id }}</span>
           </div>
         </div>
-        <span class="td td-muted td-ellipsis" style="width: 180px" :title="c.image">{{ c.image }}</span>
-        <div class="td" style="width: 120px">
+        <span class="td td-muted td-ellipsis" data-label="镜像" style="width: 180px" :title="c.image">{{ c.image }}</span>
+        <div class="td" data-label="状态" style="width: 120px">
           <dp-status-badge :status="c.running ? 'running' : 'stopped'">
             {{ c.running ? '运行中' : '已停止' }}
           </dp-status-badge>
         </div>
-        <span class="td td-muted-sm td-ellipsis" style="width: 140px" :title="c.port">{{ c.port }}</span>
-        <span class="td td-muted-sm td-ellipsis" style="width: 140px" :title="c.created">{{ c.created }}</span>
-        <div class="td td-actions" style="flex: 1" @click.stop>
+        <span class="td td-muted-sm td-ellipsis" data-label="端口" style="width: 140px" :title="c.port">{{ c.port }}</span>
+        <span class="td td-muted-sm td-ellipsis" data-label="创建时间" style="width: 140px" :title="c.created">{{ c.created }}</span>
+        <div class="td td-actions" data-label="操作" style="flex: 1" @click.stop>
           <dp-button text="详情" size="small" type="info" variant="text" @click="goDetail(c.fullId)" />
           <template v-if="c.running">
             <dp-button text="停止" size="small" type="danger" variant="text" @click="stopContainer(c.fullId)" />
@@ -61,6 +61,7 @@
 
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
+import { ElMessage } from 'element-plus'
 import DpPageHeader from '@/components/dp-page-header.vue'
 import DpStatBar from '@/components/dp-stat-bar.vue'
 import DpDataTable from '@/components/dp-data-table.vue'
@@ -84,7 +85,7 @@ const goDetail = (id: string) => {
 }
 
 const refreshList = async () => {
-  await loadData()
+  if (await loadData()) ElMessage.success('容器列表已更新')
 }
 
 const columns = [

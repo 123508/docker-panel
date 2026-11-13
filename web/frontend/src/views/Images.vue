@@ -12,15 +12,15 @@
 
     <dp-data-table :bordered="false" header-bg row-gap fixed-row-height :columns="columns">
       <div v-for="img in pagedImages" :key="img.fullId" class="table-row">
-        <div class="td" style="width: 40px; display: flex; align-items: center">
-          <div class="row-icon" :style="{ background: img.color }"></div>
+        <div class="td" data-table-icon style="width: 40px; display: flex; align-items: center">
+          <div class="row-icon"></div>
         </div>
-        <span class="td col-repo td-ellipsis" :title="img.repo">{{ img.repo }}</span>
-        <span class="td col-tag td-muted td-ellipsis" :title="img.tag">{{ img.tag }}</span>
-        <span class="td col-id td-dim td-ellipsis" :title="img.id">{{ img.id }}</span>
-        <span class="td col-size td-ellipsis" :title="img.size">{{ img.size }}</span>
-        <span class="td col-created td-muted-sm td-ellipsis" :title="img.created">{{ img.created }}</span>
-        <div class="td td-actions" style="flex: 1">
+        <span class="td col-repo td-ellipsis" data-label="仓库" :title="img.repo">{{ img.repo }}</span>
+        <span class="td col-tag td-muted td-ellipsis" data-label="标签" :title="img.tag">{{ img.tag }}</span>
+        <span class="td col-id td-dim td-ellipsis" data-label="镜像 ID" :title="img.id">{{ img.id }}</span>
+        <span class="td col-size td-ellipsis" data-label="大小" :title="img.size">{{ img.size }}</span>
+        <span class="td col-created td-muted-sm td-ellipsis" data-label="创建时间" :title="img.created">{{ img.created }}</span>
+        <div class="td td-actions" data-label="操作" style="flex: 1">
           <dp-button text="查看" size="small" variant="text" type="info" @click="inspectImage(img.fullId)" />
           <dp-button text="运行" size="small" variant="text" type="primary" @click="runImage(img.fullId, `${img.repo}:${img.tag}`)" />
           <dp-button text="移除" size="small" variant="text" type="danger" @click="removeImage(img.fullId)" />
@@ -123,6 +123,7 @@ const columns = [
   width: 32px;
   height: 32px;
   flex-shrink: 0;
+  background: var(--image-icon-color);
 }
 
 .td-muted {

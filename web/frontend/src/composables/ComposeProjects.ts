@@ -1,3 +1,4 @@
+import { confirmAction } from '@/composables/confirmAction'
 import { reactive, computed, onMounted } from 'vue'
 import {
   getComposePS,
@@ -102,6 +103,7 @@ export function ComposeProjectState() {
   }
 
   const stopProject = async (name: string) => {
+    if (!await confirmAction('停止', `编排项目 ${name}`, '项目中的服务将暂时不可用。')) return
     try {
       await stopComposeProject(name)
       ElMessage.success(`项目 ${name} 已停止`)
@@ -112,6 +114,7 @@ export function ComposeProjectState() {
   }
 
   const restartProject = async (name: string) => {
+    if (!await confirmAction('重启', `编排项目 ${name}`, '项目中的服务会短暂中断。')) return
     try {
       await restartComposeProject(name)
       ElMessage.success(`项目 ${name} 已重启`)

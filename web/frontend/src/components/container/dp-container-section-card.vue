@@ -19,6 +19,8 @@ defineProps<{
 .card {
   background: var(--bg-card);
   border: var(--border);
+  border-radius: 14px;
+  overflow: hidden;
   padding: 16px;
 }
 

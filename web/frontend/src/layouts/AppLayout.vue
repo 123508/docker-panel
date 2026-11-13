@@ -29,3 +29,7 @@ import SideNav from './SideNav.vue'
   min-width: 0;
 }
 </style>
+
+<style scoped>
+@media (max-width: 700px) { .layout { display: block; height: auto; min-height: 100vh; } .sidebar { width: 100%; } .content { overflow: visible; } }
+</style>

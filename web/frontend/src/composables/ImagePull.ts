@@ -16,14 +16,19 @@ export function ImagePullState() {
     searching: false,
     results: [] as SearchResult[],
     searched: false,
+    searchError: '',
     pulling: ''
   })
 
   const searchImages = async () => {
     const q = state.query.trim()
-    if (!q) return
+    if (!q) {
+      ElMessage.warning('请输入镜像名称')
+      return
+    }
     state.searching = true
     state.searched = true
+    state.searchError = ''
     try {
       const url = `https://hub.docker.com/v2/repositories/library?search=${encodeURIComponent(q)}&page_size=20`
       const res = await fetch(url)
@@ -37,17 +42,9 @@ export function ImagePullState() {
         is_official: r.is_official ?? true
       }))
     } catch (e: any) {
-      // Fallback: try Docker Hub API v1 or show suggestions
-      if (state.results.length === 0) {
-        // Show a basic result with the search term as an official image suggestion
-        state.results = [{
-          name: q,
-          description: `Docker Official Image — ${q}`,
-          star_count: 0,
-          pull_count: 0,
-          is_official: true
-        }]
-      }
+      state.results = []
+      state.searchError = e?.message || '搜索镜像失败，请稍后重试'
+      ElMessage.error(state.searchError)
     } finally {
       state.searching = false
     }

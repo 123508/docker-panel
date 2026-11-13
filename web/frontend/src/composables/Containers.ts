@@ -1,3 +1,4 @@
+import { confirmAction } from '@/composables/confirmAction'
 import { reactive, computed, onMounted } from 'vue'
 import {
   getContainerList,
@@ -53,9 +54,11 @@ export function ContainerState() {
       }
     } catch (e: any) {
       ElMessage.error(e.message || '获取容器列表失败')
+      return false
     } finally {
       state.loading = false
     }
+    return true
   }
 
   onMounted(() => {
@@ -80,6 +83,7 @@ export function ContainerState() {
   }
 
   const stopContainer = async (id: string) => {
+    if (!await confirmAction('停止', `容器 ${id.substring(0, 12)}`, '容器中的服务将暂时不可用。')) return
     await runWithDialog(
       {
         title: '停止容器',
@@ -95,6 +99,7 @@ export function ContainerState() {
   }
 
   const removeContainer = async (id: string) => {
+    if (!await confirmAction('移除', `容器 ${id.substring(0, 12)}`, '容器将被删除，此操作无法撤销。')) return
     await runWithDialog(
       {
         title: '移除容器',
@@ -110,6 +115,7 @@ export function ContainerState() {
   }
 
   const restartContainer = async (id: string) => {
+    if (!await confirmAction('重启', `容器 ${id.substring(0, 12)}`, '容器中的服务会短暂中断。')) return
     await runWithDialog(
       {
         title: '重启容器',

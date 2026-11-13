@@ -87,7 +87,8 @@ import { reactive, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { getComposePS } from '@/services/modules/compose'
 import { call } from '@/services/common'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
+import { confirmAction } from '@/composables/confirmAction'
 import DpButton from '@/components/dp-button.vue'
 
 const router = useRouter()
@@ -106,8 +107,9 @@ const loadData = async () => {
   try {
     const svcList = await getComposePS(projectName)
     state.services = Array.isArray(svcList) ? svcList : []
-  } catch {
+  } catch (e: any) {
     state.services = []
+    ElMessage.error(e?.message || '获取服务状态失败')
   }
 
   try {
@@ -150,11 +152,18 @@ const statusColor = (s: string) => {
 
 const goCreate = () => router.push('/dashboard/compose/create')
 
-const viewService = (svcName: string) => {
-  ElMessage.info(`服务: ${svcName}`)
+const viewService = async (svcName: string) => {
+  const service = state.services.find(s => s.name === svcName)
+  if (!service) {
+    ElMessage.warning('未找到该服务')
+    return
+  }
+  await ElMessageBox.alert(`状态：${statusText(service.status)}\n镜像：${service.image || '-'}\n容器数：${service.containers?.length || 0}\n副本：${service.replicas ?? '-'}`, `服务 ${svcName}`, { confirmButtonText: '关闭', customClass: 'service-detail-dialog' })
 }
 
+
 const stopService = async (svcName: string) => {
+  if (!await confirmAction('停止', `服务 ${svcName}`, '服务将暂时不可用。')) return
   try {
     await call('POST', `/api/v1/compose/projects/${projectName}/stop`, { services: [svcName] }).unwrap()
     ElMessage.success(`服务 ${svcName} 已停止`)
@@ -175,6 +184,7 @@ const startService = async (svcName: string) => {
 }
 
 const restartService = async (svcName: string) => {
+  if (!await confirmAction('重启', `服务 ${svcName}`, '服务会短暂中断。')) return
   try {
     await call('POST', `/api/v1/compose/projects/${projectName}/restart`, { services: [svcName] }).unwrap()
     ElMessage.success(`服务 ${svcName} 已重启`)
